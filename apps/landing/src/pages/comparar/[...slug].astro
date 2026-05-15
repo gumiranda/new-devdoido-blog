@@ -1,0 +1,126 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, getEntry } from 'astro:content';
+import '../../styles/blog-content.css';
+
+export async function getStaticPaths() {
+  const comparisons = await getCollection('comparar');
+  return comparisons.map((c) => ({ params: { slug: c.slug }, props: { comparison: c } }));
+}
+
+const { comparison } = Astro.props;
+const { Content } = await comparison.render();
+
+const allComparisons = await getCollection('comparar');
+const relatedComps = allComparisons
+  .filter((c) => c.slug !== comparison.slug)
+  .slice(0, 3);
+
+const projectAEntry = (() => {
+  try { return getEntry('diretorio', comparison.data.projectASlug); } catch { return null; }
+})();
+const projectBEntry = (() => {
+  try { return getEntry('diretorio', comparison.data.projectBSlug); } catch { return null; }
+})();
+
+const pageUrl = `https://datacenteruberlandia.com.br/comparar/${comparison.slug}`;
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: comparison.data.title,
+    description: comparison.data.description,
+    url: pageUrl,
+    datePublished: comparison.data.pubDate.toISOString(),
+    dateModified: (comparison.data.modifiedDate ?? comparison.data.pubDate).toISOString(),
+    inLanguage: 'pt-BR',
+    about: [
+      { '@type': 'Organization', name: comparison.data.projectA, url: `https://datacenteruberlandia.com.br/diretorio/${comparison.data.projectASlug}` },
+      { '@type': 'Organization', name: comparison.data.projectB, url: `https://datacenteruberlandia.com.br/diretorio/${comparison.data.projectBSlug}` },
+    ],
+    author: { '@type': 'Organization', name: 'Data Center Uberlândia', url: 'https://datacenteruberlandia.com.br' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Data Center Uberlândia',
+      logo: { '@type': 'ImageObject', url: 'https://datacenteruberlandia.com.br/og-default.png' },
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://datacenteruberlandia.com.br/' },
+      { '@type': 'ListItem', position: 2, name: 'Comparar', item: 'https://datacenteruberlandia.com.br/comparar' },
+      { '@type': 'ListItem', position: 3, name: comparison.data.title, item: pageUrl },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title={comparison.data.title}
+  description={comparison.data.description}
+  canonical={`/comparar/${comparison.slug}`}
+  type="article"
+  publishedTime={comparison.data.pubDate.toISOString()}
+  modifiedTime={comparison.data.modifiedDate?.toISOString()}
+  jsonLd={jsonLd}
+>
+  <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 border-b border-base-300">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,oklch(var(--p)/0.08),transparent_50%)] pointer-events-none" aria-hidden="true"></div>
+    <div class="container relative mx-auto px-4 py-12 md:py-16 max-w-4xl">
+      <a href="/comparar" class="inline-flex items-center gap-1.5 text-base-content/70 hover:text-primary text-sm mb-6 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+        Comparativos
+      </a>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-3">
+        <span class="title-shimmer bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">{comparison.data.title}</span>
+      </h1>
+      <p class="text-base-content/75 max-w-2xl">{comparison.data.description}</p>
+      <div class="flex flex-wrap items-center gap-3 text-sm text-base-content/60 mt-4 font-mono">
+        <span>{comparison.data.cityA}/{comparison.data.stateA}</span>
+        <span class="text-primary font-bold">vs</span>
+        <span>{comparison.data.cityB}/{comparison.data.stateB}</span>
+        <span>·</span>
+        <time datetime={comparison.data.pubDate.toISOString()}>
+          {comparison.data.pubDate.toLocaleDateString('pt-BR', { dateStyle: 'long' })}
+        </time>
+      </div>
+    </div>
+  </section>
+
+  <article class="container mx-auto px-4 py-10 md:py-14 max-w-3xl">
+    <div class="blog-content blog-post-content max-w-[65ch]">
+      <Content />
+    </div>
+
+    <div class="mt-10 flex flex-wrap gap-3">
+      <a href={`/diretorio/${comparison.data.projectASlug}`} class="btn btn-outline btn-sm gap-1 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
+        {comparison.data.projectA} — Ficha técnica
+      </a>
+      <a href={`/diretorio/${comparison.data.projectBSlug}`} class="btn btn-outline btn-sm gap-1 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
+        {comparison.data.projectB} — Ficha técnica
+      </a>
+    </div>
+
+    {relatedComps.length > 0 && (
+      <aside class="mt-14 pt-10 border-t border-base-300/80" aria-label="Outros comparativos">
+        <p class="text-base-content/60 text-sm mb-2">Outros comparativos:</p>
+        <h2 class="text-lg font-semibold text-base-content mb-4">Veja também</h2>
+        <ul class="space-y-3" role="list">
+          {relatedComps.map((c) => (
+            <li>
+              <a
+                href={`/comparar/${c.slug}`}
+                class="group flex items-baseline gap-2 rounded-lg py-2 text-base-content/80 hover:text-base-content transition-colors"
+              >
+                <span class="text-primary opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                <span class="font-medium">{c.data.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    )}
+  </article>
+</BaseLayout>

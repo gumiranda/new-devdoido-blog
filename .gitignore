@@ -1,0 +1,6 @@
+node_modules
+apps/landing/dist
+apps/api/dist
+
+.env
+.astro

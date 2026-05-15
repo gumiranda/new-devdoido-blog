@@ -1,0 +1,247 @@
+---
+import Icon from './Icon.astro';
+
+const noiseSources = [
+  {
+    source: 'Sistemas de Resfriamento',
+    description: 'Ventiladores industriais, chillers e torres de resfriamento operam 24 horas por dia, 7 dias por semana, gerando ruído contínuo de baixa frequência que atravessa paredes e janelas.',
+  },
+  {
+    source: 'Geradores de Backup',
+    description: 'Geradores a diesel ou turbinas a gás são acionados em testes periódicos e durante quedas de energia, produzindo picos de ruído intenso.',
+  },
+  {
+    source: 'Equipamentos de Ventilação',
+    description: 'Exaustores e sistemas HVAC de grande porte mantêm a temperatura dos servidores, funcionando ininterruptamente com ruído constante.',
+  },
+  {
+    source: 'Transformadores e Subestações',
+    description: 'Equipamentos elétricos de alta potência (100-400 MW no caso da RT-One) geram zumbido característico de baixa frequência.',
+  },
+];
+
+const healthEffects = [
+  {
+    icon: 'moon',
+    effect: 'Distúrbios do Sono',
+    description: 'Ruído noturno, mesmo em níveis moderados, pode tornar o sono mais superficial e reduzir os estágios profundos essenciais para recuperação do organismo.',
+    source: 'ICB/UFMG',
+  },
+  {
+    icon: 'brain',
+    effect: 'Estresse e Ansiedade',
+    description: 'Exposição prolongada a ruído constante pode levar ao estresse crônico e aumentar o risco de transtornos mentais.',
+    source: 'OMS',
+  },
+  {
+    icon: 'heart-pulse',
+    effect: 'Riscos Cardiovasculares',
+    description: 'Níveis elevados de ruído estão associados a maior risco de doenças cardiovasculares, incluindo hipertensão e problemas cardíacos.',
+    source: 'OMS/ICB/UFMG',
+  },
+  {
+    icon: 'house',
+    effect: 'Qualidade de Vida',
+    description: 'Moradores relatam necessidade de manter janelas fechadas, dificuldade em atividades ao ar livre e impossibilidade de desfrutar do próprio quintal.',
+    source: 'Relatos de comunidades nos EUA',
+  },
+];
+
+const realWorldCases = [
+  {
+    location: 'Aurora, Illinois (EUA)',
+    description: 'Após semanas de reclamações de moradores, a cidade aprovou novas regras com limites de ruído: 56 dB durante o dia e 46 dB à noite na divisa do terreno.',
+    year: '2025',
+  },
+  {
+    location: 'Sterling, Virginia (EUA)',
+    description: 'Moradores próximos a data center relatam ruído constante que atrapalha sono, trabalho e atividades de lazer. Turbinas a gás operam 24/7.',
+    year: '2024-2025',
+  },
+  {
+    location: 'Diversos locais (internacional)',
+    description:
+      'Comunidades ao redor do mundo relatam preferir vizinhos anteriores (até pedreiras) em vez de data centers, devido ao ruído incessante.',
+    year: 'Diversos',
+  },
+];
+---
+<section class="py-20 px-4 bg-dc-muted/30 relative overflow-hidden">
+  {/* Background pattern */}
+  <div class="absolute inset-0 opacity-5">
+    <div
+      class="absolute inset-0"
+      style="background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, currentColor 2px, currentColor 4px);"
+    >
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto relative">
+    {/* Header */}
+    <div class="text-center mb-16">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-dc-destructive/20 text-dc-destructive mb-6">
+        <Icon name="volume-2" class="w-5 h-5" />
+        <span class="text-sm font-mono font-bold">POLUIÇÃO SONORA</span>
+      </div>
+
+      <h2 class="text-4xl md:text-5xl font-black mb-6 text-balance">
+        Você Vai Ouvir Esse <span class="text-dc-destructive">Barulho</span> 24 Horas Por Dia
+      </h2>
+
+      <p class="text-xl text-dc-muted-fg max-w-3xl mx-auto text-balance">
+        Data centers são fábricas de processamento que nunca param. Seus sistemas de
+        resfriamento, ventilação e energia funcionam <span class="text-dc-fg font-semibold">ininterruptamente</span>,
+        gerando ruído constante que afeta a vida de quem mora por perto.
+      </p>
+    </div>
+
+    {/* Emotional callout */}
+    <div class="bg-dc-destructive/10 border-2 border-dc-destructive/30 rounded-2xl p-8 mb-16">
+      <div class="flex items-start gap-4">
+        <Icon name="alert-triangle" class="w-8 h-8 text-dc-destructive flex-shrink-0 mt-1" />
+        <div>
+          <h3 class="text-2xl font-bold mb-3 text-dc-destructive">
+            Isso não é "só barulho".
+          </h3>
+          <p class="text-lg text-dc-muted-fg leading-relaxed">
+            É o fim do silêncio na sua casa. É acordar às 3 da manhã com um zumbido que não para.
+            É não conseguir abrir a janela. É ver suas crianças irritadas, seu sono destruído,
+            sua qualidade de vida roubada — enquanto uma empresa estrangeira lucra bilhões
+            processando dados que nem são seus. <span class="text-dc-fg font-semibold">
+            E o pior: uma vez construído, não tem volta.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Uberlândia context */}
+    <div class="bg-dc-card border border-dc-border rounded-2xl p-8 mb-16">
+      <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+        <span class="text-dc-primary">O que já foi dito em Uberlândia</span>
+      </h3>
+      <div class="space-y-4 text-dc-muted-fg">
+        <p>
+          Na <span class="text-dc-fg font-semibold">audiência pública de 26/03/2026</span>,
+          a bióloga <span class="text-dc-fg">Luana Leite Guimarães Santos</span> (CRBio-04)
+          alertou especificamente sobre a <span class="text-dc-fg font-semibold">poluição sonora</span> como
+          um dos impactos do empreendimento. O tema foi registrado em ata oficial da Câmara Municipal.
+        </p>
+        <p>
+          Os bairros mais próximos ao terreno — <span class="text-dc-fg">Pequis, Monte Hebrom
+          e Chácaras Douradinho</span> — são comunidades que já enfrentam desafios de infraestrutura.
+          Moradores dessas áreas podem ser os mais afetados pelo ruído constante, especialmente
+          durante a noite, quando o silêncio natural amplifica qualquer fonte sonora.
+        </p>
+        <div class="bg-dc-muted/50 rounded-lg p-4 mt-4 border-l-4 border-dc-primary">
+          <p class="text-sm">
+            <span class="font-semibold text-dc-fg">Nota importante:</span> Não há medição pública
+            específica de ruído para o projeto da RT-One em Uberlândia até o momento. Os níveis reais
+            de ruído dependerão do estudo de impacto ambiental (ainda não divulgado) e das condicionantes
+            do licenciamento na Semad/FEAM-MG.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Noise sources */}
+    <div class="mb-16">
+      <h3 class="text-2xl font-bold mb-8 text-center">De Onde Vem o Barulho?</h3>
+      <div class="grid md:grid-cols-2 gap-6">
+        {noiseSources.map((item) => (
+          <div class="bg-dc-card border border-dc-border rounded-xl p-6">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-lg bg-dc-destructive/20 flex items-center justify-center flex-shrink-0">
+                <Icon name="volume-2" class="w-5 h-5 text-dc-destructive" />
+              </div>
+              <div>
+                <h4 class="font-bold text-lg mb-2">{item.source}</h4>
+                <p class="text-dc-muted-fg text-sm">{item.description}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Health effects */}
+    <div class="mb-16">
+      <h3 class="text-2xl font-bold mb-4 text-center">O Que a Ciência Diz Sobre Ruído Constante</h3>
+      <p class="text-center text-dc-muted-fg mb-8 max-w-2xl mx-auto">
+        Segundo a OMS e estudos do ICB/UFMG, alterações no sono podem ocorrer a partir de 35 dB(A).
+        A partir de 55 dB(A), pode haver estresse leve; acima de 65 dB(A), riscos à saúde aumentam significativamente.
+      </p>
+      <div class="grid md:grid-cols-2 gap-6">
+        {healthEffects.map((item) => (
+          <div class="bg-dc-card border border-dc-border rounded-xl p-6">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-xl bg-dc-primary/20 flex items-center justify-center flex-shrink-0">
+                <Icon name={item.icon} class="w-6 h-6 text-dc-primary" />
+              </div>
+              <div>
+                <h4 class="font-bold text-lg mb-1">{item.effect}</h4>
+                <p class="text-dc-muted-fg text-sm mb-2">{item.description}</p>
+                <span class="text-xs text-dc-primary font-mono">Fonte: {item.source}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Real world cases */}
+    <div class="mb-16">
+      <h3 class="text-2xl font-bold mb-8 text-center">O Que Acontece na Prática?</h3>
+      <p class="text-center text-dc-muted-fg mb-8 max-w-2xl mx-auto">
+        Casos reais de comunidades que convivem com data centers mostram um padrão:
+        reclamações persistentes, impacto na qualidade de vida e necessidade de regulamentação posterior.
+      </p>
+      <div class="space-y-4">
+        {realWorldCases.map((item) => (
+          <div class="bg-dc-card border border-dc-border rounded-xl p-6 flex items-start gap-4">
+            <div class="w-2 h-2 rounded-full bg-dc-primary mt-2 flex-shrink-0"></div>
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <h4 class="font-bold">{item.location}</h4>
+                <span class="text-xs px-2 py-0.5 rounded bg-dc-muted text-dc-muted-fg font-mono">
+                  {item.year}
+                </span>
+              </div>
+              <p class="text-dc-muted-fg text-sm">{item.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Night impact highlight */}
+    <div class="bg-gradient-to-r from-dc-card to-dc-muted/50 border border-dc-border rounded-2xl p-6 sm:p-8">
+      <div class="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
+        <div class="w-14 h-14 rounded-xl sm:w-16 sm:h-16 sm:rounded-2xl bg-dc-primary/20 flex items-center justify-center flex-shrink-0">
+          <Icon name="moon" class="w-7 h-7 sm:w-8 sm:h-8 text-dc-primary" />
+        </div>
+        <div class="w-full min-w-0 sm:flex-1">
+          <h3 class="text-xl sm:text-2xl font-bold mb-3">O Pior É à Noite</h3>
+          <p class="text-dc-muted-fg leading-relaxed mb-4">
+            Durante o dia, o ruído urbano pode mascarar parcialmente o barulho de um data center.
+            Mas <span class="text-dc-fg font-semibold">à noite, quando a cidade silencia,
+            o zumbido constante se torna inescapável</span>. É nesse momento que moradores relatam
+            maior incômodo — justamente quando precisam descansar.
+          </p>
+          <p class="text-dc-muted-fg leading-relaxed">
+            A distância entre a fonte de ruído e as residências, a presença (ou ausência) de barreiras
+            acústicas e a topografia local são fatores determinantes. <span class="text-dc-fg font-semibold">
+            Sem um estudo de impacto sonoro público e transparente, os moradores de Uberlândia não têm
+            como saber o que os espera.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Final question */}
+    <div class="mt-12 text-center">
+      <p class="text-2xl font-bold text-dc-muted-fg">
+        Você aceitaria um vizinho que faz barulho <span class="text-dc-destructive">24 horas por dia, para sempre?</span>
+      </p>
+    </div>
+  </div>
+</section>

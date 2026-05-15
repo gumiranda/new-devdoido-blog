@@ -1,0 +1,77 @@
+---
+import Icon from './Icon.astro';
+---
+<section class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4">
+  {/* Background Grid */}
+  <div class="absolute inset-0 bg-[linear-gradient(rgba(0,255,136,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,136,0.03)_1px,transparent_1px)] bg-[size:60px_60px]"></div>
+
+  {/* Floating Alert Icons */}
+  <div class="absolute top-20 left-10 text-dc-primary opacity-20">
+    <Icon name="alert-triangle" size={120} strokeWidth={1} />
+  </div>
+  <div class="absolute bottom-40 right-10 text-dc-accent opacity-20">
+    <Icon name="scale" size={80} strokeWidth={1} />
+  </div>
+
+  <div class="relative z-10 text-center max-w-6xl">
+    <div class="mb-6 flex flex-wrap gap-3 justify-center">
+      <span class="inline-flex items-center gap-2 px-4 py-2 bg-dc-accent/10 border border-dc-accent/30 rounded-full text-dc-accent text-sm font-mono tracking-wide">
+        <span class="w-2 h-2 bg-dc-accent rounded-full animate-pulse"></span>
+        MPF INVESTIGA
+      </span>
+      <span class="inline-flex items-center gap-2 px-4 py-2 bg-dc-primary/10 border border-dc-primary/30 rounded-full text-dc-primary text-sm font-mono tracking-wide">
+        <Icon name="file-warning" class="w-4 h-4" />
+        SEM LICENÇA AMBIENTAL
+      </span>
+    </div>
+
+    <h1 class="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-none mb-6">
+      <span class="block text-dc-fg">DATACENTER</span>
+      <span class="block text-dc-primary glitch-text">RT-ONE</span>
+      <span class="block text-3xl sm:text-4xl md:text-5xl text-dc-muted-fg mt-2">UBERLÂNDIA</span>
+    </h1>
+
+    <p class="text-xl md:text-2xl text-dc-muted-fg max-w-4xl mx-auto leading-relaxed mb-8">
+      R$ 6 bilhões de investimento. 1 milhão de m² de terreno na MGC-497.
+      <span class="text-dc-accent font-semibold"> Empresa criada em dezembro de 2024.</span>
+      <span class="text-dc-primary font-semibold"> CEO acusado de usar nome da Intel indevidamente.</span>
+    </p>
+
+    <div class="flex flex-wrap gap-4 justify-center mb-12">
+      <div class="px-6 py-3 bg-dc-card border border-dc-border rounded-lg">
+        <div class="text-3xl font-black text-dc-primary">400 MW</div>
+        <div class="text-xs text-dc-muted-fg font-mono">= 1,6 MILHÃO DE CASAS</div>
+      </div>
+      <div class="px-6 py-3 bg-dc-card border border-dc-border rounded-lg">
+        <div class="text-3xl font-black text-dc-accent">239 mil</div>
+        <div class="text-xs text-dc-muted-fg font-mono">LITROS/DIA DE ÁGUA</div>
+      </div>
+      <div class="px-6 py-3 bg-dc-card border border-dc-border rounded-lg">
+        <div class="text-3xl font-black text-dc-fg">0</div>
+        <div class="text-xs text-dc-muted-fg font-mono">LICENÇAS AMBIENTAIS</div>
+      </div>
+      <div class="px-6 py-3 bg-dc-card border border-dc-border rounded-lg">
+        <div class="text-3xl font-black text-dc-destructive">DEZ/24</div>
+        <div class="text-xs text-dc-muted-fg font-mono">EMPRESA CRIADA</div>
+      </div>
+    </div>
+
+    <div class="bg-dc-card/50 border border-dc-border rounded-lg p-4 max-w-3xl mx-auto mb-8">
+      <p class="text-sm text-dc-muted-fg font-mono leading-relaxed">
+        {'// Prometeram "zero consumo de água para refrigeração" em 2025.'}
+        <br />
+        {'// Em 2026, pediram 2,77 L/s ao DMAE. São 87,3 mil m³/ano.'}
+        <br />
+        {'// Em Maringá (PR), admitiram captar água do AQUÍFERO GUARANI.'}
+      </p>
+    </div>
+
+    <p class="text-xs text-dc-muted-fg font-mono">
+      FONTES: Aos Fatos, Jornal O Futuro, Câmara Municipal de Uberlândia, MPF
+    </p>
+  </div>
+
+  <div class="absolute bottom-10">
+    <Icon name="chevron-down" class="text-dc-muted-fg" size={32} />
+  </div>
+</section>

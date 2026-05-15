@@ -1,0 +1,126 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroSection from '../components/landing/HeroSection.astro';
+import ProblemsSection from '../components/landing/ProblemsSection.astro';
+import ElectricityBillSection from '../components/landing/ElectricityBillSection.astro';
+import NoiseImpactSection from '../components/landing/NoiseImpactSection.astro';
+import TimelineSection from '../components/landing/TimelineSection.astro';
+import QuotesSection from '../components/landing/QuotesSection.astro';
+import DataSection from '../components/landing/DataSection.astro';
+import ActorsSection from '../components/landing/ActorsSection.astro';
+import DemandsSection from '../components/landing/DemandsSection.astro';
+import LandingFooter from '../components/landing/LandingFooter.astro';
+import '../styles/landing.css';
+---
+
+<BaseLayout
+  title="Data Center RT-One Uberlândia — Investigação Ambiental"
+  description="Apuração independente sobre o data center RT-One em Uberlândia (MG): zero licenças, MPF investiga, Aquífero Guarani em risco. R$ 6 bi sem transparência."
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      '@id': 'https://datacenteruberlandia.com.br/#organization',
+      name: 'Data Center Uberlândia',
+      url: 'https://datacenteruberlandia.com.br',
+      description: 'Blog independente que monitora e relata os impactos ambientais e socioeconômicos da instalação de data centers em Uberlândia (MG).',
+      logo: 'https://datacenteruberlandia.com.br/og-default.png',
+      foundingDate: '2026',
+      sameAs: [
+        'https://datacenteruberlandia.com.br/sobre',
+        'https://datacenteruberlandia.com.br/blog',
+        'https://datacenteruberlandia.com.br/rss.xml',
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      '@id': 'https://datacenteruberlandia.com.br/#webpage',
+      name: 'Data Center RT-One Uberlândia — Investigação Ambiental',
+      description:
+        'Apuração independente sobre o data center RT-One em Uberlândia (MG): zero licenças, MPF investiga, Aquífero Guarani em risco. R$ 6 bi sem transparência.',
+      url: 'https://datacenteruberlandia.com.br',
+      about: {
+        '@type': 'Place',
+        name: 'Uberlândia, Minas Gerais, Brasil',
+      },
+      speakable: {
+        '@type': 'SpeakableSpecification',
+        cssSelector: ['h1', 'h2'],
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      '@id': 'https://datacenteruberlandia.com.br/#faq',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'O que é o data center RT-One em Uberlândia?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'A RT-One é uma empresa registrada em dezembro de 2024 que planeja um data center de até 400 MW em Uberlândia (MG), com investimento de R$ 6 bilhões em terreno de 1 milhão de m² na rodovia MGC-497. O projeto não tem licença ambiental e está sob inquérito civil do MPF. O CEO Fernando Palamone foi acusado de usar indevidamente o nome da Intel.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Qual o impacto ambiental do data center RT-One em Uberlândia?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Os principais impactos incluem: consumo de 239,3 mil litros de água por dia (fase 1), demanda energética de 100-400 MW (equivalente a até 1,6 milhão de residências), risco de captação do Aquífero Guarani, poluição sonora de 60-85 dB para comunidades vizinhas, e pressão sobre infraestrutura de saneamento — Uberlândia caiu 10 posições no Ranking do Saneamento 2026.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'O data center RT-One tem licença ambiental?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Não. Até maio de 2026, nenhuma licença ambiental (LP, LI ou LO) foi emitida pela Semad/FEAM-MG. O projeto está em fase de pré-licenciamento. Por estar em zona rural, o licenciamento é estadual e especialistas defendem que exija EIA/RIMA com audiência pública, não RAS.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Quem está fiscalizando o data center RT-One?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'O MPF instaurou inquérito civil em março de 2026 para apurar danos ambientais. A Câmara Municipal realizou audiência pública em 26/03/2026. A Faculdade de Direito da UFU redigiu proposta de marco normativo municipal. O Conselho Regional de Biologia (CRBio-4), a CNBB/Pastoral da Terra e movimentos sociais também atuam na fiscalização.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Quantos data centers estão planejados em Uberlândia?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Além do RT-One, o prefeito Paulo Sérgio confirmou conversações com Alibaba Cloud (China) e mais duas multinacionais — totalizando até 4 projetos de data center em Uberlândia. O impacto cumulativo sobre recursos hídricos e energéticos ainda não foi estudado.',
+          },
+        },
+      ],
+    },
+  ]}
+>
+  <div class="landing-root noise-overlay scanlines min-h-screen bg-dc-bg text-dc-fg">
+    <HeroSection />
+    <ProblemsSection />
+    <ElectricityBillSection />
+    <NoiseImpactSection />
+    <TimelineSection />
+    <QuotesSection />
+    <DataSection />
+    <ActorsSection />
+    <DemandsSection />
+    <LandingFooter />
+
+    {/* Structured summary: visually hidden, extractable by AI crawlers and search engines */}
+    <section aria-label="Resumo estruturado para mecanismos de busca" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">
+      <h2>Data Center RT-One Uberlândia — Resumo</h2>
+      <p><strong>O que é:</strong> A RT-One planeja um data center de até 400 MW em Uberlândia (MG), com investimento de R$ 6 bilhões em terreno de 1 milhão de m² na rodovia MGC-497, zona rural.</p>
+      <p><strong>Situação ambiental (maio/2026):</strong> Zero licenças ambientais emitidas. Projeto em pré-licenciamento na Semad/FEAM-MG. MPF instaurou inquérito civil.</p>
+      <p><strong>Consumo de água:</strong> 2,77 L/s (239,3 mil litros/dia) na fase 1 via DMAE. Empresa admitiu possibilidade de captação do Aquífero Guarani no projeto gêmeo de Maringá (PR).</p>
+      <p><strong>Consumo de energia:</strong> 100 MW contratados, expansão para 400 MW. A 400 MW, equivale a 1,6 milhão de residências brasileiras.</p>
+      <p><strong>Perfil da empresa:</strong> Registrada em dezembro/2024 em São Paulo. CEO Fernando Palamone foi acusado de usar indevidamente o nome da Intel em negociações no Distrito Federal.</p>
+      <p><strong>Audiência pública (26/03/2026):</strong> Câmara Municipal de Uberlândia. Prefeitura e presidente da RT-One ausentes. Sociedade civil, UFU e vereadores criticaram o projeto.</p>
+      <p><strong>Outros projetos em Uberlândia:</strong> Prefeito confirmou conversas com Alibaba Cloud e mais duas multinacionais — totalizando até 4 data centers.</p>
+      <p><strong>Comparação nacional:</strong> O site monitora 5 projetos: RT-One Uberlândia (100-400 MW), RT-One Maringá (400 MW), TikTok Caucaia (210-576 MW), Scala AI City (1.800-5.000 MW) e Rio AI City/Elea (1.500-3.200 MW).</p>
+    </section>
+  </div>
+</BaseLayout>

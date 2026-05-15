@@ -1,0 +1,25 @@
+/*
+ * Tokens da landing (rota /) — disponíveis em todo o site para classes Tailwind dc-*.
+ * Mesmos canais oklch que src/styles/landing.css usava apenas em .landing-root.
+ */
+:root {
+  --dc-background: 0.08 0 0;
+  --dc-foreground: 0.98 0 0;
+  --dc-card: 0.12 0 0;
+  --dc-card-foreground: 0.98 0 0;
+  --dc-popover: 0.12 0 0;
+  --dc-popover-foreground: 0.98 0 0;
+  --dc-primary: 0.85 0.25 145;
+  --dc-primary-foreground: 0.08 0 0;
+  --dc-secondary: 0.18 0 0;
+  --dc-secondary-foreground: 0.98 0 0;
+  --dc-muted: 0.2 0 0;
+  --dc-muted-foreground: 0.65 0 0;
+  --dc-accent: 0.65 0.2 25;
+  --dc-accent-foreground: 0.98 0 0;
+  --dc-destructive: 0.6 0.25 25;
+  --dc-destructive-foreground: 0.98 0 0;
+  --dc-border: 0.25 0 0;
+  --dc-input: 0.18 0 0;
+  --dc-ring: 0.85 0.25 145;
+}

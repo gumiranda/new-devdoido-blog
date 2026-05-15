@@ -1,0 +1,23 @@
+{
+  "name": "beta-stack",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "bun run dev:api & bun run dev:landing",
+    "dev:api": "cd apps/api && bun run dev",
+    "dev:landing": "cd apps/landing && bun run dev",
+    "build": "bun run build:api && bun run build:landing",
+    "build:api": "cd apps/api && bun run build",
+    "build:landing": "cd apps/landing && bun run build",
+    "check": "bun run test && bun run build",
+    "lint": "eslint apps/api/src apps/landing/src --max-warnings 0",
+    "test": "bun test ./apps/api/src/index.test.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "eslint": "^9.15.0",
+    "sharp": "^0.34.5",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.15.0"
+  }
+}

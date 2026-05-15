@@ -1,0 +1,76 @@
+# Data Center Uberlândia
+
+## Contexto
+
+O Data Center Uberlândia é um blog independente de monitoramento ambiental e socioeconômico que acompanha a instalação de data centers — especialmente o projeto da RT-One — em Uberlândia, Minas Gerais.
+
+## Propósito
+
+- Reunir e organizar informações públicas sobre o impacto ambiental de data centers em Uberlândia
+- Monitorar trâmites de licenciamento ambiental (Semad/FEAM-MG, IGAM, ANA)
+- Acompanhar ações judiciais e movimentos sociais relacionados ao tema
+- Fornecer dados verificáveis sobre consumo de água, energia e território
+
+## Tópicos principais
+
+- Impacto ambiental e socioeconômico de data centers
+- Licenciamento ambiental estadual e federal
+- Consumo hídrico e energético de grandes empreendimentos de TI
+- Aquífero Guarani e Aquífero Bauru no Triângulo Mineiro
+- Movimentos sociais e participação cidadã
+- Transparência pública e acesso à informação
+
+## Público-alvo
+
+- Moradores de Uberlândia e região do Triângulo Mineiro
+- Jornalistas e pesquisadores
+- Vereadores e ativistas ambientais
+- Estudantes e acadêmicos
+
+## Fontes e metodologia
+
+O conteúdo é baseado em:
+- Documentos públicos e atas oficiais
+- Reportagens jornalísticas (Aos Fatos, Mobile Time, O Tempo, Jornal O Futuro)
+- Dados oficiais de órgãos públicos (Cemig, DMAE, Semad/FEAM, IGAM)
+- Audiências públicas da Câmara Municipal de Uberlândia
+
+## Páginas principais
+
+- [Página principal](https://datacenteruberlandia.com.br/) — Visão geral do monitoramento
+- [Relatório RT-One Uberlândia](https://datacenteruberlandia.com.br/relatorio/rt-one-uberlandia) — Longread interativo com TL;DR, comparador de energia 100→400 MW, cronologia regulatória de 12 marcos, mapa nacional de 5 projetos comparáveis e FAQ
+- [Diretório de projetos](https://datacenteruberlandia.com.br/diretorio) — Fichas técnicas dos principais data centers anunciados no Brasil (RT-One Uberlândia, RT-One Maringá, TikTok Caucaia, Scala AI City, Rio AI City/Elea)
+- [Glossário](https://datacenteruberlandia.com.br/glossario) — Termos técnicos: PUE, WUE, EIA/RIMA, RAS, licença ambiental, Aquífero Guarani
+- [Blog](https://datacenteruberlandia.com.br/blog) — Análises e atualizações
+
+## Fatos-chave RT-One Uberlândia (até 09.05.2026)
+
+- Investimento anunciado: R$ 6 bilhões (US$ 1,2 bi)
+- Capacidade: 100 MW (fase 1) → 400 MW (capacidade declarada)
+- Consumo de água aprovado pelo DMAE: 2,77 L/s (239,3 mil litros/dia) — apenas fase 1
+- Terreno: 1 milhão de m² na rodovia MGC-497, zona rural de Uberlândia (MG)
+- Licenças ambientais (LP, LI, LO) emitidas pela Semad/FEAM-MG: zero
+- MPF instaurou inquérito civil em 17.03.2026
+- Equivalência energética a 400 MW: 1,6 milhão de residências brasileiras
+
+## Contato
+
+Este é um projeto independente sem fins lucrativos.
+
+## Perguntas frequentes (respondidas pelo site)
+
+- O que é o data center RT-One em Uberlândia? → /blog/impacto-ambiental-rtone-uberlandia
+- Qual o impacto ambiental do data center RT-One? → /relatorio/rt-one-uberlandia
+- O data center RT-One tem licença ambiental? → /blog/impacto-ambiental-rtone-uberlandia (seção 3)
+- Quanto de água consome o data center RT-One? → /relatorio/rt-one-uberlandia (seção I)
+- Quanto de energia consome? → /relatorio/rt-one-uberlandia (seção II, comparador interativo)
+- Quem fiscaliza o projeto? → /blog/impacto-ambiental-rtone-uberlandia (seção 4)
+- Existe ação judicial contra o projeto? → /blog/impacto-ambiental-rtone-uberlandia (FAQ)
+- Quantos data centers estão planejados em Uberlândia? → /blog/impacto-ambiental-rtone-uberlandia (seção 6)
+- Quais data centers existem no Brasil? → /diretorio
+- O que é PUE? → /glossario/pue
+- O que é WUE? → /glossario/wue
+- O que é EIA/RIMA? → /glossario/eia-rima
+- O que é licença ambiental? → /glossario/licenca-ambiental
+- O que é o Aquífero Guarani? → /glossario/aquifero-guarani
+- Comparação RT-One Uberlândia vs outros data centers → /relatorio/rt-one-uberlandia (seção VIII)

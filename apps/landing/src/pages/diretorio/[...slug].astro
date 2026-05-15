@@ -1,0 +1,178 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import '../../styles/blog-content.css';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('diretorio');
+  return projects.map((project) => ({ params: { slug: project.slug }, props: { project } }));
+}
+
+const { project } = Astro.props;
+const { Content } = await project.render();
+
+const allProjects = await getCollection('diretorio');
+const relatedProjects = allProjects
+  .filter((p) => p.slug !== project.slug && p.data.tags?.some((t: string) => project.data.tags?.includes(t)))
+  .slice(0, 3);
+
+const statusLabels: Record<string, string> = {
+  anunciado: 'Anunciado',
+  licenciamento: 'Em licenciamento',
+  construcao: 'Em construção',
+  operacao: 'Em operação',
+  suspenso: 'Suspenso',
+};
+
+const licenseLabels: Record<string, string> = {
+  'sem-licenca': 'Sem licença',
+  lp: 'LP (Licença Prévia)',
+  li: 'LI (Licença de Instalação)',
+  lo: 'LO (Licença de Operação)',
+  ras: 'RAS',
+  'eia-rima': 'EIA/RIMA',
+};
+
+const pageUrl = `https://datacenteruberlandia.com.br/diretorio/${project.slug}`;
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: project.data.title,
+    description: project.data.description,
+    url: pageUrl,
+    inLanguage: 'pt-BR',
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: ['h1', '.blog-content h2', '.blog-content p'],
+    },
+    mainEntity: {
+      '@type': 'Organization',
+      name: project.data.company,
+      description: project.data.description,
+      url: pageUrl,
+      location: {
+        '@type': 'Place',
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: project.data.city,
+          addressRegion: project.data.state,
+          addressCountry: 'BR',
+        },
+      },
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://datacenteruberlandia.com.br/' },
+      { '@type': 'ListItem', position: 2, name: 'Diretório', item: 'https://datacenteruberlandia.com.br/diretorio' },
+      { '@type': 'ListItem', position: 3, name: project.data.company, item: pageUrl },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title={project.data.title}
+  description={project.data.description}
+  canonical={`/diretorio/${project.slug}`}
+  type="article"
+  publishedTime={project.data.pubDate.toISOString()}
+  modifiedTime={project.data.modifiedDate?.toISOString()}
+  jsonLd={jsonLd}
+>
+  <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 border-b border-base-300">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,oklch(var(--p)/0.08),transparent_50%)] pointer-events-none" aria-hidden="true"></div>
+    <div class="container relative mx-auto px-4 py-12 md:py-16 max-w-4xl">
+      <a href="/diretorio" class="inline-flex items-center gap-1.5 text-base-content/70 hover:text-primary text-sm mb-6 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+        Diretório
+      </a>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-3">
+        <span class="title-shimmer bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">{project.data.company}</span>
+      </h1>
+      <p class="text-base-content/75 max-w-2xl">{project.data.description}</p>
+      <div class="flex flex-wrap items-center gap-3 text-sm text-base-content/70 mt-4">
+        <span
+          class={`badge whitespace-nowrap shrink-0 ${project.data.status === 'sem-licenca' ? 'badge-error' : 'badge-warning'}`}
+        >
+          {statusLabels[project.data.status] || project.data.status}
+        </span>
+        <span>{project.data.city}, {project.data.state}</span>
+        <span>·</span>
+        <span>{project.data.capacityMw} MW</span>
+      </div>
+      {project.slug === 'rt-one-uberlandia' && (
+        <a
+          href="/relatorio/rt-one-uberlandia"
+          class="inline-flex items-center gap-2 mt-6 px-4 py-2 rounded-md bg-primary text-primary-content text-sm font-semibold hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+        >
+          Ler o relatório completo →
+        </a>
+      )}
+    </div>
+  </section>
+
+  <article class="container mx-auto px-4 py-10 md:py-14 max-w-3xl">
+    <div class="rounded-xl border border-base-300 bg-base-200/60 p-5 md:p-6 mb-8">
+      <h2 class="text-lg font-bold mb-4">Ficha técnica</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <p class="text-base-content/60">Empresa</p>
+          <p class="font-medium">{project.data.company}</p>
+        </div>
+        <div>
+          <p class="text-base-content/60">Localização</p>
+          <p class="font-medium">{project.data.city}, {project.data.state}</p>
+        </div>
+        <div>
+          <p class="text-base-content/60">Capacidade</p>
+          <p class="font-medium">{project.data.capacityMw} MW</p>
+        </div>
+        {project.data.investment && (
+          <div>
+            <p class="text-base-content/60">Investimento</p>
+            <p class="font-medium">{project.data.investment}</p>
+          </div>
+        )}
+        {project.data.waterConsumption && (
+          <div>
+            <p class="text-base-content/60">Consumo de água</p>
+            <p class="font-medium">{project.data.waterConsumption}</p>
+          </div>
+        )}
+        <div>
+          <p class="text-base-content/60">Licença ambiental</p>
+          <p class="font-medium">{licenseLabels[project.data.environmentalLicense] || project.data.environmentalLicense}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="blog-content blog-post-content max-w-[65ch]">
+      <Content />
+    </div>
+
+    {relatedProjects.length > 0 && (
+      <aside class="mt-14 pt-10 border-t border-base-300/80" aria-label="Projetos relacionados">
+        <p class="text-base-content/60 text-sm mb-2">Projetos relacionados:</p>
+        <h2 class="text-lg font-semibold text-base-content mb-4">Veja também</h2>
+        <ul class="space-y-3" role="list">
+          {relatedProjects.map((p) => (
+            <li>
+              <a
+                href={`/diretorio/${p.slug}`}
+                class="group flex items-baseline gap-2 rounded-lg py-2 text-base-content/80 hover:text-base-content transition-colors"
+              >
+                <span class="text-primary opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                <span class="font-medium">{p.data.title}</span>
+                <span class="text-sm text-base-content/50">{p.data.city}/{p.data.state}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    )}
+  </article>
+</BaseLayout>

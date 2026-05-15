@@ -1,0 +1,37 @@
+---
+/**
+ * Icon.astro — renderiza icones lucide inline (SVG em src/icons/).
+ * Substitui o lucide-react usado na landing original.
+ */
+const iconFiles = import.meta.glob('../../icons/*.svg', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+interface Props {
+  name: string;
+  class?: string;
+  size?: number;
+  strokeWidth?: number;
+}
+
+const { name, class: className = '', size = 24, strokeWidth = 2 } = Astro.props;
+
+const raw = iconFiles[`../../icons/${name}.svg`];
+
+let svg = '';
+if (raw) {
+  svg = raw
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/\sclass="[^"]*"/, '')
+    .replace(/\swidth="[^"]*"/, ` width="${size}"`)
+    .replace(/\sheight="[^"]*"/, ` height="${size}"`)
+    .replace(/\sstroke-width="[^"]*"/, ` stroke-width="${strokeWidth}"`)
+    .replace(/<svg\s/, `<svg class="${className}" `)
+    .trim();
+} else if (import.meta.env.DEV) {
+  console.warn(`[Icon.astro] ícone não encontrado: ${name}`);
+}
+---
+{svg && <Fragment set:html={svg} />}

@@ -1,0 +1,11 @@
+**/node_modules
+.git
+**/dist
+**/.*.env
+.env
+.env.*
+
+# Landing: keep package.json for workspace + frozen lockfile; skip source and assets (API image only).
+apps/landing/src
+apps/landing/public
+**/.astro

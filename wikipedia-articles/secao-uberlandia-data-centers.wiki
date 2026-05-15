@@ -1,0 +1,13 @@
+== Data centers ==
+
+A partir de 2025, Uberlândia tornou-se alvo de anúncios de instalação de [[Centro de processamento de dados|data centers]] de grande porte, atraídos pela disponibilidade de energia renovável e localização estratégica no Triângulo Mineiro. O principal projeto é o da empresa RT-One, mas o prefeito Paulo Sérgio (PP) confirmou conversações com outras multinacionais, incluindo a [[Alibaba Cloud]] (China).
+
+=== RT-One ===
+Em julho de 2025, a RT-One — empresa registrada em São Paulo em dezembro de 2024 — anunciou investimento de R$ 6 bilhões para construção de um data center de até 400 [[Megawatt|MW]] em terreno de 1 milhão de metros quadrados na rodovia MGC-497, zona rural do município.<ref>{{citar web|url=https://datacenteruberlandia.com.br/blog/impacto-ambiental-rtone-uberlandia|titulo=Impacto Ambiental do Data Center da RT-One em Uberlândia (MG)|data=12 de maio de 2026|publicado=Data Center Uberlândia}}</ref>
+
+O projeto está em fase de pré-licenciamento ambiental junto à Fundação Estadual do Meio Ambiente de Minas Gerais (FEAM). Até maio de 2026, nenhuma licença (LP, LI ou LO) havia sido emitida. O [[Ministério Público Federal]] (MPF) instaurou inquérito civil para apurar possíveis danos ambientais, citando a demanda energética equivalente a 1,6 milhão de residências.<ref>{{citar web|url=https://aosfatos.org|titulo=MPF investiga data center RT-One em Uberlândia|data=17 de março de 2026|publicado=Aos Fatos}}</ref>
+
+O consumo de água declarado é de 2,77 litros por segundo (239,3 mil litros/dia) via DMAE na fase 1 (100 MW). Em março de 2026, a reportagem do Aos Fatos revelou que o CEO Fernando Palamone havia sido falsamente representado como COO da [[Intel]] em negociações anteriores no Distrito Federal.<ref>{{citar web|url=https://www.mobiletime.com.br|titulo=Prefeitura e Cemig confirmam viabilidade de data center|data=27 de fevereiro de 2026|publicado=Mobile Time}}</ref>
+
+=== Audiência pública ===
+Em 26 de março de 2026, a Câmara Municipal realizou audiência pública convocada pelas vereadoras Amanda Gondim (PSB) e Liza Prado (MDB). A Prefeitura e o presidente da RT-One não compareceram. Especialistas da UFU, representantes da [[Conferência Nacional dos Bispos do Brasil|CNBB]]/Pastoral da Terra e do Conselho Regional de Biologia (CRBio-4) manifestaram preocupações com o impacto hídrico e energético do empreendimento.<ref>{{citar web|url=https://datacenteruberlandia.com.br/relatorio/rt-one-uberlandia|titulo=Relatório: RT-One Uberlândia — Seção VII: Audiência Pública|data=9 de maio de 2026|publicado=Data Center Uberlândia}}</ref>

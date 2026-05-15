@@ -1,0 +1,78 @@
+{{Info/Local
+|nome = Data centers no Brasil
+|imagem = 
+|legenda = 
+}}
+'''Data centers no Brasil''' são instalações físicas que abrigam servidores, armazenamento de dados e equipamentos de rede para processamento de grandes volumes de informação. O Brasil tem se tornado um polo emergente para a instalação de [[Centro de processamento de dados|centros de processamento de dados]] de grande porte, impulsionado pela disponibilidade de energia renovável, mercado consumidor em expansão e políticas de atração de investimentos em infraestrutura digital.
+
+== Contexto ==
+
+O Brasil possui uma matriz energética com aproximadamente 85% de fontes renováveis, o que atrai operadores de data centers que buscam reduzir a pegada de carbono de suas operações. Em 2025 e 2026, diversos projetos de grande porte foram anunciados no país, com investimentos estimados em dezenas de bilhões de reais.<ref>{{citar web|url=https://www.mobiletime.com.br|titulo=Entrevista com secretário municipal de Uberlândia sobre data center RT-One|data=27 de fevereiro de 2026|acessodata=2026-05-12|publicado=Mobile Time}}</ref>
+
+== Projetos anunciados ==
+
+=== RT-One Uberlândia (MG) ===
+A empresa RT-One, registrada em São Paulo em dezembro de 2024, anunciou investimento de [[Real (moeda brasileira)|R$]] 6 bilhões para construção de um data center de até 400 [[Megawatt|MW]] em Uberlândia, Minas Gerais. O terreno, de 1 milhão de metros quadrados, está localizado na rodovia MGC-497, zona rural do município.<ref>{{citar web|url=https://datacenteruberlandia.com.br/blog/impacto-ambiental-rtone-uberlandia|titulo=Impacto Ambiental do Data Center da RT-One em Uberlândia (MG): Relatório Detalhado 2026|data=12 de maio de 2026|acessodata=2026-05-12|publicado=Data Center Uberlândia}}</ref>
+
+O projeto está em fase de pré-licenciamento ambiental junto à Fundação Estadual do Meio Ambiente de Minas Gerais (FEAM) e, até maio de 2026, nenhuma licença havia sido emitida. O [[Ministério Público Federal]] (MPF) instaurou inquérito civil para apurar possíveis danos ambientais. Em março de 2026, reportagem do site Aos Fatos revelou que o CEO Fernando Palamone havia sido falsamente representado como COO da [[Intel]] em negociações anteriores no Distrito Federal.<ref>{{citar web|url=https://aosfatos.org|titulo=Reportagem sobre inquérito civil do MPF contra RT-One|data=17 de março de 2026|acessodata=2026-05-12|publicado=Aos Fatos}}</ref>
+
+=== RT-One Maringá (PR) ===
+A mesma empresa anunciou projeto similar em [[Maringá]], [[Paraná]], com capacidade de 400 MW. A RT-One admitiu a possibilidade de captação de água do [[Aquífero Guarani]] para refrigeração, o que gerou questionamentos do MPF do Paraná.<ref>{{citar web|url=https://datacenteruberlandia.com.br/diretorio/rt-one-maringa|titulo=Ficha técnica RT-One Maringá|acessodata=2026-05-12|publicado=Data Center Uberlândia}}</ref>
+
+=== TikTok/Casa dos Ventos — Caucaia (CE) ===
+Em [[Caucaia]], [[Ceará]], o [[TikTok]] (ByteDance) anunciou em parceria com a Casa dos Ventos um data center de 210 a 576 MW. O licenciamento ambiental foi feito via Relatório Ambiental Simplificado (RAS), contestado pelo MPF do Ceará, que defendeu a exigência de [[Estudo de Impacto Ambiental|EIA/RIMA]] para empreendimentos dessa escala.<ref>{{citar web|url=https://datacenteruberlandia.com.br/diretorio/tiktok-caucaia|titulo=Ficha técnica TikTok/Casa dos Ventos — Caucaia (CE)|acessodata=2026-05-12|publicado=Data Center Uberlândia}}</ref>
+
+=== Scala AI City — Eldorado do Sul (RS) ===
+Projeto de 1.800 a 5.000 MW em [[Eldorado do Sul]], [[Rio Grande do Sul]], considerado o maior data center planejado da [[América Latina]]. Encontra-se em fase de licenciamento ambiental.<ref>{{citar web|url=https://datacenteruberlandia.com.br/diretorio/scala-ai-city|titulo=Ficha técnica Scala AI City — Eldorado do Sul (RS)|acessodata=2026-05-12|publicado=Data Center Uberlândia}}</ref>
+
+=== Rio AI City (Elea) — Jacarepaguá (RJ) ===
+Projeto de 1.500 a 3.200 MW em [[Jacarepaguá]], [[Rio de Janeiro (cidade)|Rio de Janeiro]], com apoio dos governos federal e estadual.<ref>{{citar web|url=https://datacenteruberlandia.com.br/diretorio/elea-jacarepagua|titulo=Ficha técnica Rio AI City/Elea — Jacarepaguá (RJ)|acessodata=2026-05-12|publicado=Data Center Uberlândia}}</ref>
+
+== Impactos ambientais ==
+
+A instalação de data centers de grande porte no Brasil tem gerado debates sobre impactos ambientais, especialmente em relação ao consumo de água e energia. Um data center de 400 MW operando a plena carga consome aproximadamente 9,6 [[Quilowatt-hora|GWh]] por dia — o equivalente ao consumo de cerca de 1,6 milhão de residências brasileiras.<ref name="relatorio-uberlandia">{{citar web|url=https://datacenteruberlandia.com.br/relatorio/rt-one-uberlandia|titulo=RT-One Uberlândia — Anatomia de um Data Center|data=9 de maio de 2026|acessodata=2026-05-12|publicado=Data Center Uberlândia}}</ref>
+
+No caso de Uberlândia, especialistas da [[Universidade Federal de Uberlândia]] (UFU) questionam a métrica PUE (Power Usage Effectiveness) como insuficiente para avaliar o impacto sobre recursos hídricos. A cidade caiu 10 posições no Ranking do Saneamento 2026 do Instituto Trata Brasil, do 11º para o 21º lugar.<ref>{{citar web|url=https://tratabrasil.org.br|titulo=Ranking do Saneamento 2026|data=18 de março de 2026|acessodata=2026-05-12|publicado=Instituto Trata Brasil}}</ref>
+
+=== Consumo de água ===
+O consumo de água de data centers é medido pelo indicador WUE (Water Usage Effectiveness). No projeto RT-One em Uberlândia, o consumo declarado é de 2,77 litros por segundo (239,3 mil litros/dia) na fase 1 (100 MW), valor que não inclui eventual captação subterrânea adicional.<ref name="relatorio-uberlandia" />
+
+=== Aquífero Guarani ===
+A possibilidade de uso do [[Aquífero Guarani]] para refrigeração de data centers tem gerado preocupação de especialistas e órgãos ambientais. A RT-One admitiu a captação de água do aquífero no projeto de Maringá (PR), cenário que não foi formalmente descartado para Uberlândia.<ref>{{citar web|url=https://datacenteruberlandia.com.br/glossario/aquifero-guarani|titulo=Glossário: Aquífero Guarani|acessodata=2026-05-12|publicado=Data Center Uberlândia}}</ref>
+
+== Regulação ==
+
+O marco regulatório para licenciamento ambiental de data centers no Brasil ainda é fragmentado. O órgão competente varia conforme a localização do empreendimento: licenciamento estadual (quando em zona rural) ou municipal (em zona urbana). Em 2026, estudantes da Faculdade de Direito da UFU redigiram proposta de marco normativo municipal para regular a sustentabilidade de data centers em Uberlândia, incluindo limites de WUE e PUE auditado.<ref>{{citar web|url=https://datacenteruberlandia.com.br/blog/impacto-ambiental-rtone-uberlandia|titulo=Relatório ambiental RT-One Uberlândia — Seção 4: Ações Regulatórias|data=12 de maio de 2026|acessodata=2026-05-12|publicado=Data Center Uberlândia}}</ref>
+
+== Comparação ==
+
+{| class="wikitable sortable"
+|+ Principais projetos de data center anunciados no Brasil
+|-
+! Projeto !! Local !! Capacidade !! Status ambiental
+|-
+| Scala AI City || Eldorado do Sul (RS) || 1.800–5.000 MW || Em licenciamento
+|-
+| Rio AI City (Elea) || Jacarepaguá (RJ) || 1.500–3.200 MW || Em licenciamento
+|-
+| TikTok/Casa dos Ventos || Caucaia (CE) || 210–576 MW || RAS contestado pelo MPF
+|-
+| RT-One || Uberlândia (MG) || 100–400 MW || Pré-licenciamento; sem licença emitida
+|-
+| RT-One || Maringá (PR) || 400 MW || MPF investiga uso do Aquífero Guarani
+|}
+
+== Ver também ==
+* [[Centro de processamento de dados]]
+* [[Aquífero Guarani]]
+* [[Impacto ambiental da tecnologia da informação]]
+* [[Uberlândia]]
+
+== Referências ==
+<references />
+
+{{Portal3|Tecnologia|Brasil|Ecologia}}
+
+[[Categoria:Centros de processamento de dados]]
+[[Categoria:Infraestrutura do Brasil]]
+[[Categoria:Impacto ambiental]]

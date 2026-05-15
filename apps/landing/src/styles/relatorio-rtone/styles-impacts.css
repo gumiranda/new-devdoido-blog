@@ -1,0 +1,266 @@
+/* ============================================================
+   Seção III — Impactos no entorno
+   ============================================================ */
+
+.section-impacts {
+  background: var(--paper-2);
+  border-bottom: 1px solid var(--ink);
+}
+
+/* neighborhood strip */
+.neighbors {
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 22px 28px;
+  margin: 16px 0 48px;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 32px;
+  align-items: center;
+}
+.neighbors .nlabel {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--paper-3); opacity: 0.7;
+}
+.neighbors .nrow {
+  display: flex; flex-wrap: wrap; gap: 8px 28px;
+  align-items: baseline;
+}
+.neighbors .nname {
+  font-family: var(--serif); font-size: 28px;
+  font-weight: 600; font-style: italic;
+  letter-spacing: -0.015em;
+  color: var(--paper);
+}
+.neighbors .nnote {
+  font-family: var(--mono); font-size: 10.5px;
+  color: var(--paper-3); opacity: 0.85;
+  letter-spacing: 0.08em;
+  margin-left: 6px;
+}
+.neighbors .ndot { color: var(--paper-3); opacity: 0.5; margin: 0 8px; }
+
+/* impact card */
+.impact-card {
+  border-top: 1px solid var(--ink);
+  padding: 56px 0 64px;
+}
+.impact-card:last-child { border-bottom: 1px solid var(--ink); }
+
+.impact-head {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 40px;
+  align-items: end;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--rule-2);
+  margin-bottom: 28px;
+}
+.impact-n {
+  font-family: var(--serif); font-weight: 700;
+  font-size: 96px; line-height: 0.85;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+}
+.impact-cat {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--alert);
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--alert);
+  display: inline-block;
+}
+.impact-headline {
+  font-family: var(--serif); font-weight: 600;
+  font-size: clamp(30px, 3.8vw, 48px);
+  line-height: 1.02; letter-spacing: -0.02em;
+  text-wrap: balance;
+  margin: 12px 0 0;
+}
+.impact-lead {
+  font-family: var(--serif); font-size: 20px;
+  line-height: 1.4; color: var(--ink-2);
+  max-width: 720px;
+  text-wrap: pretty;
+}
+
+.impact-body {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+  margin-top: 32px;
+}
+.impact-body .lbl {
+  font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-4);
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--rule-strong);
+}
+.impact-body p {
+  font-family: var(--serif); font-size: 17px;
+  line-height: 1.55; color: var(--ink);
+}
+
+.impact-source {
+  margin-top: 24px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-4);
+  padding-top: 18px;
+  border-top: 1px solid var(--rule-2);
+}
+
+/* decibel scale (impact 01) */
+.db-scale {
+  margin: 24px 0 8px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+}
+.db-scale .axis {
+  position: relative;
+  height: 32px;
+  border-bottom: 1px solid var(--rule-2);
+}
+.db-scale .axis .tick {
+  position: absolute; top: 0;
+  font-family: var(--mono); font-size: 10.5px;
+  color: var(--ink-4); letter-spacing: 0.08em;
+  padding: 8px 6px;
+  border-left: 1px solid var(--rule-2);
+}
+.db-row {
+  display: grid; grid-template-columns: 280px 1fr 70px;
+  gap: 20px; align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--rule-2);
+}
+.db-row:last-child { border-bottom: none; }
+.db-row .name {
+  font-size: 13.5px; color: var(--ink-2);
+}
+.db-row .name.site { color: var(--alert); font-weight: 600; }
+.db-row .name.limit { color: var(--ink-3); font-style: italic; }
+.db-row .num {
+  font-family: var(--mono); font-size: 14px;
+  font-feature-settings: "tnum";
+  text-align: right;
+}
+.db-row .num small { color: var(--ink-4); margin-left: 4px; }
+.db-bar-track {
+  position: relative;
+  height: 14px;
+  background: var(--paper-3);
+  border: 1px solid var(--rule-2);
+}
+.db-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; }
+.db-bar-fill.ref   { background: var(--ink-4); }
+.db-bar-fill.limit { background: var(--water); }
+.db-bar-fill.site  { background: var(--alert); }
+
+/* water stress bars (impact 02) */
+.stress-grid {
+  margin: 24px 0;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+}
+.stress-row {
+  display: grid; grid-template-columns: 280px 100px 1fr;
+  gap: 20px; align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--rule-2);
+}
+.stress-row:last-child { border-bottom: none; }
+.stress-row .name { font-size: 13.5px; color: var(--ink-2); }
+.stress-row .name small { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--ink-4); margin-top: 4px; letter-spacing: 0.06em; text-transform: uppercase; }
+.stress-row .num { font-family: var(--mono); font-size: 14px; }
+.stress-row .num small { color: var(--ink-4); display: block; margin-top: 2px; font-size: 10px; letter-spacing: 0.06em; }
+.stress-track {
+  position: relative;
+  height: 16px; background: var(--paper-3);
+  border: 1px solid var(--rule-2);
+}
+.stress-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: var(--water);
+}
+.stress-fill.warn { background: var(--energy); }
+.stress-fill.crit { background: var(--alert); }
+
+/* tariff ladder (impact 03) */
+.ladder {
+  margin: 24px 0;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--ink);
+  background: var(--paper);
+}
+.rung {
+  padding: 22px 18px 20px;
+  border-right: 1px solid var(--rule-2);
+  position: relative;
+}
+.rung:last-child { border-right: none; }
+.rung .flag {
+  width: 28px; height: 28px; margin-bottom: 12px;
+  border: 1px solid var(--ink);
+}
+.rung[data-color="verde"] .flag    { background: oklch(0.72 0.13 150); }
+.rung[data-color="amarela"] .flag  { background: oklch(0.85 0.16 95); }
+.rung[data-color="vermelha-1"] .flag { background: oklch(0.65 0.16 30); }
+.rung[data-color="vermelha-2"] .flag { background: oklch(0.50 0.18 25); }
+.rung .nm {
+  font-family: var(--serif); font-size: 18px;
+  font-weight: 600; letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.rung .pct {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.12em; color: var(--ink-4);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.rung .nt { font-size: 13px; color: var(--ink-3); line-height: 1.45; }
+
+/* obra meta strip (impact 04) */
+.obra-strip {
+  margin: 24px 0;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--ink);
+  background: var(--paper);
+}
+.obra-cell { padding: 22px 20px; border-right: 1px solid var(--rule-2); }
+.obra-cell:last-child { border-right: none; }
+.obra-cell .lbl { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 10px; }
+.obra-cell .v { font-family: var(--serif); font-size: 30px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+
+/* convention 169 callout (impact 05) */
+.conv-card {
+  margin: 24px 0;
+  padding: 28px 32px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+.conv-card .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--paper-3); opacity: 0.75; }
+.conv-card .title { font-family: var(--serif); font-size: 24px; font-weight: 600; letter-spacing: -0.01em; margin-top: 8px; }
+.conv-card .body { font-family: var(--serif); font-size: 16px; line-height: 1.5; color: var(--paper-2); }
+
+/* mobile */
+@media (max-width: 900px) {
+  .impact-head { grid-template-columns: 1fr; gap: 12px; }
+  .impact-n { font-size: 64px; }
+  .impact-body { grid-template-columns: 1fr; gap: 24px; }
+  .neighbors { grid-template-columns: 1fr; gap: 12px; padding: 18px 20px; }
+  .db-row { grid-template-columns: 1fr; gap: 8px; }
+  .db-row .num { text-align: left; }
+  .stress-row { grid-template-columns: 1fr; gap: 8px; }
+  .ladder, .obra-strip { grid-template-columns: 1fr 1fr; }
+  .conv-card { grid-template-columns: 1fr; gap: 14px; }
+}

@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: 'Sobre o Data Center Uberlândia',
+    description: 'Conheça o Data Center Uberlândia, blog independente de monitoramento ambiental e socioeconômico de data centers em Uberlândia (MG).',
+    url: 'https://datacenteruberlandia.com.br/sobre',
+    inLanguage: 'pt-BR',
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'Data Center Uberlândia',
+      description: 'Blog independente que monitora e relata os impactos ambientais e socioeconômicos da instalação de data centers em Uberlândia (MG).',
+      url: 'https://datacenteruberlandia.com.br',
+      foundingDate: '2026',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://datacenteruberlandia.com.br/' },
+      { '@type': 'ListItem', position: 2, name: 'Sobre', item: 'https://datacenteruberlandia.com.br/sobre' },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Sobre"
+  description="Conheça o Data Center Uberlândia, blog independente de monitoramento ambiental e socioeconômico de data centers em Uberlândia (MG)."
+  canonical="/sobre"
+  jsonLd={jsonLd}
+>
+  <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 border-b border-base-300">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,oklch(var(--p)/0.08),transparent_50%)] pointer-events-none" aria-hidden="true"></div>
+    <div class="container relative mx-auto px-4 py-12 md:py-16 max-w-4xl">
+      <a href="/" class="inline-flex items-center gap-1.5 text-base-content/70 hover:text-primary text-sm mb-6 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+        Home
+      </a>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-3">
+        <span class="title-shimmer bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Sobre</span>
+      </h1>
+      <p class="text-base-content/75 max-w-2xl">
+        O que fazemos, como verificamos os dados e por que não aceitamos financiamento de empresas de data center.
+      </p>
+    </div>
+  </section>
+
+  <div class="container mx-auto px-4 py-12 md:py-16 max-w-3xl space-y-16">
+    <!-- Missão -->
+    <section class="space-y-4">
+      <h2 class="text-2xl font-bold">Nossa missão</h2>
+      <p class="text-base-content/80 text-lg leading-relaxed">
+        O <strong>Data Center Uberlândia</strong> monitora os impactos ambientais e socioeconômicos da instalação de data centers em Uberlândia (MG) e região.
+      </p>
+      <p class="text-base-content/80 leading-relaxed">
+        Empreendimentos de grande porte afetam recursos naturais e a qualidade de vida da população. A sociedade precisa de dados verificáveis para acompanhar esses projetos. Este site reúne informações dispersas em documentos públicos, registros oficiais e reportagens.
+      </p>
+    </section>
+
+    <!-- Metodologia -->
+    <section class="space-y-4">
+      <h2 class="text-2xl font-bold">Como trabalhamos</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="rounded-xl border border-base-300 bg-base-200/60 p-5">
+          <h3 class="font-semibold text-base-content mb-2">Documentos públicos</h3>
+          <p class="text-sm text-base-content/70">Buscamos atas de audiências, pareceres técnicos, processos no SIAM-MG e registros no portal da transparência.</p>
+        </div>
+        <div class="rounded-xl border border-base-300 bg-base-200/60 p-5">
+          <h3 class="font-semibold text-base-content mb-2">Fontes primárias</h3>
+          <p class="text-sm text-base-content/70">Cruzamos dados de Cemig, DMAE, IGAM, Semad/FEAM-MG, MPF e reportagens investigativas como Aos Fatos.</p>
+        </div>
+        <div class="rounded-xl border border-base-300 bg-base-200/60 p-5">
+          <h3 class="font-semibold text-base-content mb-2">Análise técnica</h3>
+          <p class="text-sm text-base-content/70">Compilamos pareceres de pesquisadores da UFU e especialistas em transição energética e recursos hídricos.</p>
+        </div>
+        <div class="rounded-xl border border-base-300 bg-base-200/60 p-5">
+          <h3 class="font-semibold text-base-content mb-2">Correções públicas</h3>
+          <p class="text-sm text-base-content/70">Quando identificamos erros, corrigimos com ressalva. Nenhum conteúdo é apagado sem registro da mudança.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fontes -->
+    <section class="space-y-4">
+      <h2 class="text-2xl font-bold">Fontes regulares</h2>
+      <ul class="space-y-2 text-base-content/80">
+        <li class="flex items-start gap-2">
+          <span class="text-primary mt-1">→</span>
+          <span><strong>Documentos oficiais:</strong> SIAM-MG, portal da Semad/FEAM, IGAM, ANA</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-primary mt-1">→</span>
+          <span><strong>Empresas:</strong> Cemig, DMAE de Uberlândia</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-primary mt-1">→</span>
+          <span><strong>Reportagens:</strong> Aos Fatos, Mobile Time, Diário do Comércio</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-primary mt-1">→</span>
+          <span><strong>Acadêmicos:</strong> Professores e pesquisadores da UFU</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-primary mt-1">→</span>
+          <span><strong>Instituições:</strong> MPF, Câmara Municipal de Uberlândia, CRBio</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Transparência -->
+    <section class="space-y-4">
+      <h2 class="text-2xl font-bold">Transparência</h2>
+      <p class="text-base-content/80 leading-relaxed">
+        Não recebemos financiamento de empresas de data center, governo ou partidos políticos. As análises são interpretação dos dados públicos disponíveis.
+      </p>
+      <p class="text-base-content/80 leading-relaxed">
+        Erros identificados são corrigidos com ressalva. Não apagamos conteúdo sem registrar a alteração.
+      </p>
+    </section>
+
+    <!-- Contato -->
+    <section class="space-y-4">
+      <h2 class="text-2xl font-bold">Contato</h2>
+      <p class="text-base-content/80">
+        Para sugestões, correções ou informações: <a href="mailto:contato@datacenteruberlandia.com.br" class="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">contato@datacenteruberlandia.com.br</a>
+      </p>
+    </section>
+  </div>
+</BaseLayout>

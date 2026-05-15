@@ -1,0 +1,148 @@
+---
+import Icon from './Icon.astro';
+
+const actors = [
+  {
+    icon: 'building-2',
+    name: 'RT-One',
+    role: 'Empresa responsável',
+    status: 'Perfil de risco alto',
+    description:
+      'Criada em DEZ/2024, sem operações prévias no setor. CEO Fernando Palamone acusado pela Intel de usar nome da empresa indevidamente. Não respondeu ao MPF no inquérito civil. Admitiu em Maringá captar água do Aquífero Guarani.',
+    verdict: 'negative',
+  },
+  {
+    icon: 'landmark',
+    name: 'Prefeitura de Uberlândia',
+    role: 'Prefeito Paulo Sérgio (PP)',
+    status: 'Defensor incondicional',
+    description:
+      "Celebrou investimento sem exigir transparência. Não compareceu à audiência pública. Afirmou: 'Consumirá menos que 300 casas. Não tem problema ambiental.' Vice Pelizer, Secretário Fabiano Alves e Fiemg também apoiam.",
+    verdict: 'negative',
+  },
+  {
+    icon: 'users',
+    name: 'Câmara Municipal',
+    role: 'Amanda Gondim (PSB) e Dr. Igino (PT)',
+    status: 'Oposição ativa',
+    description:
+      "Vereadora Amanda: 'Não existe data center sustentável'. Dr. Igino: 'Sou contra e vou lutar para que vá para outro lugar'. Realizaram audiência pública em 26/03/2026.",
+    verdict: 'positive',
+  },
+  {
+    icon: 'graduation-cap',
+    name: 'UFU - Faculdade de Direito',
+    role: 'Prof. Naiara Vilela e alunos',
+    status: 'Proposta de regulação',
+    description:
+      "Estudantes do 3º período redigiram marco normativo municipal para regular data centers. Defendem 'desenvolvimento que considere a questão ambiental para presentes e futuras gerações'.",
+    verdict: 'positive',
+  },
+  {
+    icon: 'church',
+    name: 'Pastoral da Terra / CNBB',
+    role: 'Frei Rodrigo',
+    status: 'Crítica ao Redata',
+    description:
+      "Criticou Redata como 'isenção de tributos federais por 5 anos'. Exigiu 'estudos completos e independentes; não cabe à Prefeitura tomar a defesa'.",
+    verdict: 'positive',
+  },
+  {
+    icon: 'scale',
+    name: 'MPF',
+    role: 'Ministério Público Federal',
+    status: 'Inquérito civil instaurado',
+    description:
+      "Investiga possíveis danos ambientais. Questionou alegação de '100% energia renovável'. RT-One não respondeu. A Cemig disse que 'desabastecimento nacional não é sua responsabilidade'.",
+    verdict: 'investigating',
+  },
+  {
+    icon: 'eye',
+    name: 'SEMAD/FEAM-MG',
+    role: 'Órgão ambiental estadual',
+    status: 'Nenhuma licença emitida',
+    description:
+      'Até maio/2026, nenhuma LP, LI ou LO emitida. Projeto em pré-licenciamento. Deveria exigir EIA/RIMA com audiência pública pelo porte do empreendimento.',
+    verdict: 'pending',
+  },
+];
+
+const cardClass = (v: string) =>
+  v === 'negative'
+    ? 'bg-dc-accent/5 border-dc-accent/30'
+    : v === 'positive'
+      ? 'bg-green-500/5 border-green-500/30'
+      : v === 'investigating'
+        ? 'bg-dc-primary/5 border-dc-primary/30'
+        : 'bg-dc-card border-dc-border';
+
+const iconBgClass = (v: string) =>
+  v === 'negative'
+    ? 'bg-dc-accent/10'
+    : v === 'positive'
+      ? 'bg-green-500/10'
+      : v === 'investigating'
+        ? 'bg-dc-primary/10'
+        : 'bg-dc-muted';
+
+const iconColorClass = (v: string) =>
+  v === 'negative'
+    ? 'text-dc-accent'
+    : v === 'positive'
+      ? 'text-green-500'
+      : v === 'investigating'
+        ? 'text-dc-primary'
+        : 'text-dc-muted-fg';
+
+const statusClass = (v: string) =>
+  v === 'negative'
+    ? 'bg-dc-accent/20 text-dc-accent'
+    : v === 'positive'
+      ? 'bg-green-500/20 text-green-500'
+      : v === 'investigating'
+        ? 'bg-dc-primary/20 text-dc-primary'
+        : 'bg-dc-muted text-dc-muted-fg';
+---
+<section class="py-24 px-4">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-6xl font-black tracking-tight mb-4">
+        QUEM SÃO OS <span class="text-dc-accent">ATORES</span>
+      </h2>
+      <p class="text-dc-muted-fg text-lg max-w-2xl mx-auto">
+        Favoráveis, contrários e omissos.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      {actors.map((actor) => (
+        <div class={`relative p-6 rounded-lg border ${cardClass(actor.verdict)}`}>
+          <div class="flex items-start gap-4">
+            <div class={`p-3 rounded-lg ${iconBgClass(actor.verdict)}`}>
+              <Icon name={actor.icon} class={`w-6 h-6 ${iconColorClass(actor.verdict)}`} />
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h3 class="text-xl font-bold">{actor.name}</h3>
+                {actor.verdict === 'negative' && (
+                  <Icon name="eye-off" class="w-4 h-4 text-dc-accent" />
+                )}
+                {actor.verdict === 'positive' && (
+                  <Icon name="eye" class="w-4 h-4 text-green-500" />
+                )}
+                {actor.verdict === 'investigating' && (
+                  <Icon name="scale" class="w-4 h-4 text-dc-primary" />
+                )}
+              </div>
+              <p class="text-sm text-dc-muted-fg mb-2">{actor.role}</p>
+              <div class={`inline-block px-2 py-0.5 rounded text-xs font-mono mb-3 ${statusClass(actor.verdict)}`}>
+                {actor.status}
+              </div>
+              <p class="text-sm text-dc-muted-fg">{actor.description}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

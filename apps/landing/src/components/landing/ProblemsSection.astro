@@ -1,0 +1,149 @@
+---
+import Icon from './Icon.astro';
+
+const problems = [
+  {
+    icon: 'user-x',
+    title: 'EMPRESA SEM HISTÓRICO',
+    subtitle: 'Criada em dezembro de 2024',
+    description:
+      "RT-One registrada em SP, no mesmo endereço da extinta Gamernuc. CEO Fernando Palamone foi DESMENTIDO pela Intel ao se apresentar como COO/VP. Intel: 'Ele nunca ocupou esse cargo'.",
+    severity: 'CRÍTICO',
+    color: 'destructive',
+  },
+  {
+    icon: 'map-pin-off',
+    title: 'LOCALIZAÇÃO SECRETA',
+    subtitle: 'Onde exatamente fica?',
+    description:
+      "Nenhuma coordenada geográfica. Nenhum polígono georreferenciado. Nenhuma matrícula do imóvel divulgada. Apenas 'MGC-497, região Oeste'. Como fiscalizar o que não se pode localizar?",
+    severity: 'CRÍTICO',
+    color: 'accent',
+  },
+  {
+    icon: 'droplets',
+    title: 'CONTRADIÇÃO HÍDRICA',
+    subtitle: 'Zero água... ou 239 mil litros/dia?',
+    description:
+      "Prometeram 'zero consumo de água para refrigeração' em 2025. Em 2026, pediram 2,77 L/s ao DMAE. Em Maringá, ADMITIRAM captar do Aquífero Guarani. Pode replicar aqui.",
+    severity: 'ALTO',
+    color: 'primary',
+  },
+  {
+    icon: 'zap',
+    title: 'PEGADA ELÉTRICA',
+    subtitle: '1,6 milhão de casas',
+    description:
+      "400 MW = 3,5 TWh/ano = 134.900 toneladas de CO₂ indireto. Alegam energia 100% renovável, mas cadê os contratos? Cemig: 'desabastecimento nacional não é nossa responsabilidade'.",
+    severity: 'ALTO',
+    color: 'primary',
+  },
+  {
+    icon: 'file-question',
+    title: 'SEM LICENÇA AMBIENTAL',
+    subtitle: 'Nenhuma LP, LI ou LO',
+    description:
+      'Até maio/2026, ZERO licenças emitidas pela SEMAD/FEAM-MG. Projeto em pré-licenciamento. MPF instaurou inquérito civil. RT-One NÃO RESPONDEU ao MPF.',
+    severity: 'CRÍTICO',
+    color: 'accent',
+  },
+  {
+    icon: 'tree-pine',
+    title: 'APP SEM DIAGNÓSTICO',
+    subtitle: '300 mil m² de área sensível',
+    description:
+      'A empresa admite APP interna com possíveis veredas e nascentes. Lobo-guará, tamanduá-bandeira e raposinha-do-campo circulam na MGC-497. Nenhum inventário público de fauna/flora.',
+    severity: 'ALTO',
+    color: 'primary',
+  },
+  {
+    icon: 'alert-octagon',
+    title: 'AUDIÊNCIA ESVAZIADA',
+    subtitle: 'Prefeitura e CEO ausentes',
+    description:
+      'Na audiência pública de 26/03/2026, NEM a Prefeitura NEM o presidente da RT-One compareceram. Enviaram apenas o advogado Dr. Danilo. O governador estava em Uberlândia no mesmo dia.',
+    severity: 'ALTO',
+    color: 'primary',
+  },
+  {
+    icon: 'help-circle',
+    title: 'EMPREGOS: REALIDADE?',
+    subtitle: '2 mil vagas... automatizadas?',
+    description:
+      'Data centers são altamente automatizados. A maioria dos empregos exige especialização. 100 mil pessoas em Uberlândia moram em áreas irregulares sem água e energia. Quem priorizar?',
+    severity: 'MÉDIO',
+    color: 'foreground',
+  },
+];
+
+const severityClass = (s: string) =>
+  s === 'CRÍTICO'
+    ? 'bg-dc-destructive/20 text-dc-destructive'
+    : s === 'ALTO'
+      ? 'bg-dc-accent/20 text-dc-accent'
+      : 'bg-dc-muted text-dc-muted-fg';
+
+const iconColorClass = (c: string) =>
+  c === 'destructive'
+    ? 'text-dc-destructive'
+    : c === 'accent'
+      ? 'text-dc-accent'
+      : c === 'primary'
+        ? 'text-dc-primary'
+        : 'text-dc-fg';
+---
+<section class="py-24 px-4">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-6xl font-black tracking-tight mb-4">
+        O QUE <span class="text-dc-accent">NÃO</span> CONTAM
+      </h2>
+      <p class="text-dc-muted-fg text-lg max-w-2xl mx-auto">
+        Oito problemas críticos que a prefeitura e a empresa preferem não explicar.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {problems.map((problem) => (
+        <div class="group relative bg-dc-card border border-dc-border rounded-lg p-6 hover:border-dc-primary/50 transition-colors">
+          <div class="absolute top-4 right-4">
+            <span class={`text-xs font-mono px-2 py-1 rounded ${severityClass(problem.severity)}`}>
+              {problem.severity}
+            </span>
+          </div>
+
+          <Icon name={problem.icon} class={`w-10 h-10 mb-4 ${iconColorClass(problem.color)}`} strokeWidth={1.5} />
+
+          <h3 class="text-lg font-bold mb-1 group-hover:text-dc-primary transition-colors">
+            {problem.title}
+          </h3>
+          <p class="text-sm text-dc-muted-fg font-mono mb-3">
+            {problem.subtitle}
+          </p>
+          <p class="text-sm text-dc-muted-fg leading-relaxed">
+            {problem.description}
+          </p>
+        </div>
+      ))}
+    </div>
+
+    {/* Context Box */}
+    <div class="mt-12 bg-dc-card/50 border border-dc-border rounded-lg p-6">
+      <h3 class="text-xl font-bold mb-4">CONTEXTO: UBERLÂNDIA EM CRISE HÍDRICA</h3>
+      <div class="grid md:grid-cols-3 gap-6 text-sm">
+        <div>
+          <div class="text-3xl font-black text-dc-accent mb-2">-10</div>
+          <p class="text-dc-muted-fg">posições no Ranking Trata Brasil 2026 (11ª para 21ª). Pior resultado da história.</p>
+        </div>
+        <div>
+          <div class="text-3xl font-black text-dc-primary mb-2">R$ 69,89</div>
+          <p class="text-dc-muted-fg">investimento por habitante em saneamento (recomendado: R$ 225/hab).</p>
+        </div>
+        <div>
+          <div class="text-3xl font-black text-dc-fg mb-2">320,4 L</div>
+          <p class="text-dc-muted-fg">consumo recorde per capita em 2023. Bairros vizinhos já sofrem restrições hídricas.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

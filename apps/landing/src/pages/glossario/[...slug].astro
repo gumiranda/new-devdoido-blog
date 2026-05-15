@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import '../../styles/blog-content.css';
+
+export async function getStaticPaths() {
+  const terms = await getCollection('glossary');
+  return terms.map((term) => ({ params: { slug: term.slug }, props: { term } }));
+}
+
+const { term } = Astro.props;
+const { Content } = await term.render();
+
+const allTerms = await getCollection('glossary');
+const relatedTerms = allTerms
+  .filter((t) => t.slug !== term.slug && term.data.relatedTerms?.includes(t.slug))
+  .slice(0, 5);
+
+const allPosts = await getCollection('blog');
+const relatedPosts = allPosts
+  .filter((p) => p.data.tags?.some((tag: string) => term.data.relatedTerms?.includes(tag) || tag === term.slug))
+  .slice(0, 3);
+
+const pageUrl = `https://datacenteruberlandia.com.br/glossario/${term.slug}`;
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: `${term.data.term}: ${term.data.acronym || 'Definição'}`,
+    description: term.data.description,
+    url: pageUrl,
+    inLanguage: 'pt-BR',
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: ['h1', '.blog-content h2', '.blog-content p'],
+    },
+    mainEntity: {
+      '@type': 'DefinedTerm',
+      name: term.data.term,
+      description: term.data.description,
+      inDefinedTermSet: {
+        '@type': 'DefinedTermSet',
+        name: 'Glossário de Data Centers',
+        url: 'https://datacenteruberlandia.com.br/glossario',
+      },
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://datacenteruberlandia.com.br/' },
+      { '@type': 'ListItem', position: 2, name: 'Glossário', item: 'https://datacenteruberlandia.com.br/glossario' },
+      { '@type': 'ListItem', position: 3, name: term.data.term, item: pageUrl },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title={`${term.data.term}${term.data.acronym ? ': ' + term.data.acronym : ''}`}
+  description={term.data.description}
+  canonical={`/glossario/${term.slug}`}
+  type="article"
+  publishedTime={term.data.pubDate.toISOString()}
+  modifiedTime={term.data.modifiedDate?.toISOString()}
+  jsonLd={jsonLd}
+>
+  <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 border-b border-base-300">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,oklch(var(--p)/0.08),transparent_50%)] pointer-events-none" aria-hidden="true"></div>
+    <div class="container relative mx-auto px-4 py-12 md:py-16 max-w-4xl">
+      <a href="/glossario" class="inline-flex items-center gap-1.5 text-base-content/70 hover:text-primary text-sm mb-6 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+        Glossário
+      </a>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-3">
+        <span class="title-shimmer bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">{term.data.term}</span>
+      </h1>
+      {term.data.acronym && (
+        <p class="text-base-content/70 text-lg">{term.data.acronym}</p>
+      )}
+      <p class="text-base-content/75 max-w-2xl mt-3">{term.data.description}</p>
+    </div>
+  </section>
+
+  <article class="container mx-auto px-4 py-10 md:py-14 max-w-3xl">
+    <div class="blog-content blog-post-content max-w-[65ch]">
+      <Content />
+    </div>
+
+    {relatedTerms.length > 0 && (
+      <aside class="mt-14 pt-10 border-t border-base-300/80" aria-label="Termos relacionados">
+        <p class="text-base-content/60 text-sm mb-2">Termos relacionados:</p>
+        <div class="flex flex-wrap gap-2">
+          {relatedTerms.map((t) => (
+            <a
+              href={`/glossario/${t.slug}`}
+              class="badge badge-lg badge-ghost hover:badge-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+            >
+              {t.data.term}
+            </a>
+          ))}
+        </div>
+      </aside>
+    )}
+
+    {relatedPosts.length > 0 && (
+      <aside class="mt-10 pt-10 border-t border-base-300/80" aria-label="Artigos relacionados">
+        <p class="text-base-content/60 text-sm mb-2">Artigos que mencionam este termo:</p>
+        <h2 class="text-lg font-semibold text-base-content mb-4">Leia também</h2>
+        <ul class="space-y-3" role="list">
+          {relatedPosts.map((post) => (
+            <li>
+              <a
+                href={`/blog/${post.slug}`}
+                class="group flex items-baseline gap-2 rounded-lg py-2 text-base-content/80 hover:text-base-content transition-colors"
+              >
+                <span class="text-primary opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                <span class="font-medium">{post.data.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    )}
+  </article>
+</BaseLayout>

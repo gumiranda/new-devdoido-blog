@@ -1,0 +1,106 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+const allTags = [...new Set(posts.flatMap((p) => p.data.tags ?? []))].sort();
+---
+
+<BaseLayout
+  title="Blog"
+  description="Notícias, análises e relatórios sobre os impactos ambientais e socioeconômicos de data centers em Uberlândia (MG), incluindo o projeto RT-One."
+  canonical="/blog"
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://datacenteruberlandia.com.br/' },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://datacenteruberlandia.com.br/blog' },
+    ],
+  }}
+>
+  <!-- Hero -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 border-b border-base-300">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,oklch(var(--p)/0.08),transparent_50%)] pointer-events-none" aria-hidden="true"></div>
+    <div class="container relative mx-auto px-4 py-12 md:py-16 max-w-4xl">
+      <div class="flex items-center justify-between gap-4 mb-6">
+        <a href="/" class="inline-flex items-center gap-1.5 text-base-content/70 hover:text-primary text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+          Home
+        </a>
+        <a href="/rss.xml" class="text-base-content/60 hover:text-primary text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded" title="RSS feed">RSS</a>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-3">
+        <span class="title-shimmer bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Blog</span>
+      </h1>
+      <p class="text-base-content/75 max-w-2xl">
+        Relatórios detalhados, dados oficiais e acompanhamento dos trâmites regulatórios de data centers em Uberlândia (MG).
+      </p>
+      <p class="text-base-content/60 text-sm mt-2">
+        Selecione uma tag abaixo ou navegue pelos posts.
+      </p>
+    </div>
+  </section>
+
+  <div class="container mx-auto px-4 py-10 md:py-14 max-w-3xl">
+    {allTags.length > 0 && (
+      <div class="flex flex-wrap items-center gap-2 mb-6" role="group" aria-label="Filter by tag">
+        <span class="text-sm text-base-content/70 mr-1">Filter:</span>
+        <button type="button" class="blog-tag-btn btn btn-sm btn-ghost btn-active" data-tag="">All</button>
+        {allTags.map((tag) => (
+          <button type="button" class="blog-tag-btn btn btn-sm btn-ghost" data-tag={tag}>{tag}</button>
+        ))}
+      </div>
+    )}
+    <ul class="space-y-5" role="list" id="blog-posts-list">
+      {posts.map((post) => (
+        <li class="blog-post-item" data-tags={(post.data.tags ?? []).join(' ')}>
+          <a
+            href={`/blog/${post.slug}`}
+            class="group block rounded-xl border border-base-300 bg-base-200/80 shadow-md hover:shadow-xl hover:border-primary/30 transition-all duration-200 overflow-hidden"
+          >
+            <div class="card-body gap-2 p-5 md:p-6">
+              <div class="flex items-start justify-between gap-4">
+                <h2 class="card-title text-xl md:text-2xl font-bold text-base-content group-hover:text-primary transition-colors">
+                  {post.data.title}
+                </h2>
+                <span class="shrink-0 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary group-hover:bg-primary/25 transition-colors" aria-hidden="true">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                </span>
+              </div>
+              <p class="text-base-content/75 text-sm md:text-base leading-relaxed">
+                {post.data.description}
+              </p>
+              <time class="text-base-content/50 text-xs font-medium" datetime={post.data.pubDate.toISOString()}>
+                {post.data.pubDate.toLocaleDateString('pt-BR', { dateStyle: 'long' })}
+              </time>
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <script>
+    (function() {
+      const buttons = document.querySelectorAll('.blog-tag-btn');
+      const items = document.querySelectorAll('.blog-post-item');
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const tag = (btn as HTMLButtonElement).getAttribute('data-tag') ?? '';
+          buttons.forEach((b) => b.classList.toggle('btn-active', b.getAttribute('data-tag') === tag));
+          items.forEach((li) => {
+            const tags = (li.getAttribute('data-tags') ?? '').split(' ').filter(Boolean);
+            const show = !tag || tags.includes(tag);
+            (li as HTMLElement).style.display = show ? '' : 'none';
+          });
+        });
+      });
+      const params = new URLSearchParams(window.location.search);
+      const tagFromUrl = params.get('tag');
+      if (tagFromUrl && document.querySelector(`.blog-tag-btn[data-tag="${tagFromUrl}"]`)) {
+        (document.querySelector(`.blog-tag-btn[data-tag="${tagFromUrl}"]`) as HTMLButtonElement)?.click();
+      }
+    })();
+  </script>
+</BaseLayout>

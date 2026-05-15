@@ -1,0 +1,248 @@
+---
+import Icon from './Icon.astro';
+---
+<section class="py-20 px-4 bg-black relative overflow-hidden">
+  {/* Background pattern */}
+  <div class="absolute inset-0 opacity-5">
+    <div
+      class="absolute inset-0"
+      style="background-image: repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(255, 59, 48, 0.1) 50px, rgba(255, 59, 48, 0.1) 51px);"
+    >
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto relative z-10">
+    {/* Header */}
+    <div class="text-center mb-16">
+      <div class="inline-flex items-center gap-2 px-4 py-2 bg-dc-destructive/20 border border-dc-destructive/50 rounded-full mb-6">
+        <Icon name="zap" class="w-4 h-4 text-dc-destructive" />
+        <span class="text-dc-destructive font-mono text-sm uppercase tracking-wider">Impacto no Seu Bolso</span>
+      </div>
+
+      <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-dc-fg mb-6 leading-tight text-balance">
+        Sua Conta de Luz<br />
+        <span class="text-dc-destructive">Pode Ficar Mais Cara</span>
+      </h2>
+
+      <p class="text-lg text-dc-muted-fg max-w-3xl mx-auto">
+        O data center da RT-One vai consumir até <span class="text-dc-primary font-bold">400 MW</span> de energia —
+        equivalente a <span class="text-dc-primary font-bold">1,6 milhão de casas</span>.
+        Entenda como isso pode afetar diretamente o valor que você paga todo mês.
+      </p>
+    </div>
+
+    {/* Main explanation cards */}
+    <div class="grid md:grid-cols-2 gap-8 mb-16">
+      {/* Como funciona a bandeira */}
+      <div class="bg-dc-card border border-dc-border rounded-2xl p-5 sm:p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
+            <Icon name="alert-triangle" class="w-6 h-6 text-amber-500" />
+          </div>
+          <h3 class="text-2xl font-bold text-dc-fg">O Que é Bandeira Vermelha?</h3>
+        </div>
+
+        <div class="space-y-4 text-dc-muted-fg">
+          <p>
+            Quando chove pouco, os reservatórios das hidrelétricas ficam baixos.
+            Para manter a luz funcionando, o Brasil precisa ligar <span class="text-dc-fg font-semibold">usinas termoelétricas</span> —
+            que são muito mais caras porque queimam combustível.
+          </p>
+          <p>
+            Esse custo extra é repassado para <span class="text-dc-destructive font-semibold">você</span> por meio das bandeiras tarifárias:
+          </p>
+
+          <div class="mt-6 flex flex-col gap-3">
+            <div class="flex min-w-0 items-center gap-3 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-3 sm:px-4">
+              <span class="h-3 w-3 shrink-0 rounded-full bg-green-500" aria-hidden="true"></span>
+              <div class="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                <span class="text-sm font-medium text-green-400">Verde</span>
+                <span class="text-xs text-dc-muted-fg sm:text-right">Sem custo extra</span>
+              </div>
+            </div>
+            <div class="flex min-w-0 items-center gap-3 rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-3 py-3 sm:px-4">
+              <span class="h-3 w-3 shrink-0 rounded-full bg-yellow-500" aria-hidden="true"></span>
+              <div class="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
+                <span class="text-sm font-medium text-yellow-400">Amarela</span>
+                <p class="min-w-0 font-mono text-xs leading-snug tabular-nums text-dc-muted-fg sm:max-w-[11rem] sm:text-right">
+                  <span class="font-medium text-yellow-400/95">+R$ 1,88</span><span class="text-[0.7rem] text-dc-muted-fg opacity-90"> / 100&nbsp;kWh</span>
+                </p>
+              </div>
+            </div>
+            <div class="flex min-w-0 items-center gap-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-3 sm:px-4">
+              <span class="h-3 w-3 shrink-0 rounded-full bg-red-500" aria-hidden="true"></span>
+              <div class="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
+                <span class="text-sm font-medium text-red-400">Vermelha 2</span>
+                <p class="min-w-0 font-mono text-xs leading-snug tabular-nums text-dc-muted-fg sm:max-w-[11rem] sm:text-right">
+                  <span class="font-medium text-red-400/95">+R$ 7,87</span><span class="text-[0.7rem] text-dc-muted-fg opacity-90"> / 100&nbsp;kWh</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Conexão com datacenter */}
+      <div class="bg-dc-card border border-dc-border rounded-2xl p-5 sm:p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-12 h-12 rounded-xl bg-dc-destructive/20 flex items-center justify-center">
+            <Icon name="factory" class="w-6 h-6 text-dc-destructive" />
+          </div>
+          <h3 class="text-2xl font-bold text-dc-fg">Como o data center piora isso?</h3>
+        </div>
+
+        <div class="space-y-4 text-dc-muted-fg">
+          <p>
+            Mais demanda no sistema elétrico = mais pressão nos reservatórios =
+            <span class="text-dc-destructive font-semibold"> maior chance de bandeira vermelha</span>.
+          </p>
+          <p>
+            A RT-One vai consumir <span class="text-dc-fg font-semibold">100 MW na fase 1</span>,
+            podendo chegar a <span class="text-dc-fg font-semibold">400 MW</span>.
+            A própria Cemig admitiu em resposta ao MPF:
+          </p>
+
+          <blockquote class="border-l-4 border-dc-primary pl-4 py-2 bg-dc-primary/5 rounded-r-lg italic">
+            "O impacto de desabastecimento energético ou hídrico em nível nacional não é de sua responsabilidade"
+          </blockquote>
+
+          <p class="text-sm">
+            Ou seja: se faltar energia por causa de consumidores gigantes como data centers,
+            <span class="text-dc-destructive font-semibold"> o problema é seu, não deles</span>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Calculation example */}
+    <div class="bg-gradient-to-br from-dc-destructive/10 to-dc-destructive/5 border-2 border-dc-destructive/30 rounded-2xl p-8 mb-16">
+      <div class="flex items-center gap-3 mb-6">
+        <Icon name="trending-up" class="w-8 h-8 text-dc-destructive" />
+        <h3 class="text-2xl font-bold text-dc-fg">Quanto Isso Custa Para Você?</h3>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-black/30 rounded-xl p-6">
+          <p class="text-dc-muted-fg text-sm mb-2">Consumo médio de uma família brasileira</p>
+          <p class="text-4xl font-black text-dc-fg">152 <span class="text-lg text-dc-muted-fg">kWh/mês</span></p>
+          <p class="text-xs text-dc-muted-fg mt-2">Fonte: ANEEL/EPE</p>
+        </div>
+
+        <div class="bg-black/30 rounded-xl p-6">
+          <p class="text-dc-muted-fg text-sm mb-2">Custo extra com bandeira vermelha 2</p>
+          <p class="text-4xl font-black text-dc-destructive">+R$ 11,96 <span class="text-lg text-dc-muted-fg">/mês</span></p>
+          <p class="text-xs text-dc-muted-fg mt-2">R$ 7,87 × 1,52 (por 100kWh)</p>
+        </div>
+
+        <div class="bg-black/30 rounded-xl p-6">
+          <p class="text-dc-muted-fg text-sm mb-2">Impacto anual na sua conta</p>
+          <p class="text-4xl font-black text-dc-primary">+R$ 143,52 <span class="text-lg text-dc-muted-fg">/ano</span></p>
+          <p class="text-xs text-dc-muted-fg mt-2">Se bandeira vermelha durar 12 meses</p>
+        </div>
+      </div>
+
+      <div class="mt-6 p-4 bg-dc-destructive/20 rounded-lg border border-dc-destructive/30">
+        <p class="text-sm text-dc-fg">
+          <strong>Atenção:</strong> Em 2024, o Brasil teve bandeira vermelha patamar 2 em setembro.
+          Em 2021, o Triângulo Mineiro foi declarado em <span class="text-dc-destructive font-semibold">situação crítica de escassez hídrica</span> pela ANA,
+          com reservatórios abaixo de 25%.
+          <span class="text-dc-primary font-semibold"> Mais consumidores gigantes = mais risco de isso acontecer de novo.</span>
+        </p>
+      </div>
+    </div>
+
+    {/* Uberlândia specific context */}
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="bg-dc-card border border-dc-border rounded-2xl p-5 sm:p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+            <Icon name="droplets" class="w-6 h-6 text-blue-500" />
+          </div>
+          <h3 class="text-xl font-bold text-dc-fg">Uberlândia Já Está no Limite</h3>
+        </div>
+
+        <ul class="space-y-4">
+          <li class="flex items-start gap-3">
+            <span class="text-dc-destructive mt-1">●</span>
+            <span class="text-dc-muted-fg">
+              <strong class="text-dc-fg">Agosto 2025:</strong> consumo de água ultrapassou
+              <span class="text-dc-destructive font-semibold"> 300 L/habitante/dia</span> —
+              quase o triplo do recomendado pela OMS
+            </span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-dc-destructive mt-1">●</span>
+            <span class="text-dc-muted-fg">
+              <strong class="text-dc-fg">2024:</strong> Uberlândia foi a
+              <span class="text-dc-primary font-semibold"> 2ª cidade de MG com maior consumo de energia</span>,
+              22ª no ranking nacional
+            </span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-dc-destructive mt-1">●</span>
+            <span class="text-dc-muted-fg">
+              <strong class="text-dc-fg">2023:</strong> recorde de consumo de água:
+              <span class="text-dc-destructive font-semibold"> 320,4 L/hab./dia</span> em pico de calor
+            </span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-dc-destructive mt-1">●</span>
+            <span class="text-dc-muted-fg">
+              <strong class="text-dc-fg">Setembro 2024:</strong> estiagem afetou abastecimento em MG,
+              alguns reservatórios com capacidade para apenas 30 dias
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="bg-dc-card border border-dc-border rounded-2xl p-5 sm:p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
+            <Icon name="thermometer" class="w-6 h-6 text-orange-500" />
+          </div>
+          <h3 class="text-xl font-bold text-dc-fg">O Cerrado Está Secando</h3>
+        </div>
+
+        <div class="space-y-4 text-dc-muted-fg">
+          <p>
+            O Triângulo Mineiro depende dos rios do Cerrado. Com as mudanças climáticas,
+            as secas estão ficando <span class="text-dc-destructive font-semibold">mais longas e mais severas</span>.
+          </p>
+
+          <div class="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+            <p class="text-sm">
+              <strong class="text-orange-400">Junho 2021:</strong> A ANA declarou o Triângulo Mineiro em
+              <span class="text-orange-400 font-semibold"> situação crítica de escassez hídrica</span>.
+              Volume útil dos reservatórios de hidrelétricas abaixo de 25%.
+            </p>
+          </div>
+
+          <p>
+            Pesquisadores da UFU alertam:
+            "Em um cenário de intensificação das mudanças climáticas, a presença de
+            <span class="text-dc-destructive font-semibold"> consumidores intensivos de água e energia pode agravar pressões já existentes</span>."
+          </p>
+          <p class="text-xs text-dc-muted-fg">
+            — Prof. Daniel Caixeta Andrade, Instituto de Economia/UFU
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Call to action */}
+    <div class="mt-16 text-center">
+      <div class="inline-block bg-gradient-to-r from-dc-destructive/20 to-dc-primary/20 border border-dc-destructive/50 rounded-2xl p-8 max-w-3xl">
+        <p class="text-2xl font-bold text-dc-fg mb-4">
+          Quem paga a conta quando a bandeira fica vermelha?
+        </p>
+        <p class="text-lg text-dc-primary font-black">
+          VOCÊ. Não o data center.
+        </p>
+        <p class="text-dc-muted-fg mt-4">
+          Grandes consumidores de energia no mercado livre não pagam bandeira tarifária.
+          Só os consumidores residenciais — como você — arcam com o custo extra.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,55 @@
+/*
+ * Alinha o DaisyUI (base-100, primary, etc.) à paleta RT-One / dc-* da rota raiz.
+ * Sobrescreve [data-theme] após o bundle do daisyUI (importar por último no layout).
+ */
+
+[data-theme='dark'],
+:root:has(input.theme-controller[value='dark']:checked) {
+  color-scheme: dark;
+  --in: 65% 0.15 230;
+  --inc: 98% 0.02 230;
+  --su: 72% 0.18 145;
+  --suc: 12% 0.05 145;
+  --wa: 78% 0.16 75;
+  --wac: 15% 0.02 75;
+  --er: 60% 0.25 25;
+  --erc: 98% 0.02 25;
+  /* Primary: verde RT-One */
+  --p: 85% 0.25 145;
+  --pc: 8% 0.02 145;
+  --s: 18% 0 0;
+  --sc: 98% 0 0;
+  --a: 65% 0.2 25;
+  --ac: 98% 0.02 25;
+  --n: 20% 0 0;
+  --nc: 65% 0 0;
+  --b1: 8% 0 0;
+  --b2: 12% 0 0;
+  --b3: 18% 0 0;
+  --bc: 98% 0 0;
+}
+
+[data-theme='light'],
+:root:has(input.theme-controller[value='light']:checked) {
+  color-scheme: light;
+  --in: 55% 0.14 230;
+  --inc: 98% 0.02 230;
+  --su: 45% 0.18 145;
+  --suc: 98% 0.02 145;
+  --wa: 75% 0.15 80;
+  --wac: 20% 0.05 80;
+  --er: 52% 0.22 25;
+  --erc: 98% 0.02 25;
+  --p: 52% 0.24 145;
+  --pc: 98% 0.03 145;
+  --s: 96% 0.01 90;
+  --sc: 22% 0.02 260;
+  --a: 55% 0.18 25;
+  --ac: 98% 0.02 25;
+  --n: 92% 0.02 260;
+  --nc: 35% 0.03 260;
+  --b1: 98% 0.01 95;
+  --b2: 96% 0.015 95;
+  --b3: 92% 0.02 95;
+  --bc: 22% 0.03 260;
+}

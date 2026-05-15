@@ -1,0 +1,130 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('diretorio')).sort((a, b) => a.data.title.localeCompare(b.data.title));
+
+const statusLabels: Record<string, string> = {
+  anunciado: 'Anunciado',
+  licenciamento: 'Em licenciamento',
+  construcao: 'Em construção',
+  operacao: 'Em operação',
+  suspenso: 'Suspenso',
+};
+
+const statusColors: Record<string, string> = {
+  anunciado: 'badge-ghost',
+  licenciamento: 'badge-warning',
+  construcao: 'badge-info',
+  operacao: 'badge-success',
+  suspenso: 'badge-error',
+};
+---
+
+<BaseLayout
+  title="Diretório de Data Centers no Brasil"
+  description="Diretório completo dos principais projetos de data centers no Brasil: RT-One, TikTok, Scala AI City, Elea e mais. Especificações, status e licenciamento ambiental."
+  canonical="/diretorio"
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://datacenteruberlandia.com.br/' },
+      { '@type': 'ListItem', position: 2, name: 'Diretório', item: 'https://datacenteruberlandia.com.br/diretorio' },
+    ],
+  }}
+>
+  <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 border-b border-base-300">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,oklch(var(--p)/0.08),transparent_50%)] pointer-events-none" aria-hidden="true"></div>
+    <div class="container relative mx-auto px-4 py-12 md:py-16 max-w-4xl">
+      <a href="/" class="inline-flex items-center gap-1.5 text-base-content/70 hover:text-primary text-sm mb-6 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+        Home
+      </a>
+      <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-3">
+        <span class="title-shimmer bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Diretório</span>
+      </h1>
+      <p class="text-base-content/75 max-w-2xl">
+        Principais projetos de data centers no Brasil: especificações técnicas, status de licenciamento ambiental e acompanhamento regulatório.
+      </p>
+    </div>
+  </section>
+
+  <div class="container mx-auto min-w-0 max-w-full px-4 py-10 md:py-14 max-w-3xl">
+    <div
+      class="-mx-4 px-4 md:mx-0 md:px-0 mb-8 w-full min-w-0 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]"
+      role="region"
+      aria-label="Tabela de projetos"
+    >
+      <table class="table table-zebra text-sm w-full min-w-[38rem] sm:min-w-0">
+        <thead>
+          <tr>
+            <th class="whitespace-nowrap">Projeto</th>
+            <th class="whitespace-nowrap">Local</th>
+            <th class="whitespace-nowrap">Capacidade</th>
+            <th class="whitespace-nowrap">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {projects.map((project) => (
+            <tr>
+              <td class="align-top">
+                <a
+                  href={`/diretorio/${project.slug}`}
+                  class="font-medium hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded break-words"
+                >
+                  {project.data.company}
+                </a>
+              </td>
+              <td class="align-top whitespace-nowrap">{project.data.city}/{project.data.state}</td>
+              <td class="align-top whitespace-nowrap tabular-nums">{project.data.capacityMw} MW</td>
+              <td class="align-top">
+                <span
+                  class={`badge badge-sm whitespace-nowrap shrink-0 ${statusColors[project.data.status] || 'badge-ghost'}`}
+                >
+                  {statusLabels[project.data.status] || project.data.status}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="space-y-5" role="list">
+      {projects.map((project) => (
+        <li>
+          <a
+            href={`/diretorio/${project.slug}`}
+            class="group block rounded-xl border border-base-300 bg-base-200/80 shadow-md hover:shadow-xl hover:border-primary/30 transition-all duration-200 overflow-hidden"
+          >
+            <div class="card-body gap-2 p-5 md:p-6">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                <div class="min-w-0">
+                  <h2 class="card-title text-xl md:text-2xl font-bold text-base-content group-hover:text-primary transition-colors">
+                    {project.data.title}
+                  </h2>
+                  <p class="text-sm text-base-content/60 mt-0.5">{project.data.company} · {project.data.city}/{project.data.state}</p>
+                </div>
+                <span
+                  class={`badge shrink-0 self-start whitespace-nowrap ${statusColors[project.data.status] || 'badge-ghost'}`}
+                >
+                  {statusLabels[project.data.status] || project.data.status}
+                </span>
+              </div>
+              <p class="text-base-content/75 text-sm md:text-base leading-relaxed">
+                {project.data.description}
+              </p>
+              <div class="flex flex-wrap gap-3 text-sm text-base-content/70">
+                <span>Capacidade: <strong>{project.data.capacityMw} MW</strong></span>
+                {project.data.investment && (
+                  <span>· Investimento: <strong>{project.data.investment}</strong></span>
+                )}
+              </div>
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</BaseLayout>
