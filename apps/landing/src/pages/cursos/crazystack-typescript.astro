@@ -1,0 +1,129 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageShell from '../../components/devdoido/PageShell.astro';
+import TypeStage from '../../components/devdoido/TypeStage.astro';
+import AsciiRule from '../../components/devdoido/AsciiRule.astro';
+import { courseModules } from '../../data/devdoido';
+---
+
+<BaseLayout
+  title="CrazyStack TypeScript"
+  description="Bootcamp CrazyStack TypeScript: fullstack do zero ao deploy com Bun, Next, Convex, Claude Code e n8n."
+  canonical="/cursos/crazystack-typescript"
+>
+  <PageShell active="Cursos">
+    <section class="section" style="padding-top:32px">
+      <div class="container">
+        <div class="tile tile-hero" style="min-height:760px;padding:0;color:var(--canvas);justify-content:flex-end">
+          <TypeStage word="CRAZYSTACK" invert density={0.1} />
+          <img class="course-poster" src="/devdoido/crazystack.png" alt="" style="position:absolute;right:32px;top:96px;width:min(36%,420px);z-index:1;border:1px solid rgba(255,255,255,.2)" />
+          <div style="position:absolute;top:32px;left:32px;display:flex;gap:8px;z-index:2;flex-wrap:wrap">
+            <span class="badge" style="background:var(--canvas);color:var(--ink);border-color:var(--canvas)">bootcamp · 14h</span>
+            <span class="badge badge-sale">-60% ate domingo</span>
+            <span class="badge" style="background:transparent;color:var(--canvas);border-color:rgba(255,255,255,.3)">turma #03</span>
+          </div>
+          <div class="t-mono hero-meta" style="position:absolute;top:32px;right:32px;text-align:right;z-index:2;font-size:11px;color:var(--canvas);opacity:.65;line-height:1.6">
+            proxima turma · 22.MAY.2026<br />
+            vagas restantes · 47 / 200<br />
+            v.2026.05 · last update 14.MAY
+          </div>
+          <div style="position:relative;z-index:2;padding:48px;max-width:980px">
+            <h1 class="t-display" style="color:var(--canvas)">CrazyStack<br />TypeScript.</h1>
+            <p class="tile-sub" style="color:var(--canvas);opacity:.86">
+              Fullstack do zero ao deploy com Bun, Next 16, Convex, Claude Code e n8n. Nao e tutorial de hello-world. E a stack que eu uso em producao.
+            </p>
+            <div style="display:flex;gap:12px;align-items:center;margin-top:32px;flex-wrap:wrap">
+              <a class="btn btn-outline-on-image" href="#pricing">Garantir vaga · R$ 497 →</a>
+              <a class="btn btn-ghost" style="color:var(--canvas);border-color:rgba(255,255,255,.3)" href="#modules">Aula 0 gratis</a>
+              <span class="t-mono" style="color:var(--canvas);opacity:.65;font-size:12px">parcela em 12x · R$ 49,70</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <AsciiRule label="// o que voce vai construir" />
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:24px;margin-bottom:32px;flex-wrap:wrap">
+          <h2 class="t-section">3 apps reais.<br />Em producao.</h2>
+          <span class="t-mono muted" style="font-size:12px">modulos 4-10</span>
+        </div>
+        <div class="article-grid">
+          {[
+            ['01', 'WhatsApp Bot SaaS', ['bun', 'convex', 'wpp api'], 'Bot multi-tenant com fila, billing e dashboard.'],
+            ['02', 'AI Content Engine', ['next 16', 'claude api', 'n8n'], 'Pipeline que pega topico, pesquisa, escreve e publica.'],
+            ['03', 'Dev Tools Marketplace', ['next 16', 'stripe', 'convex'], 'Marketplace para dev tools com auth, pagamento e painel.'],
+          ].map(([n, name, stack, body]) => (
+            <div class="build-card" style="aspect-ratio:4/5;align-items:stretch;flex-direction:column;justify-content:space-between">
+              <div>
+                <span class="t-mono muted" style="font-size:11px;text-transform:uppercase">// build.{n}</span>
+                <h3 class="t-display" style="font-size:52px;line-height:.94;margin-top:12px">{name}</h3>
+              </div>
+              <div>
+                <p style="color:var(--mute);line-height:1.5">{body}</p>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  {(stack as string[]).map((item) => <span class="badge">{item}</span>)}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0" id="modules">
+      <div class="container">
+        <AsciiRule label="// curriculum.json" />
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:24px;margin-bottom:32px;flex-wrap:wrap">
+          <h2 class="t-section">10 modulos · 14h.</h2>
+          <span class="t-mono muted" style="font-size:12px">todos com codigo aberto no github</span>
+        </div>
+        {courseModules.map(([number, name, time, body], index) => (
+          <details style="border-top:1px solid var(--hairline)">
+            <summary class="curriculum-row">
+              <span class="t-display" style="font-size:28px">{number}</span>
+              <span style="font-size:19px;font-weight:800">{name}</span>
+              <span class="t-mono muted" style="font-size:12px">{time}</span>
+              <span class="t-mono muted" style="font-size:11px">{index === 0 ? 'gratis' : 'incluso'}</span>
+              <span class="muted" style="font-size:20px">+</span>
+            </summary>
+            <p style="padding:0 0 24px 104px;color:var(--mute);font-size:16px;max-width:720px">{body}</p>
+          </details>
+        ))}
+        <div style="height:1px;background:var(--hairline)"></div>
+      </div>
+    </section>
+
+    <section class="section" id="pricing">
+      <div class="container">
+        <AsciiRule label="// pricing.txt" />
+        <div class="two-col" style="gap:8px">
+          <div style="background:var(--soft-cloud);padding:48px">
+            <span class="t-mono muted" style="font-size:11px;text-transform:uppercase">// plano.solo</span>
+            <h3 class="t-display" style="font-size:64px;margin-top:12px">R$ 497</h3>
+            <p class="t-caption">12x R$ 49,70 · acesso vitalicio</p>
+            <ul style="padding-left:0;list-style:none;margin:24px 0;font-size:15px">
+              {['14h de aula + 3 projetos completos', 'Codigo no github', 'Atualizacoes vitalicias', 'Discord da turma · 1 ano', 'Nao inclui mentoria'].map((item) => (
+                <li style="padding:6px 0;display:flex;gap:12px"><span class="muted">-</span><span>{item}</span></li>
+              ))}
+            </ul>
+            <a class="btn" href="/newsletter">Garantir vaga →</a>
+          </div>
+          <div style="background:var(--ink);color:var(--canvas);padding:48px;position:relative">
+            <span class="badge badge-accent" style="position:absolute;top:24px;right:24px">recomendado</span>
+            <span class="t-mono" style="font-size:11px;color:var(--canvas);opacity:.6;text-transform:uppercase">// plano.pro</span>
+            <h3 class="t-display" style="font-size:64px;margin-top:12px;color:var(--canvas)">R$ 1.297</h3>
+            <p style="color:var(--canvas);opacity:.7;font-size:14px">12x R$ 129,70 · vitalicio + mentoria</p>
+            <ul style="padding-left:0;list-style:none;margin:24px 0;font-size:15px;color:var(--canvas)">
+              {['Tudo do plano.solo', '4x mentoria 1:1', 'Review de PR direto comigo', 'Discord priority channel', 'Acesso a proxima turma de graca'].map((item) => (
+                <li style="padding:6px 0;display:flex;gap:12px"><span style="color:var(--accent)">+</span><span>{item}</span></li>
+              ))}
+            </ul>
+            <a class="btn btn-accent" href="/newsletter">Garantir vaga PRO →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </PageShell>
+</BaseLayout>

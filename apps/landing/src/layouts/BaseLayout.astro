@@ -1,7 +1,7 @@
 ---
 import SEO from '../components/SEO.astro';
-import '../styles/design-tokens.css';
-import '../styles/daisy-dc-bridge.css';
+import { SITE } from '../data/devdoido';
+import '../styles/devdoido.css';
 
 interface Props {
   title: string;
@@ -18,14 +18,26 @@ interface Props {
     name: string;
     url?: string;
     credentials?: string;
+    sameAs?: string[];
   };
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
-const { title, description, canonical, noindex, type = 'website', publishedTime, modifiedTime, image, articleSection, keywords, author, jsonLd } = Astro.props;
-const pathname = Astro.url.pathname;
-const isHome = pathname === '/';
-const isBlog = pathname === '/blog' || pathname.startsWith('/blog/');
+const {
+  title,
+  description,
+  canonical,
+  noindex,
+  type = 'website',
+  publishedTime,
+  modifiedTime,
+  image,
+  articleSection,
+  keywords,
+  author,
+  jsonLd,
+} = Astro.props;
+const fullTitle = title === SITE.title ? SITE.title : `${title} | ${SITE.title}`;
 ---
 
 <!doctype html>
@@ -33,13 +45,13 @@ const isBlog = pathname === '/blog' || pathname.startsWith('/blog/');
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title === 'Data Center Uberlândia' ? title : `${title} | Data Center Uberlândia`}</title>
+    <title>{fullTitle}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate" type="application/rss+xml" title="Data Center Uberlândia" href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title="DEVDOIDO RSS" href="/rss.xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <SEO
@@ -56,188 +68,9 @@ const isBlog = pathname === '/blog' || pathname.startsWith('/blog/');
       author={author}
       jsonLd={jsonLd}
     />
-    <style is:global>
-      :root {
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      }
-      /* White shimmer on hover for hero titles */
-      .title-shimmer {
-        display: inline-block;
-        position: relative;
-        overflow: hidden;
-      }
-      .title-shimmer::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          90deg,
-          transparent 0%,
-          transparent 35%,
-          rgba(255, 255, 255, 0.45) 50%,
-          transparent 65%,
-          transparent 100%
-        );
-        transform: translateX(-100%);
-        transition: transform 1s ease;
-        pointer-events: none;
-      }
-      .title-shimmer:hover::after {
-        transform: translateX(100%);
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .title-shimmer::after {
-          transition: none;
-        }
-        .title-shimmer:hover::after {
-          transform: none;
-        }
-      }
-      .skip-link {
-        position: absolute;
-        top: -100px;
-        left: 0.5rem;
-        z-index: 100;
-        padding: 0.5rem 1rem;
-        background: oklch(var(--p));
-        color: oklch(var(--pc));
-        font-weight: 600;
-        border-radius: 0.375rem;
-        transition: top 0.2s;
-      }
-      .skip-link:focus {
-        top: 0.5rem;
-        outline: 2px solid oklch(var(--p));
-        outline-offset: 2px;
-      }
-    </style>
   </head>
-  <body class="min-h-screen overflow-x-hidden bg-base-100 text-base-content font-sans">
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    <header class="sticky top-0 z-50 border-b border-base-300/60 bg-base-100/90 backdrop-blur-md">
-      <nav class="container mx-auto px-4 max-w-5xl md:h-12" aria-label="Main">
-        <div class="flex min-h-12 items-center justify-between gap-3 py-2 md:py-0">
-          <a
-            href="/"
-            class="min-w-0 flex-1 truncate text-sm font-semibold tracking-tight text-base-content hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded md:flex-none md:max-w-none md:overflow-visible md:text-clip md:whitespace-normal"
-            >Data Center Uberlândia</a>
-          <!-- Desktop -->
-          <div class="hidden md:flex shrink-0 items-center gap-4 lg:gap-6">
-            <a href="/" class={`text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 ${isHome ? 'font-semibold text-primary' : 'text-base-content/70 hover:text-base-content'}`} aria-current={isHome ? 'page' : undefined}>Home</a>
-            <a href="/blog" class={`text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 ${isBlog ? 'font-semibold text-primary' : 'text-base-content/70 hover:text-base-content'}`} aria-current={isBlog ? 'page' : undefined}>Blog</a>
-            <a href="/glossario" class={`text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 ${pathname.startsWith('/glossario') ? 'font-semibold text-primary' : 'text-base-content/70 hover:text-base-content'}`} aria-current={pathname.startsWith('/glossario') ? 'page' : undefined}>Glossário</a>
-            <a href="/diretorio" class={`text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 ${pathname.startsWith('/diretorio') ? 'font-semibold text-primary' : 'text-base-content/70 hover:text-base-content'}`} aria-current={pathname.startsWith('/diretorio') ? 'page' : undefined}>Diretório</a>
-            <a href="/comparar" class={`text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 ${pathname.startsWith('/comparar') ? 'font-semibold text-primary' : 'text-base-content/70 hover:text-base-content'}`} aria-current={pathname.startsWith('/comparar') ? 'page' : undefined}>Comparar</a>
-            <a href="/sobre" class={`text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 ${pathname === '/sobre' ? 'font-semibold text-primary' : 'text-base-content/70 hover:text-base-content'}`} aria-current={pathname === '/sobre' ? 'page' : undefined}>Sobre</a>
-            <label class="flex items-center gap-2 cursor-pointer" title="Alternar tema">
-              <span class="text-sm text-base-content/70">Tema</span>
-              <input type="checkbox" id="theme-toggle" value="dark" class="toggle toggle-sm theme-controller" aria-label="Alternar tema escuro/claro" />
-            </label>
-          </div>
-          <!-- Mobile: tema + menu -->
-          <div class="flex shrink-0 items-center gap-2 md:hidden">
-            <label class="flex items-center gap-2 cursor-pointer" title="Alternar tema">
-              <span class="sr-only">Alternar tema</span>
-              <input type="checkbox" id="theme-toggle-mobile" value="dark" class="toggle toggle-sm theme-controller" aria-label="Alternar tema escuro/claro" />
-            </label>
-            <button
-              type="button"
-              id="mobile-nav-toggle"
-              class="btn btn-ghost btn-sm btn-square -mr-2"
-              aria-expanded="false"
-              aria-controls="mobile-nav-panel"
-              aria-label="Abrir menu"
-            >
-              <svg class="mobile-nav-icon-open size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
-              </svg>
-              <svg class="mobile-nav-icon-close hidden size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-        <!-- Mobile dropdown -->
-        <div id="mobile-nav-panel" class="hidden md:hidden border-t border-base-300/60 py-3">
-          <div class="flex flex-col gap-0.5">
-            <a href="/" class={`rounded-lg px-2 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset ${isHome ? 'bg-base-200 font-semibold text-primary' : 'text-base-content/80 hover:bg-base-200'}`} aria-current={isHome ? 'page' : undefined}>Home</a>
-            <a href="/blog" class={`rounded-lg px-2 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset ${isBlog ? 'bg-base-200 font-semibold text-primary' : 'text-base-content/80 hover:bg-base-200'}`} aria-current={isBlog ? 'page' : undefined}>Blog</a>
-            <a href="/glossario" class={`rounded-lg px-2 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset ${pathname.startsWith('/glossario') ? 'bg-base-200 font-semibold text-primary' : 'text-base-content/80 hover:bg-base-200'}`} aria-current={pathname.startsWith('/glossario') ? 'page' : undefined}>Glossário</a>
-            <a href="/diretorio" class={`rounded-lg px-2 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset ${pathname.startsWith('/diretorio') ? 'bg-base-200 font-semibold text-primary' : 'text-base-content/80 hover:bg-base-200'}`} aria-current={pathname.startsWith('/diretorio') ? 'page' : undefined}>Diretório</a>
-            <a href="/comparar" class={`rounded-lg px-2 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset ${pathname.startsWith('/comparar') ? 'bg-base-200 font-semibold text-primary' : 'text-base-content/80 hover:bg-base-200'}`} aria-current={pathname.startsWith('/comparar') ? 'page' : undefined}>Comparar</a>
-            <a href="/sobre" class={`rounded-lg px-2 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset ${pathname === '/sobre' ? 'bg-base-200 font-semibold text-primary' : 'text-base-content/80 hover:bg-base-200'}`} aria-current={pathname === '/sobre' ? 'page' : undefined}>Sobre</a>
-          </div>
-        </div>
-      </nav>
-    </header>
-    <main id="main-content" tabindex="-1" class="min-w-0">
-      <slot />
-    </main>
-    <footer class="footer footer-center p-6 bg-base-200 text-base-content text-sm gap-2">
-      <p>Data Center Uberlândia — Monitoramento Ambiental e Socioeconômico</p>
-      <a href="/rss.xml" class="link link-hover text-base-content/70 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">RSS</a>
-    </footer>
-    <script is:inline>
-      (function() {
-        var stored = localStorage.getItem('theme');
-        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        var theme = stored || (prefersDark ? 'dark' : 'light');
-        document.documentElement.setAttribute('data-theme', theme);
-        function setTheme(next) {
-          document.documentElement.setAttribute('data-theme', next);
-          localStorage.setItem('theme', next);
-          var t1 = document.getElementById('theme-toggle');
-          var t2 = document.getElementById('theme-toggle-mobile');
-          if (t1) t1.checked = next === 'dark';
-          if (t2) t2.checked = next === 'dark';
-        }
-        function bindToggle(el) {
-          if (!el) return;
-          el.checked = theme === 'dark';
-          el.addEventListener('change', function() {
-            setTheme(el.checked ? 'dark' : 'light');
-          });
-        }
-        bindToggle(document.getElementById('theme-toggle'));
-        bindToggle(document.getElementById('theme-toggle-mobile'));
-      })();
-
-      (function() {
-        var btn = document.getElementById('mobile-nav-toggle');
-        var panel = document.getElementById('mobile-nav-panel');
-        if (!btn || !panel) return;
-        var openIcon = btn.querySelector('.mobile-nav-icon-open');
-        var closeIcon = btn.querySelector('.mobile-nav-icon-close');
-        function setOpen(open) {
-          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-          btn.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
-          panel.classList.toggle('hidden', !open);
-          if (openIcon && closeIcon) {
-            openIcon.classList.toggle('hidden', open);
-            closeIcon.classList.toggle('hidden', !open);
-          }
-        }
-        btn.addEventListener('click', function() {
-          setOpen(btn.getAttribute('aria-expanded') !== 'true');
-        });
-        panel.querySelectorAll('a').forEach(function(link) {
-          link.addEventListener('click', function() {
-            setOpen(false);
-          });
-        });
-        document.addEventListener('keydown', function(e) {
-          if (e.key !== 'Escape') return;
-          if (btn.getAttribute('aria-expanded') === 'true') {
-            setOpen(false);
-            btn.focus();
-          }
-        });
-        var mq = window.matchMedia('(min-width: 768px)');
-        function onWide() {
-          if (mq.matches) setOpen(false);
-        }
-        mq.addEventListener('change', onWide);
-      })();
-    </script>
+  <body>
+    <a href="#main-content" class="skip-link">Pular para conteudo</a>
+    <slot />
   </body>
 </html>

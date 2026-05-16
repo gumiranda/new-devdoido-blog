@@ -3,7 +3,7 @@ import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://datacenteruberlandia.com.br',
+  site: 'https://devdoido.com.br',
   integrations: [
     tailwind(),
     sitemap({

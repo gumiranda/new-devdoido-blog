@@ -1,8 +1,6 @@
 ---
-/**
- * SEO component: meta tags, Open Graph, Twitter, canonical, JSON-LD.
- * Use on every page for consistent SEO.
- */
+import { SITE } from '../data/devdoido';
+
 interface Props {
   title: string;
   description: string;
@@ -23,14 +21,32 @@ interface Props {
   };
 }
 
-const { title, description, canonical, noindex = false, type = 'website', publishedTime, modifiedTime, image, articleSection, keywords, jsonLd, author } = Astro.props;
-const site = Astro.site?.href ?? 'https://datacenteruberlandia.com.br';
+const {
+  title,
+  description,
+  canonical,
+  noindex = false,
+  type = 'website',
+  publishedTime,
+  modifiedTime,
+  image,
+  articleSection,
+  keywords,
+  jsonLd,
+  author,
+} = Astro.props;
+
+const site = Astro.site?.href ?? SITE.url;
 const url = canonical ? (canonical.startsWith('http') ? canonical : new URL(canonical, site).href) : Astro.url.href;
-const fullTitle = title === 'Data Center Uberlândia' ? title : `${title} | Data Center Uberlândia`;
+const fullTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
 const ogImage = image ?? new URL('/og-default.png', site).href;
+const defaultAuthor = author ?? {
+  name: SITE.author,
+  url: `${site}/sobre`,
+  credentials: 'Programador, criador de conteudo e autor do DEVDOIDO',
+};
 ---
 
-<!-- Primary meta -->
 <meta name="description" content={description} />
 {
   noindex
@@ -38,9 +54,8 @@ const ogImage = image ?? new URL('/og-default.png', site).href;
     : <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
 }
 <link rel="canonical" href={url} />
-<meta name="theme-color" content="#0f172a" />
+<meta name="theme-color" content="#0a0a0a" />
 
-<!-- Open Graph -->
 <meta property="og:type" content={type} />
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
@@ -48,9 +63,8 @@ const ogImage = image ?? new URL('/og-default.png', site).href;
 <meta property="og:image" content={ogImage} />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:site_name" content="Data Center Uberlândia" />
+<meta property="og:site_name" content={SITE.title} />
 
-<!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
@@ -63,73 +77,58 @@ const ogImage = image ?? new URL('/og-default.png', site).href;
   </>
 )}
 
-<!-- JSON-LD: WebSite or Article -->
 {type === 'website' && (
   <script type="application/ld+json" set:html={JSON.stringify([
     {
       '@context': 'https://schema.org',
-      '@type': 'Organization',
-      name: 'Data Center Uberlândia',
-      url: site,
-      description: 'Blog independente que monitora e relata os impactos ambientais e socioeconômicos da instalação de data centers em Uberlândia (MG).',
-      logo: new URL('/og-default.png', site).href,
-      sameAs: [
-        `${site}/sobre`,
-        `${site}/blog`,
-        `${site}/rss.xml`,
-      ],
+      '@type': 'Person',
+      name: SITE.author,
+      url: `${site}/sobre`,
+      sameAs: ['https://youtube.com/@devdoido', 'https://x.com/devdoido'],
     },
     {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      name: 'Data Center Uberlândia',
-      description: description,
+      name: SITE.title,
+      description,
       url: site,
       inLanguage: 'pt-BR',
       potentialAction: {
         '@type': 'SearchAction',
-        target: `${site}blog?q={search_term_string}`,
+        target: `${site}/blog?q={search_term_string}`,
         'query-input': 'required name=search_term_string',
       },
     },
   ])} />
 )}
+
 {type === 'article' && publishedTime && (
   <script type="application/ld+json" set:html={JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: title,
-    description: description,
+    description,
     image: ogImage,
-    url: url,
+    url,
     datePublished: publishedTime,
     dateModified: modifiedTime ?? publishedTime,
     inLanguage: 'pt-BR',
     ...(articleSection ? { articleSection } : {}),
     ...(keywords ? { keywords: keywords.join(', ') } : {}),
-    author: author ? {
+    author: {
       '@type': 'Person',
-      name: author.name,
-      ...(author.url ? { url: author.url } : {}),
-      ...(author.credentials ? { jobTitle: author.credentials } : {}),
-      ...(author.sameAs ? { sameAs: author.sameAs } : {}),
-      worksFor: {
-        '@type': 'Organization',
-        name: 'Data Center Uberlândia',
-        url: site,
-      },
-    } : {
-      '@type': 'Organization',
-      name: 'Data Center Uberlândia',
-      url: site,
+      name: defaultAuthor.name,
+      ...(defaultAuthor.url ? { url: defaultAuthor.url } : {}),
+      ...(defaultAuthor.credentials ? { jobTitle: defaultAuthor.credentials } : {}),
+      ...(defaultAuthor.sameAs ? { sameAs: defaultAuthor.sameAs } : {}),
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Data Center Uberlândia',
-        logo: {
-          '@type': 'ImageObject',
-          url: new URL('/og-default.png', site).href,
-        },
+      name: SITE.title,
+      logo: {
+        '@type': 'ImageObject',
+        url: new URL('/og-default.png', site).href,
+      },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
@@ -137,6 +136,5 @@ const ogImage = image ?? new URL('/og-default.png', site).href;
     },
   })} />
 )}
-{jsonLd && (
-  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
-)}
+
+{jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}

@@ -1,106 +1,125 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import PageShell from '../../components/devdoido/PageShell.astro';
+import ArticleCard from '../../components/devdoido/ArticleCard.astro';
+import AsciiRule from '../../components/devdoido/AsciiRule.astro';
+import { categories, formatDate, posts } from '../../data/devdoido';
 
-const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
-const allTags = [...new Set(posts.flatMap((p) => p.data.tags ?? []))].sort();
+const filterGroups = [
+  ['Periodo', ['essa semana', 'esse mes', '2026', '2025', '2024', 'todos']],
+  ['Formato', ['artigo', 'manifesto', 'tutorial']],
+  ['Duracao', ['< 5 min', '5-10 min', 'long read']],
+  ['Stack', ['next.js', 'react', 'bun', 'node', 'claude code', 'cursor', 'n8n']],
+] as const;
 ---
 
 <BaseLayout
   title="Blog"
-  description="Notícias, análises e relatórios sobre os impactos ambientais e socioeconômicos de data centers em Uberlândia (MG), incluindo o projeto RT-One."
+  description="Arquivo do DEVDOIDO: artigos sobre vibe coding, IA, SaaS, carreira e stack moderna sem tutorial de espuma."
   canonical="/blog"
-  jsonLd={{
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://datacenteruberlandia.com.br/' },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://datacenteruberlandia.com.br/blog' },
-    ],
-  }}
 >
-  <!-- Hero -->
-  <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 border-b border-base-300">
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,oklch(var(--p)/0.08),transparent_50%)] pointer-events-none" aria-hidden="true"></div>
-    <div class="container relative mx-auto px-4 py-12 md:py-16 max-w-4xl">
-      <div class="flex items-center justify-between gap-4 mb-6">
-        <a href="/" class="inline-flex items-center gap-1.5 text-base-content/70 hover:text-primary text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-          Home
-        </a>
-        <a href="/rss.xml" class="text-base-content/60 hover:text-primary text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded" title="RSS feed">RSS</a>
+  <PageShell active="Home">
+    <section style="padding:64px 0 32px;border-bottom:1px solid var(--hairline)">
+      <div class="container">
+        <p class="t-mono muted" style="margin:0 0 18px;text-transform:uppercase;font-size:12px">◆ /blog · 412 artigos · 8 categorias</p>
+        <h1 class="t-display">O Arquivo.</h1>
+        <p style="max-width:720px;margin:18px 0 0;color:var(--mute);font-size:19px">
+          Tudo que eu ja publiquei. Em ordem cronologica, sem filtro de relevancia. Use o filtro embaixo. Ou role. Voce decide.
+        </p>
       </div>
-      <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-3">
-        <span class="title-shimmer bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Blog</span>
-      </h1>
-      <p class="text-base-content/75 max-w-2xl">
-        Relatórios detalhados, dados oficiais e acompanhamento dos trâmites regulatórios de data centers em Uberlândia (MG).
-      </p>
-      <p class="text-base-content/60 text-sm mt-2">
-        Selecione uma tag abaixo ou navegue pelos posts.
-      </p>
-    </div>
-  </section>
+    </section>
 
-  <div class="container mx-auto px-4 py-10 md:py-14 max-w-3xl">
-    {allTags.length > 0 && (
-      <div class="flex flex-wrap items-center gap-2 mb-6" role="group" aria-label="Filter by tag">
-        <span class="text-sm text-base-content/70 mr-1">Filter:</span>
-        <button type="button" class="blog-tag-btn btn btn-sm btn-ghost btn-active" data-tag="">All</button>
-        {allTags.map((tag) => (
-          <button type="button" class="blog-tag-btn btn btn-sm btn-ghost" data-tag={tag}>{tag}</button>
-        ))}
+    <section style="padding:16px 0;border-bottom:1px solid var(--hairline);position:sticky;top:66px;background:var(--canvas);z-index:50">
+      <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1" role="group" aria-label="Filtrar por tag">
+          <button class="chip blog-filter" aria-pressed="true" data-tag="">Tudo · 412</button>
+          {categories.map((category) => (
+            <button class="chip blog-filter" data-tag={category.slug}>{category.name} · {category.count}</button>
+          ))}
+        </div>
+        <label style="display:flex;align-items:center;gap:8px">
+          <span class="t-caption">ordenar:</span>
+          <select class="input" style="min-height:38px;font-family:var(--font-ui)">
+            <option>+ recentes</option>
+            <option>+ lidos</option>
+            <option>+ comentados</option>
+          </select>
+        </label>
       </div>
-    )}
-    <ul class="space-y-5" role="list" id="blog-posts-list">
-      {posts.map((post) => (
-        <li class="blog-post-item" data-tags={(post.data.tags ?? []).join(' ')}>
-          <a
-            href={`/blog/${post.slug}`}
-            class="group block rounded-xl border border-base-300 bg-base-200/80 shadow-md hover:shadow-xl hover:border-primary/30 transition-all duration-200 overflow-hidden"
-          >
-            <div class="card-body gap-2 p-5 md:p-6">
-              <div class="flex items-start justify-between gap-4">
-                <h2 class="card-title text-xl md:text-2xl font-bold text-base-content group-hover:text-primary transition-colors">
-                  {post.data.title}
-                </h2>
-                <span class="shrink-0 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary group-hover:bg-primary/25 transition-colors" aria-hidden="true">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-                </span>
+    </section>
+
+    <section class="section">
+      <div class="container" style="display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px" id="blog-layout">
+        <aside>
+          {filterGroups.map(([title, rows]) => (
+            <div style="margin-bottom:32px">
+              <h4 class="t-body-strong" style="margin-bottom:12px">{title}</h4>
+              <div style="display:flex;flex-direction:column">
+                {rows.map((row, index) => (
+                  <button style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;background:none;border:0;color:var(--ink);cursor:pointer;text-align:left">
+                    <span>{row}</span>
+                    <span class="muted">({index * 7 + 12})</span>
+                  </button>
+                ))}
               </div>
-              <p class="text-base-content/75 text-sm md:text-base leading-relaxed">
-                {post.data.description}
-              </p>
-              <time class="text-base-content/50 text-xs font-medium" datetime={post.data.pubDate.toISOString()}>
-                {post.data.pubDate.toLocaleDateString('pt-BR', { dateStyle: 'long' })}
-              </time>
             </div>
-          </a>
-        </li>
-      ))}
-    </ul>
-  </div>
+          ))}
+        </aside>
+        <div>
+          <AsciiRule label="// cronologia · maio 2026" />
+          <div class="article-grid" style="--grid-cols:3" id="blog-posts-list">
+            {posts.map((post) => (
+              <div class="blog-post-item" data-tags={[post.categorySlug, ...post.tags].join(' ')}>
+                <ArticleCard
+                  href={`/blog/${post.slug}`}
+                  category={`// ${post.category} · ${post.minutes} min`}
+                  title={post.title}
+                  date={formatDate(post.pubDate)}
+                  reads={post.reads}
+                  kind={post.kind}
+                  display={post.display}
+                  badges={post.badges}
+                />
+              </div>
+            ))}
+          </div>
+          <div style="margin-top:64px;padding:32px 0;border-top:1px solid var(--hairline);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <span class="t-caption">mostrando 1-12 de 412</span>
+            <div style="display:flex;gap:4px;align-items:center">
+              <button class="btn-icon" disabled aria-label="Anterior">←</button>
+              <button class="chip" aria-pressed="true">1</button>
+              <button class="chip">2</button>
+              <button class="chip">3</button>
+              <span class="t-caption" style="padding:0 8px">...</span>
+              <button class="chip">35</button>
+              <button class="btn-icon" aria-label="Proxima">→</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </PageShell>
 
   <script>
     (function() {
-      const buttons = document.querySelectorAll('.blog-tag-btn');
-      const items = document.querySelectorAll('.blog-post-item');
-      buttons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const tag = (btn as HTMLButtonElement).getAttribute('data-tag') ?? '';
-          buttons.forEach((b) => b.classList.toggle('btn-active', b.getAttribute('data-tag') === tag));
-          items.forEach((li) => {
-            const tags = (li.getAttribute('data-tags') ?? '').split(' ').filter(Boolean);
-            const show = !tag || tags.includes(tag);
-            (li as HTMLElement).style.display = show ? '' : 'none';
-          });
+      var buttons = document.querySelectorAll('.blog-filter');
+      var items = document.querySelectorAll('.blog-post-item');
+      function setTag(tag) {
+        buttons.forEach(function(btn) {
+          btn.setAttribute('aria-pressed', btn.getAttribute('data-tag') === tag ? 'true' : 'false');
+        });
+        items.forEach(function(item) {
+          var tags = (item.getAttribute('data-tags') || '').split(' ').filter(Boolean);
+          (item as HTMLElement).style.display = !tag || tags.indexOf(tag) !== -1 ? '' : 'none';
+        });
+      }
+      buttons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          setTag(btn.getAttribute('data-tag') || '');
         });
       });
-      const params = new URLSearchParams(window.location.search);
-      const tagFromUrl = params.get('tag');
-      if (tagFromUrl && document.querySelector(`.blog-tag-btn[data-tag="${tagFromUrl}"]`)) {
-        (document.querySelector(`.blog-tag-btn[data-tag="${tagFromUrl}"]`) as HTMLButtonElement)?.click();
-      }
+      var initialTag = new URLSearchParams(window.location.search).get('tag') || '';
+      if (initialTag) setTag(initialTag);
     })();
   </script>
 </BaseLayout>

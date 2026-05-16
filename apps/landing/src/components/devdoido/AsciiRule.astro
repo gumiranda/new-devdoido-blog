@@ -1,0 +1,13 @@
+---
+interface Props {
+  label?: string;
+}
+
+const { label = '' } = Astro.props;
+const line = '─'.repeat(120);
+---
+
+<div class="ascii-rule" aria-hidden={!label}>
+  {label && <span>{label}</span>}
+  <span>{line}</span>
+</div>

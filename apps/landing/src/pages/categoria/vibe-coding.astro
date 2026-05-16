@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageShell from '../../components/devdoido/PageShell.astro';
+import ArticleCard from '../../components/devdoido/ArticleCard.astro';
+import AsciiRule from '../../components/devdoido/AsciiRule.astro';
+import { formatDate, posts, subTags } from '../../data/devdoido';
+
+const vibePosts = posts.filter((post) => post.categorySlug === 'vibe-coding');
+const pinned = posts.filter((post) => post.pinned).slice(0, 3);
+---
+
+<BaseLayout
+  title="Vibe Coding"
+  description="Artigos do DEVDOIDO sobre Cursor, Claude Code, Lovable, agents, prompts e o que sobra quando o hype acaba."
+  canonical="/categoria/vibe-coding"
+>
+  <PageShell active="Vibe Coding">
+    <section class="section" style="padding-top:32px">
+      <div class="container">
+        <div class="tile tile-hero" style="min-height:560px">
+          <div class="stage-grid"></div>
+          <div style="position:absolute;top:32px;left:32px;display:flex;gap:8px;z-index:1;flex-wrap:wrap">
+            <span class="badge">categoria</span>
+            <span class="badge badge-solid">48 artigos</span>
+          </div>
+          <div style="position:relative;z-index:1">
+            <h1 class="t-display">Vibe<br />Coding.</h1>
+            <p class="tile-sub">
+              Programar com IA virou jeito de vida ou virou muleta? Artigos sobre Cursor, Claude Code, Lovable, Antigravity e o que sobra depois que o hype acaba.
+            </p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <a class="btn" href="#vibe-list">Ver os 48</a>
+              <a class="btn btn-secondary" href="/newsletter">Assinar categoria</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <AsciiRule label="// pinned · os 3 + lidos" />
+        <div class="article-grid">
+          {pinned.map((post) => (
+            <ArticleCard
+              href={`/blog/${post.slug}`}
+              category={`// ${post.minutes} min · pinned`}
+              title={post.title}
+              date={formatDate(post.pubDate)}
+              reads={post.reads}
+              kind={post.kind}
+              display={post.display}
+              badges={[{ label: 'pinned', solid: true }]}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <AsciiRule label="// sub-tags" />
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          {subTags.map(([tag, count]) => (
+            <a class="chip" href={`/blog?tag=${encodeURIComponent(tag)}`}>{tag} <span class="muted">({count})</span></a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0" id="vibe-list">
+      <div class="container">
+        <AsciiRule label="// cronologia · maio 2026" />
+        <div class="article-grid" style="--grid-cols:4">
+          {vibePosts.concat(posts.slice(4, 8)).slice(0, 8).map((post) => (
+            <ArticleCard
+              href={`/blog/${post.slug}`}
+              category={`// vibe · ${post.minutes} min`}
+              title={post.title}
+              date={formatDate(post.pubDate)}
+              reads={post.reads}
+              kind={post.kind}
+              display={post.display}
+              badges={post.badges}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  </PageShell>
+</BaseLayout>

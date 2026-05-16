@@ -1,0 +1,20 @@
+---
+interface Props {
+  word?: string;
+  invert?: boolean;
+  density?: number;
+  withGrid?: boolean;
+}
+
+const { word = 'DEVDOIDO', invert = false, density = 0.07, withGrid = true } = Astro.props;
+---
+
+<div class:list={['type-stage', invert && 'is-invert']} style={`--density:${density}`}>
+  <div class="type-stage-word" aria-hidden="true">{word}</div>
+  {withGrid && <div class="type-stage-grid" aria-hidden="true"></div>}
+  <span class="crop-mark tl" aria-hidden="true"></span>
+  <span class="crop-mark tr" aria-hidden="true"></span>
+  <span class="crop-mark bl" aria-hidden="true"></span>
+  <span class="crop-mark br" aria-hidden="true"></span>
+  <slot />
+</div>

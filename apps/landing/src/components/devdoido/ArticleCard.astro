@@ -1,0 +1,58 @@
+---
+import type { Badge } from '../../data/devdoido';
+
+interface Props {
+  href?: string;
+  category: string;
+  title: string;
+  author?: string;
+  date: string;
+  reads?: string;
+  kind?: 'grid' | 'mono';
+  display: string;
+  badges?: Badge[];
+  image?: string;
+  wide?: boolean;
+}
+
+const {
+  href = '#',
+  category,
+  title,
+  author = '@devdoido',
+  date,
+  reads,
+  kind = 'grid',
+  display,
+  badges = [],
+  image,
+  wide = false,
+} = Astro.props;
+---
+
+<a class="acard" href={href}>
+  <div class="acard-img" style={wide ? 'aspect-ratio:16/10' : undefined}>
+    {image ? <img src={image} alt="" loading="lazy" /> : <div class:list={[kind === 'grid' ? 'stage-grid' : 'stage-mono']}></div>}
+    {badges.length > 0 && (
+      <div style="position:absolute;top:16px;left:16px;z-index:1;display:flex;gap:6px;flex-wrap:wrap">
+        {badges.map((badge) => (
+          <span class:list={['badge', badge.solid && 'badge-solid', badge.sale && 'badge-sale', badge.accent && 'badge-accent']}>{badge.label}</span>
+        ))}
+      </div>
+    )}
+    <div class="acard-img-headline">{display}</div>
+  </div>
+  <div class="acard-cat">{category}</div>
+  <h3 class="acard-title">{title}</h3>
+  <div class="acard-meta">
+    <span>{author}</span>
+    <span class="acard-meta-dot"></span>
+    <span>{date}</span>
+    {reads && (
+      <>
+        <span class="acard-meta-dot"></span>
+        <span>{reads} leituras</span>
+      </>
+    )}
+  </div>
+</a>

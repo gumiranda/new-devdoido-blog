@@ -1,0 +1,258 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageShell from '../../components/devdoido/PageShell.astro';
+import TypeStage from '../../components/devdoido/TypeStage.astro';
+import Terminal from '../../components/devdoido/Terminal.astro';
+import AsciiRule from '../../components/devdoido/AsciiRule.astro';
+import { transcriptSegments } from '../../data/devdoido';
+---
+
+<BaseLayout
+  title="Admin Transcribe"
+  description="Mock UI do painel DEVDOIDO para transformar videos do YouTube em transcricao e rascunho de artigo."
+  canonical="/admin/transcribe"
+  noindex={true}
+>
+  <PageShell admin active="Transcribe">
+    <section class="section" style="padding-top:32px">
+      <div class="container">
+        <div class="tile" style="min-height:300px;padding:0;justify-content:flex-end">
+          <TypeStage word="TRANSCRIBE" density={0.07} />
+          <div style="position:absolute;top:24px;left:24px;display:flex;gap:6px;z-index:1;flex-wrap:wrap">
+            <span class="badge">/ admin / transcribe</span>
+            <span class="badge badge-solid">v.0.4 · beta</span>
+          </div>
+          <div class="t-mono muted" style="position:absolute;top:24px;right:24px;text-align:right;font-size:11px;line-height:1.5;z-index:1">
+            jobs hoje · 4<br />
+            transcript queue · 0<br />
+            usage · 12 / 100 essa semana
+          </div>
+          <div style="position:relative;z-index:1;padding:32px">
+            <h1 class="t-display">YouTube →<br />Texto. <span style="color:var(--sale)">Bruto.</span></h1>
+            <p style="max-width:560px;margin:18px 0 0;color:var(--mute);font-size:17px">
+              Cola a URL, escolhe o que fazer. Transcript completo + timestamps + summarize mock + export pra rascunho.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:0 0 24px">
+      <div class="container">
+        <div class="admin-url-grid">
+          <div style="display:flex;align-items:center;gap:10px;padding:0 18px;background:var(--soft-cloud);border:1px solid var(--hairline);border-radius:var(--r-pill);font-family:var(--font-mono);font-size:13px;color:var(--mute)">
+            ▶ youtube.com
+          </div>
+          <input id="yt-url" class="input" value="https://www.youtube.com/watch?v=K-mfP_2_F2k" aria-label="URL do YouTube" />
+          <button class="btn btn-secondary btn-sm" id="clear-url">limpar</button>
+          <button class="btn" id="start-job">Transcrever →</button>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:12px;align-items:center;flex-wrap:wrap">
+          <span class="t-caption" style="margin-right:6px">opcoes:</span>
+          <button class="chip" aria-pressed="true">idioma · auto</button>
+          <button class="chip">com timestamps</button>
+          <button class="chip">diarizacao</button>
+          <button class="chip">punctuation cleanup</button>
+          <button class="chip">capitulos</button>
+          <span style="flex:1"></span>
+          <span class="t-mono muted" style="font-size:11px">custo estimado · ~$0.012 USD · ~9 min de video</span>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:0 0 32px">
+      <div class="container">
+        <Terminal title="job://yt-K-mfP_2_F2k · complete" accent>
+          <span class="term-prompt">◆</span> [1/5] extract video metadata        <span class="term-out" data-step="1">ok · 142ms</span><br />
+          <span class="term-prompt">◆</span> [2/5] download audio (m4a)          <span class="term-out" data-step="2">ok · 3.2 MB · 1.8s</span><br />
+          <span class="term-prompt">◆</span> [3/5] whisper-large-v3 transcribe   <span class="term-out" data-step="3">ok · 13 segments · 9.4s</span><br />
+          <span class="term-prompt">◆</span> [4/5] punctuation + cleanup         <span class="term-out" data-step="4">ok · 412 tokens · 0.6s</span><br />
+          <span class="term-prompt">◆</span> [5/5] save to drafts                <span class="term-out" data-step="5">ok · saved</span><br /><br />
+          <span class="term-prompt">progress</span>
+          <div class="progress" style="display:inline-block;width:70%;margin:0 12px;vertical-align:middle;--progress:100%" id="job-progress"><span></span></div>
+          <span class="term-accent" id="progress-label">100%</span>
+        </Terminal>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <AsciiRule label="// result · pare-de-aprender-framework · 02:30" />
+        <div class="admin-two-pane" style="margin-top:32px">
+          <aside>
+            <div style="aspect-ratio:16/9;background:var(--soft-cloud);border:1px solid var(--hairline);position:relative;margin-bottom:18px">
+              <div class="stage-grid"></div>
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+                <div style="width:56px;height:56px;border-radius:50%;background:var(--ink);color:var(--canvas);display:flex;align-items:center;justify-content:center">▶</div>
+              </div>
+              <span class="badge badge-solid" style="position:absolute;bottom:8px;right:8px">02:30</span>
+            </div>
+            <h3 class="t-h-md" style="margin-bottom:8px">Pare de aprender framework. Aprenda a pensar.</h3>
+            <p class="t-caption" style="margin-bottom:18px">devdoido · 47k visualizacoes · ha 3 dias</p>
+            <div style="border-top:1px solid var(--hairline);padding-top:18px">
+              {[
+                ['duracao', '02:30'],
+                ['segmentos', '13'],
+                ['tokens', '412'],
+                ['idioma', 'pt-BR (98%)'],
+                ['modelo', 'whisper-large-v3'],
+                ['word error rate', '~3.2% est.'],
+              ].map(([label, value]) => (
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--hairline-soft);font-size:13px">
+                  <span class="muted">{label}</span>
+                  <span class="t-mono">{value}</span>
+                </div>
+              ))}
+            </div>
+            <div style="margin-top:24px;display:flex;flex-direction:column;gap:8px">
+              <button class="btn" id="copy-transcript">Copiar tudo (txt)</button>
+              <button class="btn btn-secondary btn-sm">Download .srt</button>
+              <button class="btn btn-secondary btn-sm">Download .md</button>
+              <button class="btn btn-secondary btn-sm">Download .json</button>
+            </div>
+          </aside>
+
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap">
+              <button class="chip" aria-pressed="true">Transcricao</button>
+              <button class="chip">Capitulos · 4</button>
+              <button class="chip">Quotes & ganchos</button>
+              <button class="chip">Buscar...</button>
+              <span style="flex:1"></span>
+              <span class="t-mono muted" style="font-size:11px">13 segments · 412 tokens · 02:30</span>
+            </div>
+
+            <div class="transcript-list" id="transcript-list">
+              {transcriptSegments.map(([time, text], index) => (
+                <button class:list={['transcript-row', index === 0 && 'is-active']} data-row={index} type="button">
+                  <span class="t-mono muted" style="font-size:12px;padding-top:2px">{time}</span>
+                  <span style="margin:0;font-size:16px;line-height:1.55;text-align:left">{text}</span>
+                  <span class="t-mono muted shortcut" style="font-size:10px;padding-top:4px">⌘C</span>
+                </button>
+              ))}
+            </div>
+
+            <div style="margin-top:24px;padding:24px;background:var(--ink);color:var(--canvas);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center">
+              <div>
+                <div class="t-mono" style="font-size:11px;color:var(--canvas);opacity:.6;text-transform:uppercase;margin-bottom:6px">◆ proximo passo</div>
+                <div style="font-size:19px;font-weight:800;color:var(--canvas)">Transformar em rascunho de artigo?</div>
+                <div class="t-mono" style="font-size:13px;color:var(--canvas);opacity:.6;margin-top:6px">mock local · ~0s · template: artigo curto, tom devdoido</div>
+              </div>
+              <button class="btn btn-outline-on-image btn-sm" id="draft-button">Gerar rascunho →</button>
+            </div>
+
+            <div id="ai-output-wrap" style="display:none;margin-top:18px">
+              <AsciiRule label="// draft.mock" />
+              <div id="ai-output" style="background:var(--soft-cloud);border:1px solid var(--hairline);padding:24px;font-family:var(--font-mono);font-size:13px;line-height:1.7;white-space:pre-wrap"></div>
+              <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-sm">Salvar como draft</button>
+                <button class="btn btn-secondary btn-sm" id="copy-draft">Copiar markdown</button>
+                <button class="btn btn-secondary btn-sm" id="regen-draft">Regenerar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <AsciiRule label="// recent jobs · ultimas 24h" />
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;margin-top:24px;font-size:14px;min-width:760px">
+            <thead>
+              <tr style="border-bottom:1px solid var(--hairline)">
+                {['video', 'canal', 'duracao', 'tokens', 'status', 'acoes'].map((head) => (
+                  <th style="padding:12px 16px;text-align:left;color:var(--mute);font-family:var(--font-mono);font-size:11px;text-transform:uppercase">{head}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['Pare de aprender framework', '@devdoido', '02:30', '412', 'done · agora', 'draft'],
+                ['Como cobrar R$10k sendo dev solo', '@devdoido', '08:14', '1.4k', 'done · 2h ago', 'publicado'],
+                ['Claude vs GPT-5 na real', 'Filipe Deschamps', '11:48', '2.1k', 'done · 5h ago', 'ignorado'],
+                ['Antigravity em 30 dias', '@devdoido', '06:22', '987', 'done · ontem', 'publicado'],
+              ].map((row) => (
+                <tr style="border-bottom:1px solid var(--hairline-soft)">
+                  {row.map((cell, index) => (
+                    <td style="padding:14px 16px;color:var(--ink);font-family:var(--font-ui)">
+                      {index === 5 ? <span class="badge">{cell}</span> : cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </PageShell>
+
+  <script define:vars={{ transcriptSegments }}>
+    (function() {
+      var rows = document.querySelectorAll('.transcript-row');
+      rows.forEach(function(row) {
+        row.addEventListener('click', function() {
+          rows.forEach(function(other) { other.classList.remove('is-active'); });
+          row.classList.add('is-active');
+        });
+      });
+
+      var progress = document.getElementById('job-progress');
+      var label = document.getElementById('progress-label');
+      var start = document.getElementById('start-job');
+      start && start.addEventListener('click', function() {
+        var steps = [12, 28, 52, 78, 94, 100];
+        var i = 0;
+        start.textContent = 'Transcrevendo...';
+        function tick() {
+          var value = steps[i] || 100;
+          progress && progress.style.setProperty('--progress', value + '%');
+          if (label) label.textContent = value + '%';
+          i += 1;
+          if (i < steps.length) window.setTimeout(tick, 260);
+          else start.textContent = 'Transcrever →';
+        }
+        tick();
+      });
+
+      var clear = document.getElementById('clear-url');
+      var url = document.getElementById('yt-url');
+      clear && clear.addEventListener('click', function() {
+        if (url) url.value = '';
+      });
+
+      var transcriptText = transcriptSegments.map(function(segment) {
+        return '[' + segment[0] + '] ' + segment[1];
+      }).join('\n');
+      var copyTranscript = document.getElementById('copy-transcript');
+      copyTranscript && copyTranscript.addEventListener('click', function() {
+        navigator.clipboard && navigator.clipboard.writeText(transcriptText);
+      });
+
+      var outputWrap = document.getElementById('ai-output-wrap');
+      var output = document.getElementById('ai-output');
+      var draft = [
+        '# Pare de aprender framework. Aprenda a pensar.',
+        '',
+        'Subtitulo: vibe coding nao e desculpa para desligar o cerebro.',
+        '',
+        '- Vibe coding sem fundamento vira roleta.',
+        '- IA acelera quem sabe validar.',
+        '- O proximo salto nao e ferramenta nova. E criterio.',
+        '',
+        'Toda febre dev vem com promessa de atalho. A diferenca agora e que o atalho escreve codigo suficiente para parecer verdade. O problema nao e usar IA. O problema e usar IA antes de conseguir explicar a feature sem olhar para o autocomplete.'
+      ].join('\n');
+      function showDraft() {
+        if (outputWrap) outputWrap.style.display = 'block';
+        if (output) output.textContent = draft;
+      }
+      document.getElementById('draft-button')?.addEventListener('click', showDraft);
+      document.getElementById('regen-draft')?.addEventListener('click', showDraft);
+      document.getElementById('copy-draft')?.addEventListener('click', function() {
+        navigator.clipboard && navigator.clipboard.writeText(draft);
+      });
+    })();
+  </script>
+</BaseLayout>

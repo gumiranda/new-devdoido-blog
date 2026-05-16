@@ -1,139 +1,182 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import AuthorBio from '../../components/AuthorBio.astro';
-import { getCollection } from 'astro:content';
-import '../../styles/blog-content.css';
+import PageShell from '../../components/devdoido/PageShell.astro';
+import TypeStage from '../../components/devdoido/TypeStage.astro';
+import ArticleCard from '../../components/devdoido/ArticleCard.astro';
+import AsciiRule from '../../components/devdoido/AsciiRule.astro';
+import { formatDate, getPost, posts, SITE } from '../../data/devdoido';
 
-export async function getStaticPaths() {
-  const posts = await getCollection('blog');
+export function getStaticPaths() {
   return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
 }
 
 const { post } = Astro.props;
-const { Content } = await post.render();
-
-const currentTags = post.data.tags ?? [];
-const rawBody = 'body' in post && typeof (post as { body?: string }).body === 'string' ? (post as { body: string }).body : '';
-const wordCount = rawBody.split(/\s+/).filter(Boolean).length;
-const readingTimeMinutes = Math.max(1, Math.ceil(wordCount / 200));
-const allPosts = await getCollection('blog');
-const relatedPosts = allPosts
-  .filter((p) => p.slug !== post.slug && (p.data.tags ?? []).some((t: string) => currentTags.includes(t)))
-  .sort((a, b) => {
-    const aShared = (a.data.tags ?? []).filter((t: string) => currentTags.includes(t)).length;
-    const bShared = (b.data.tags ?? []).filter((t: string) => currentTags.includes(t)).length;
-    if (bShared !== aShared) return bShared - aShared;
-    return b.data.pubDate.getTime() - a.data.pubDate.getTime();
-  })
+const relatedPosts = posts
+  .filter((candidate) => candidate.slug !== post.slug && candidate.tags.some((tag) => post.tags.includes(tag)))
   .slice(0, 3);
+const fullPost = getPost(post.slug) ?? post;
 ---
 
 <BaseLayout
-  title={post.data.title}
-  description={post.data.description}
-  canonical={`/blog/${post.slug}`}
+  title={fullPost.title}
+  description={fullPost.description}
+  canonical={`/blog/${fullPost.slug}`}
   type="article"
-  publishedTime={post.data.pubDate.toISOString()}
-  modifiedTime={post.data.modifiedDate?.toISOString()}
-  articleSection={post.data.articleSection}
-  keywords={post.data.keywords ?? post.data.tags}
-  author={{
-    name: 'Equipe Data Center Uberlândia',
-    url: 'https://datacenteruberlandia.com.br/sobre',
-    credentials: 'Monitoramento Ambiental e Socioeconômico',
-  }}
-  jsonLd={[
-    ...(Array.isArray(post.data.jsonLd) ? post.data.jsonLd : post.data.jsonLd ? [post.data.jsonLd] : []),
-    {
-      '@context': 'https://schema.org',
-      '@type': 'WebPage',
-      name: post.data.title,
-      description: post.data.description,
-      url: `https://datacenteruberlandia.com.br/blog/${post.slug}`,
-      inLanguage: 'pt-BR',
-      speakable: {
-        '@type': 'SpeakableSpecification',
-        cssSelector: ['h1', '.blog-content h2', '.blog-content p'],
-      },
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://datacenteruberlandia.com.br/' },
-        { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://datacenteruberlandia.com.br/blog' },
-        { '@type': 'ListItem', position: 3, name: post.data.title, item: `https://datacenteruberlandia.com.br/blog/${post.slug}` },
-      ],
-    },
-  ]}
+  publishedTime={new Date(`${fullPost.pubDate}T12:00:00-03:00`).toISOString()}
+  articleSection={fullPost.category}
+  keywords={fullPost.tags}
+  author={{ name: SITE.author, url: '/sobre', credentials: 'Autor do DEVDOIDO' }}
 >
-  <!-- Hero (above the fold, same style as blog index) -->
-  <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 border-b border-base-300">
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,oklch(var(--p)/0.08),transparent_50%)] pointer-events-none" aria-hidden="true"></div>
-    <div class="container relative mx-auto px-4 py-12 md:py-16 max-w-4xl">
-      <a href="/blog" class="inline-flex items-center gap-1.5 text-base-content/70 hover:text-primary text-sm mb-6 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-        Blog
-      </a>
-      <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-3">
-        <span class="title-shimmer bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">{post.data.title}</span>
-      </h1>
-      <p class="text-base-content/75 max-w-2xl mb-3">{post.data.description}</p>
-      <div class="flex flex-wrap items-center gap-3 text-sm text-base-content/70">
-        <time datetime={post.data.pubDate.toISOString()}>
-          {post.data.pubDate.toLocaleDateString('pt-BR', { dateStyle: 'long' })}
-        </time>
-        <span aria-hidden="true">·</span>
-        <span>{readingTimeMinutes} min read</span>
-        {currentTags.length > 0 && (
+  <PageShell active={fullPost.category === 'Vibe Coding' ? 'Vibe Coding' : 'Home'}>
+    <div style="border-bottom:1px solid var(--hairline);padding:12px 0;font-family:var(--font-mono);font-size:12px;color:var(--mute)">
+      <div class="container" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <span>// Home / {fullPost.category} / <span style="color:var(--ink)">{fullPost.slug}</span></span>
+        <a href="/blog" style="color:var(--ink)">← voltar</a>
+      </div>
+    </div>
+
+    <section class="section" style="padding-top:32px">
+      <div class="container">
+        <div class="tile tile-hero" style="padding:0;justify-content:flex-end">
+          <TypeStage word={fullPost.featured ? 'MANIFESTO' : fullPost.display} density={0.06} />
+          <div style="position:absolute;top:32px;left:32px;display:flex;gap:8px;z-index:1;flex-wrap:wrap">
+            <span class="badge badge-solid">{fullPost.category}</span>
+            <span class="badge">{fullPost.minutes} min de leitura</span>
+            {fullPost.featured && <span class="badge">manifesto</span>}
+          </div>
+          <div class="t-mono muted hero-meta" style="position:absolute;top:32px;right:32px;text-align:right;z-index:1;font-size:11px;line-height:1.6">
+            published {formatDate(fullPost.pubDate)}<br />
+            version v.4.2 · git:a8f3c2d<br />
+            reads {fullPost.reads}
+          </div>
+          <div style="position:relative;z-index:1;padding:48px">
+            <h1 class="t-display" style="max-width:1180px">
+              {fullPost.featured ? (
+                <>Pare de aprender<br />framework.<br />Aprenda a <span style="color:var(--sale)">pensar.</span></>
+              ) : (
+                fullPost.title
+              )}
+            </h1>
+            <p class="tile-sub">{fullPost.description}</p>
+            <div style="display:flex;gap:16px;align-items:center;margin-top:32px;flex-wrap:wrap">
+              <img src="/devdoido/devdoido-avatar.png" alt="" style="width:52px;height:52px;border-radius:50%;object-fit:cover;background:var(--ink)" />
+              <div>
+                <div class="t-body-strong">@devdoido</div>
+                <div class="t-caption">8 anos quebrando codigo em prod · 412 artigos publicados</div>
+              </div>
+              <span style="flex:1;min-width:24px"></span>
+              <a class="btn btn-secondary btn-sm" href="/newsletter">Salvar</a>
+              <a class="btn btn-secondary btn-sm" href="/newsletter">Compartilhar</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <article class="section">
+      <div class="prose">
+        {fullPost.featured ? (
           <>
-            <span aria-hidden="true">·</span>
-            <span class="flex flex-wrap gap-1.5">
-              {currentTags.map((tag: string) => (
-                <a href={`/blog?tag=${encodeURIComponent(tag)}`} class="badge badge-sm badge-ghost hover:badge-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
-                  {tag}
-                </a>
-              ))}
-            </span>
+            <p style="font-size:22px;line-height:1.6;font-weight:700;color:var(--ink)">
+              Toda quinta-feira aparece um curso novo prometendo te transformar em senior em 90 dias. Toda quinta-feira aparece um dev iniciante perguntando qual framework deve aprender primeiro.
+            </p>
+            <p>
+              A pergunta ta errada. Nao e qual framework. E por que voce acha que framework e o problema. Voce passou meses estudando React, migrou para Next, brigou com Server Actions, e ainda nao sabe escrever uma funcao que faz uma coisa so.
+            </p>
+            <blockquote>Framework e gramatica. Voce precisa aprender a falar.</blockquote>
+            <h2>O sintoma e o tutorial</h2>
+            <p>
+              Quando voce abre o Cursor pela milesima vez e a primeira coisa que faz e digitar como faco um botao, o problema nao e o botao. O problema e que voce terceirizou o ato de pensar pro autocomplete.
+            </p>
+            <p>
+              Nao e sobre largar IA. E sobre nao usar IA como muleta antes de tentar pensar. Cinco minutos de pensar. Voce consegue cinco minutos?
+            </p>
+            <pre>{`// errado
+"escreva uma funcao que pega um array de users
+e retorna os ativos com email"
+
+// certo
+// cinco minutos depois de pensar
+"essa funcao retorna duplicados porque
+o filter roda antes do dedupe. mexe so
+no dedupe, nao inverta a ordem das ops."`}</pre>
+            <h2>Os 4 niveis</h2>
+            <p>Tem 4 niveis de quem usa IA pra programar. Voce precisa saber em qual voce esta:</p>
+            <ul>
+              <li><strong>Nivel 1: turista.</strong> Copia, cola, reza. Nao sabe o que ta rodando.</li>
+              <li><strong>Nivel 2: apprentice.</strong> Le o que a IA escreveu, edita duas linhas, segue.</li>
+              <li><strong>Nivel 3: operator.</strong> Sabe o que quer, pede em pedacos, valida tudo.</li>
+              <li><strong>Nivel 4: arquiteto.</strong> Usa IA pra acelerar o que ja sabia fazer sozinho.</li>
+            </ul>
+            <p>
+              A maioria dos cursos vende nivel 4 e entrega nivel 1. Voce sai sabendo gerar landing page e nao sabe debugar uma hidratacao quebrada.
+            </p>
+            <h2>O que fazer</h2>
+            <p>
+              Nao vou te dar checklist. Checklist e o problema. Mas tres perguntas valem mais que qualquer curso:
+            </p>
+            <p>
+              1. Se a IA sumir hoje, voce termina esse projeto sozinho?<br />
+              2. Voce sabe explicar por que o codigo ta assim?<br />
+              3. Voce consegue fazer a mesma feature em outra stack?
+            </p>
+            <p>
+              Se respondeu nao para duas dessas, voce nao ta programando. Ta fazendo prompt engineering com extra steps.
+            </p>
+          </>
+        ) : (
+          <>
+            <p style="font-size:22px;line-height:1.6;font-weight:700;color:var(--ink)">{fullPost.description}</p>
+            <p>
+              Esse texto e parte do arquivo devdoido. A tese e simples: ferramenta muda, fundamento fica. Se a sua stack depende de hype para parecer boa, o problema ja apareceu.
+            </p>
+            <blockquote>Codigo bom sobrevive a troca da ferramenta.</blockquote>
+            <h2>Onde pega</h2>
+            <p>
+              A parte dificil nunca foi instalar pacote. Foi entender escopo, custo, manutencao, debugar falha intermitente e explicar decisao para alguem que paga a conta.
+            </p>
+            <h2>Resumo bruto</h2>
+            <ul>
+              <li>Pense antes de pedir para a IA escrever.</li>
+              <li>Valide em partes pequenas.</li>
+              <li>Nao confunda velocidade de geracao com qualidade de entrega.</li>
+            </ul>
           </>
         )}
       </div>
-    </div>
-  </section>
+    </article>
 
-  <article class="article-post container mx-auto min-w-0 max-w-full px-4 py-10 md:py-14 max-w-3xl">
-    <div class="blog-content blog-post-content max-w-[65ch]">
-      <Content />
-    </div>
+    <section class="section-tight">
+      <div class="container-narrow">
+        <div style="background:var(--soft-cloud);padding:32px;display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+          <div style="flex:1;min-width:220px">
+            <div class="t-mono muted" style="font-size:11px;text-transform:uppercase;margin-bottom:8px">◆ se chegou ate aqui</div>
+            <div class="t-h-md">Recebe o proximo artigo direto no email. Toda quinta as 6h.</div>
+          </div>
+          <a class="btn" href="/newsletter">Assinar →</a>
+        </div>
+      </div>
+    </section>
 
-    <AuthorBio
-      name="Equipe Data Center Uberlândia"
-      credentials="Monitoramento Ambiental e Socioeconômico"
-      bio="Blog independente que documenta os impactos ambientais e socioeconômicos de data centers em Uberlândia (MG)."
-      url="/sobre"
-    />
-
-    {relatedPosts.length > 0 && (
-      <aside class="mt-14 pt-10 border-t border-base-300/80" aria-label="Related posts">
-        <p class="text-base-content/60 text-sm mb-2">Leia também:</p>
-        <h2 class="text-lg font-semibold text-base-content mb-4">Posts relacionados</h2>
-        <ul class="space-y-3" role="list">
+    <section class="section">
+      <div class="container">
+        <AsciiRule label="// continue lendo" />
+        <h2 class="t-section" style="margin-bottom:32px">Mais nesse beco</h2>
+        <div class="article-grid">
           {relatedPosts.map((related) => (
-            <li>
-              <a
-                href={`/blog/${related.slug}`}
-                class="group flex items-baseline gap-2 rounded-lg py-2 text-base-content/80 hover:text-base-content transition-colors"
-              >
-                <span class="text-primary opacity-0 group-hover:opacity-100 transition-opacity">→</span>
-                <span class="font-medium">{related.data.title}</span>
-                <span class="text-sm text-base-content/50">
-                  {related.data.pubDate.toLocaleDateString('pt-BR', { dateStyle: 'medium' })}
-                </span>
-              </a>
-            </li>
+            <ArticleCard
+              href={`/blog/${related.slug}`}
+              category={`// ${related.category} · ${related.minutes} min`}
+              title={related.title}
+              date={formatDate(related.pubDate)}
+              reads={related.reads}
+              kind={related.kind}
+              display={related.display}
+              badges={related.badges}
+            />
           ))}
-        </ul>
-      </aside>
-    )}
-  </article>
+        </div>
+      </div>
+    </section>
+  </PageShell>
 </BaseLayout>

@@ -1,134 +1,128 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageShell from '../components/devdoido/PageShell.astro';
+import TypeStage from '../components/devdoido/TypeStage.astro';
+import Terminal from '../components/devdoido/Terminal.astro';
+import AsciiRule from '../components/devdoido/AsciiRule.astro';
 
-const jsonLd = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'AboutPage',
-    name: 'Sobre o Data Center Uberlândia',
-    description: 'Conheça o Data Center Uberlândia, blog independente de monitoramento ambiental e socioeconômico de data centers em Uberlândia (MG).',
-    url: 'https://datacenteruberlandia.com.br/sobre',
-    inLanguage: 'pt-BR',
-    mainEntity: {
-      '@type': 'Organization',
-      name: 'Data Center Uberlândia',
-      description: 'Blog independente que monitora e relata os impactos ambientais e socioeconômicos da instalação de data centers em Uberlândia (MG).',
-      url: 'https://datacenteruberlandia.com.br',
-      foundingDate: '2026',
-    },
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://datacenteruberlandia.com.br/' },
-      { '@type': 'ListItem', position: 2, name: 'Sobre', item: 'https://datacenteruberlandia.com.br/sobre' },
-    ],
-  },
-];
+const stats = [
+  ['412', 'artigos'],
+  ['12.8k', 'newsletter'],
+  ['48k', 'youtube'],
+] as const;
 ---
 
 <BaseLayout
   title="Sobre"
-  description="Conheça o Data Center Uberlândia, blog independente de monitoramento ambiental e socioeconômico de data centers em Uberlândia (MG)."
+  description="Quem e o devdoido: programador, criador de conteudo e voz sem rodeio sobre IA, programacao e carreira dev."
   canonical="/sobre"
-  jsonLd={jsonLd}
 >
-  <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 border-b border-base-300">
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,oklch(var(--p)/0.08),transparent_50%)] pointer-events-none" aria-hidden="true"></div>
-    <div class="container relative mx-auto px-4 py-12 md:py-16 max-w-4xl">
-      <a href="/" class="inline-flex items-center gap-1.5 text-base-content/70 hover:text-primary text-sm mb-6 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-        Home
-      </a>
-      <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-3">
-        <span class="title-shimmer bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Sobre</span>
-      </h1>
-      <p class="text-base-content/75 max-w-2xl">
-        O que fazemos, como verificamos os dados e por que não aceitamos financiamento de empresas de data center.
-      </p>
-    </div>
-  </section>
-
-  <div class="container mx-auto px-4 py-12 md:py-16 max-w-3xl space-y-16">
-    <!-- Missão -->
-    <section class="space-y-4">
-      <h2 class="text-2xl font-bold">Nossa missão</h2>
-      <p class="text-base-content/80 text-lg leading-relaxed">
-        O <strong>Data Center Uberlândia</strong> monitora os impactos ambientais e socioeconômicos da instalação de data centers em Uberlândia (MG) e região.
-      </p>
-      <p class="text-base-content/80 leading-relaxed">
-        Empreendimentos de grande porte afetam recursos naturais e a qualidade de vida da população. A sociedade precisa de dados verificáveis para acompanhar esses projetos. Este site reúne informações dispersas em documentos públicos, registros oficiais e reportagens.
-      </p>
-    </section>
-
-    <!-- Metodologia -->
-    <section class="space-y-4">
-      <h2 class="text-2xl font-bold">Como trabalhamos</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="rounded-xl border border-base-300 bg-base-200/60 p-5">
-          <h3 class="font-semibold text-base-content mb-2">Documentos públicos</h3>
-          <p class="text-sm text-base-content/70">Buscamos atas de audiências, pareceres técnicos, processos no SIAM-MG e registros no portal da transparência.</p>
-        </div>
-        <div class="rounded-xl border border-base-300 bg-base-200/60 p-5">
-          <h3 class="font-semibold text-base-content mb-2">Fontes primárias</h3>
-          <p class="text-sm text-base-content/70">Cruzamos dados de Cemig, DMAE, IGAM, Semad/FEAM-MG, MPF e reportagens investigativas como Aos Fatos.</p>
-        </div>
-        <div class="rounded-xl border border-base-300 bg-base-200/60 p-5">
-          <h3 class="font-semibold text-base-content mb-2">Análise técnica</h3>
-          <p class="text-sm text-base-content/70">Compilamos pareceres de pesquisadores da UFU e especialistas em transição energética e recursos hídricos.</p>
-        </div>
-        <div class="rounded-xl border border-base-300 bg-base-200/60 p-5">
-          <h3 class="font-semibold text-base-content mb-2">Correções públicas</h3>
-          <p class="text-sm text-base-content/70">Quando identificamos erros, corrigimos com ressalva. Nenhum conteúdo é apagado sem registro da mudança.</p>
+  <PageShell active="Home">
+    <section class="section" style="padding-top:32px">
+      <div class="container">
+        <div class="two-col about-hero-grid" style="gap:8px;align-items:stretch">
+          <div class="tile" style="min-height:640px;padding:0;justify-content:stretch">
+            <TypeStage word="DD" density={0.85} withGrid={false} />
+            <img src="/devdoido/devdoido-avatar.png" alt="" style="position:absolute;right:7%;bottom:0;width:min(46%,460px);z-index:1;filter:grayscale(.2);object-fit:contain" />
+            <div style="position:relative;z-index:2;padding:32px;height:100%;display:flex;flex-direction:column;justify-content:space-between">
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <span class="badge">about · v.0.1</span>
+                <span class="badge badge-solid">// monogram</span>
+              </div>
+              <div class="t-mono muted" style="font-size:11px">
+                // identidade visual · @devdoido<br />
+                // brand mark · 2026
+              </div>
+            </div>
+          </div>
+          <div style="background:var(--ink);color:var(--canvas);padding:48px;display:flex;flex-direction:column;justify-content:space-between">
+            <div>
+              <span class="t-mono" style="color:var(--canvas);opacity:.6;font-size:11px;text-transform:uppercase">◆ quem e o devdoido</span>
+              <h1 class="t-display" style="margin-top:24px;color:var(--canvas)">Nao sou<br />tech lead.<br />Sou devdoido.</h1>
+            </div>
+            <div style="margin-top:32px">
+              <p style="margin:0 0 24px;color:var(--canvas);opacity:.85;font-size:17px;line-height:1.6">
+                Eu programo ha 8 anos, ensino ha 4, e escrevo aqui porque LinkedIn me cansou. Ja fui senior em startup, freelancer remoto, professor, e agora vivo de criar conteudo dev.
+                <br /><br />
+                Brasileiro, mineiro, 32 anos, cafe preto. Stack favorita atual: Bun + Next + Convex + Claude Code. Stack favorita do mes que vem: provavelmente outra.
+              </p>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
+                {stats.map(([n, label]) => (
+                  <div style="border-top:1px solid rgba(255,255,255,.2);padding-top:12px">
+                    <div class="t-display" style="font-size:40px;color:var(--canvas);line-height:1">{n}</div>
+                    <div class="t-mono" style="font-size:11px;color:var(--canvas);opacity:.6;text-transform:uppercase;margin-top:4px">{label}</div>
+                  </div>
+                ))}
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <a class="btn btn-outline-on-image btn-sm" href="/newsletter">contato@</a>
+                <a class="btn btn-ghost btn-sm" style="color:var(--canvas);border-color:rgba(255,255,255,.3)" href="https://github.com/devdoido" rel="noreferrer">github</a>
+                <a class="btn btn-ghost btn-sm" style="color:var(--canvas);border-color:rgba(255,255,255,.3)" href="https://youtube.com/@devdoido" rel="noreferrer">youtube</a>
+                <a class="btn btn-ghost btn-sm" style="color:var(--canvas);border-color:rgba(255,255,255,.3)" href="https://x.com/devdoido" rel="noreferrer">x</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Fontes -->
-    <section class="space-y-4">
-      <h2 class="text-2xl font-bold">Fontes regulares</h2>
-      <ul class="space-y-2 text-base-content/80">
-        <li class="flex items-start gap-2">
-          <span class="text-primary mt-1">→</span>
-          <span><strong>Documentos oficiais:</strong> SIAM-MG, portal da Semad/FEAM, IGAM, ANA</span>
-        </li>
-        <li class="flex items-start gap-2">
-          <span class="text-primary mt-1">→</span>
-          <span><strong>Empresas:</strong> Cemig, DMAE de Uberlândia</span>
-        </li>
-        <li class="flex items-start gap-2">
-          <span class="text-primary mt-1">→</span>
-          <span><strong>Reportagens:</strong> Aos Fatos, Mobile Time, Diário do Comércio</span>
-        </li>
-        <li class="flex items-start gap-2">
-          <span class="text-primary mt-1">→</span>
-          <span><strong>Acadêmicos:</strong> Professores e pesquisadores da UFU</span>
-        </li>
-        <li class="flex items-start gap-2">
-          <span class="text-primary mt-1">→</span>
-          <span><strong>Instituições:</strong> MPF, Câmara Municipal de Uberlândia, CRBio</span>
-        </li>
-      </ul>
+    <section class="section">
+      <div class="container">
+        <AsciiRule label="// current.stack" />
+        <div class="two-col">
+          <div>
+            <h2 class="t-section" style="margin-bottom:24px">Stack atual</h2>
+            <Terminal title="cat ~/.devdoido/stack.json">
+              {'{'}<br />
+              &nbsp;&nbsp;"runtime": ["bun 1.2", "node 22"],<br />
+              &nbsp;&nbsp;"framework": "next 16.0.2",<br />
+              &nbsp;&nbsp;"db": ["convex", "postgres"],<br />
+              &nbsp;&nbsp;"ai": ["claude code", "cursor"],<br />
+              &nbsp;&nbsp;"auto": ["n8n", "github actions"],<br />
+              &nbsp;&nbsp;"host": ["vercel", "coolify"]<br />
+              {'}'}
+            </Terminal>
+          </div>
+          <div>
+            <h2 class="t-section" style="margin-bottom:24px">Opinioes impopulares</h2>
+            <ol style="padding-left:0;list-style:none;margin:0">
+              {[
+                'VSCode e uma muleta. Use Cursor, Zed, Trae: qualquer um.',
+                'Tailwind e o melhor que aconteceu pra HTML em 10 anos.',
+                'Micro-SaaS de prompt e o novo dropshipping.',
+                'IA nao vai te tirar emprego. Dev que usa IA, sim.',
+                'Next.js e exagerado pra 80% dos projetos. Use mesmo assim.',
+              ].map((opinion, index) => (
+                <li style="display:flex;gap:18px;padding:18px 0;border-bottom:1px solid var(--hairline)">
+                  <span class="t-mono muted" style="font-size:11px;width:24px;flex-shrink:0">0{index + 1}</span>
+                  <span style="font-size:17px;line-height:1.4;flex:1">{opinion}</span>
+                  {index === 0 && <span class="badge badge-sale">hot</span>}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- Transparência -->
-    <section class="space-y-4">
-      <h2 class="text-2xl font-bold">Transparência</h2>
-      <p class="text-base-content/80 leading-relaxed">
-        Não recebemos financiamento de empresas de data center, governo ou partidos políticos. As análises são interpretação dos dados públicos disponíveis.
-      </p>
-      <p class="text-base-content/80 leading-relaxed">
-        Erros identificados são corrigidos com ressalva. Não apagamos conteúdo sem registrar a alteração.
-      </p>
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <AsciiRule label="// timeline" />
+        <h2 class="t-section" style="margin-bottom:32px">De onde eu venho</h2>
+        {[
+          ['2026', 'devdoido.com.br relanca. 412 artigos. 12.8k newsletter.'],
+          ['2025', 'Quit do CLT. Vivo 100% de conteudo + cursos. CrazyStack faz R$ 80k em 90 dias.'],
+          ['2024', 'Comeco a publicar todo dia. Primeira newsletter atinge 1k inscritos em 30 dias.'],
+          ['2023', 'Senior full-remote em startup gringa. Salario 4x maior, alma 4x menor.'],
+          ['2021', 'Primeiro emprego dev na pandemia. Era pra ser temporario. Vira carreira.'],
+          ['2018', 'Largo engenharia mecanica no 7o periodo. Estudo JS sozinho 14h/dia por 6 meses.'],
+        ].map(([year, body]) => (
+          <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:32px;padding:24px 0;border-top:1px solid var(--hairline)">
+            <div class="t-display" style="font-size:36px">{year}</div>
+            <div style="font-size:17px;line-height:1.5;padding-top:8px">{body}</div>
+          </div>
+        ))}
+      </div>
     </section>
-
-    <!-- Contato -->
-    <section class="space-y-4">
-      <h2 class="text-2xl font-bold">Contato</h2>
-      <p class="text-base-content/80">
-        Para sugestões, correções ou informações: <a href="mailto:contato@datacenteruberlandia.com.br" class="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded">contato@datacenteruberlandia.com.br</a>
-      </p>
-    </section>
-  </div>
+  </PageShell>
 </BaseLayout>

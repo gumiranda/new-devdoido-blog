@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageShell from '../components/devdoido/PageShell.astro';
+import TypeStage from '../components/devdoido/TypeStage.astro';
+import AsciiRule from '../components/devdoido/AsciiRule.astro';
+import { newsletterEditions } from '../data/devdoido';
+---
+
+<BaseLayout
+  title="Newsletter"
+  description="DEVDOIDO Weekly: 1 email por semana, 3 links, 1 opiniao impopular e 1 trecho de codigo em producao."
+  canonical="/newsletter"
+>
+  <PageShell active="Home">
+    <section style="background:var(--ink);color:var(--canvas);position:relative;overflow:hidden;min-height:720px">
+      <TypeStage word="WEEKLY" invert density={0.08} />
+      <div style="position:relative;padding:80px 0 120px;z-index:1">
+        <div class="container">
+          <span class="t-mono" style="color:var(--canvas);opacity:.6;font-size:12px;text-transform:uppercase">◆ devdoido weekly · #142 · quinta 06:00 BRT</span>
+          <h1 class="t-display" style="color:var(--canvas);margin-top:24px">1 EMAIL.<br />0 BS.</h1>
+          <p style="max-width:660px;margin:32px 0 0;color:var(--canvas);opacity:.85;font-size:22px;line-height:1.5">
+            Toda quinta-feira as 6h da manha. 3 links que eu li essa semana, 1 opiniao impopular, 1 trecho de codigo que ta rodando em producao. 5 minutos de leitura.
+          </p>
+          <form style="display:flex;gap:8px;margin-top:48px;max-width:580px;flex-wrap:wrap">
+            <input class="input" style="flex:1;min-width:220px;border-color:rgba(255,255,255,.3);color:var(--canvas)" placeholder="seu@email.com" />
+            <button class="btn btn-outline-on-image" style="min-height:56px;padding:0 32px">Assinar →</button>
+          </form>
+          <div class="t-mono" style="display:flex;gap:24px;margin-top:48px;color:var(--canvas);opacity:.55;font-size:12px;flex-wrap:wrap">
+            <span>12,847 inscritos</span>
+            <span>open rate 64%</span>
+            <span>0 spam</span>
+            <span>unsubscribe 1-click</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <AsciiRule label="// what's inside" />
+        <h2 class="t-section" style="margin-bottom:48px">O que vem dentro</h2>
+        <div class="article-grid">
+          {[
+            ['01', '3 LINKS', '3 artigos, videos ou tools que eu realmente li essa semana. Com comentario curto, nao resumo automatico.'],
+            ['02', '1 OPINIAO', 'A opiniao impopular da semana. Sobre IA, framework, dev culture e mercado. Geralmente errada. Sempre honesta.'],
+            ['03', '1 CODIGO', 'Um trecho de codigo que ta rodando em producao essa semana. Com o motivo de ter ficado assim.'],
+          ].map(([n, title, body]) => (
+            <div class="slot-card" style="aspect-ratio:4/5;align-items:stretch;flex-direction:column;justify-content:space-between">
+              <span class="t-mono muted" style="font-size:11px;text-transform:uppercase">// item.{n}</span>
+              <div>
+                <h3 class="t-display" style="font-size:56px;margin-bottom:18px">{title}</h3>
+                <p style="margin:0;color:var(--mute);line-height:1.5">{body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <AsciiRule label="// ultimas edicoes" />
+        <div style="margin-top:32px">
+          {newsletterEditions.map(([number, date, title, reads]) => (
+            <a href="/newsletter" style="display:grid;grid-template-columns:80px 140px minmax(0,1fr) 160px 24px;gap:24px;padding:24px 0;border-top:1px solid var(--hairline);align-items:center;text-decoration:none;color:var(--ink)" class="edition-row">
+              <span class="t-display" style="font-size:32px">{number}</span>
+              <span class="t-mono muted" style="font-size:12px">{date}</span>
+              <span style="font-size:19px;font-weight:800">{title}</span>
+              <span class="t-caption" style="text-align:right">{reads}</span>
+              <span>→</span>
+            </a>
+          ))}
+          <div style="height:1px;background:var(--hairline)"></div>
+        </div>
+      </div>
+    </section>
+  </PageShell>
+</BaseLayout>
