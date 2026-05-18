@@ -50,13 +50,13 @@ const filterGroups = [
 
     <section class="section">
       <div class="container" style="display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px" id="blog-layout">
-        <aside>
+        <div>
           {filterGroups.map(([title, rows]) => (
             <div style="margin-bottom:32px">
-              <h4 class="t-body-strong" style="margin-bottom:12px">{title}</h4>
+              <p class="t-body-strong" style="margin:0 0 12px">{title}</p>
               <div style="display:flex;flex-direction:column">
                 {rows.map((row, index) => (
-                  <button style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;background:none;border:0;color:var(--ink);cursor:pointer;text-align:left">
+                  <button style="min-height:44px;display:flex;justify-content:space-between;align-items:center;padding:10px 0;background:none;border:0;color:var(--ink);cursor:pointer;text-align:left">
                     <span>{row}</span>
                     <span class="muted">({index * 7 + 12})</span>
                   </button>
@@ -64,7 +64,7 @@ const filterGroups = [
               </div>
             </div>
           ))}
-        </aside>
+        </div>
         <div>
           <AsciiRule label="// cronologia · maio 2026" />
           <div class="article-grid" style="--grid-cols:3" id="blog-posts-list">

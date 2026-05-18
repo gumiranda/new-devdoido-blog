@@ -10,8 +10,8 @@
   --on-primary: #0a0a0a;
   --charcoal: #d4d4d4;
   --ash: #a3a3a3;
-  --mute: #737373;
-  --stone: #525252;
+  --mute: #969696;
+  --stone: #737373;
   --sale: #ff3a2d;
   --accent: #c8ff00;
   --success: #19c37d;
@@ -70,7 +70,10 @@ img {
   left: 12px;
   top: -96px;
   z-index: 200;
-  padding: 8px 14px;
+  min-height: 44px;
+  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
   background: var(--ink);
   color: var(--on-primary);
   font-weight: 700;
@@ -143,9 +146,20 @@ img {
 }
 
 .utility-bar a {
-  margin-left: 18px;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
   color: var(--ink);
+}
+
+.utility-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
 }
 
 .utility-bar a:hover {
@@ -166,6 +180,7 @@ img {
 }
 
 .brand {
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -198,6 +213,11 @@ img {
 }
 
 .nav-links a {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--ink);
   text-decoration: none;
   font-weight: 700;
@@ -223,7 +243,7 @@ img {
 
 .search-pill {
   width: 250px;
-  height: 40px;
+  min-height: 44px;
   padding: 0 14px;
   display: flex;
   align-items: center;
@@ -237,11 +257,25 @@ img {
 
 .search-pill input {
   width: 100%;
+  min-height: 44px;
   min-width: 0;
   border: 0;
   outline: 0;
   background: transparent;
   color: var(--ink);
+}
+
+a.t-mono,
+a[style*="font-family:var(--font-mono)"],
+a[style*="color:var(--ink)"] {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .mobile-menu-toggle {
@@ -445,7 +479,7 @@ img {
 
 .btn-accent {
   background: var(--accent);
-  color: #0a0a0a;
+  color: var(--on-primary);
 }
 
 .btn-outline-on-image {
@@ -460,14 +494,15 @@ img {
 }
 
 .btn-sm {
-  min-height: 36px;
+  min-height: 44px;
+  min-width: 44px;
   padding: 0 16px;
   font-size: 14px;
 }
 
 .btn-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   display: inline-flex;
   align-items: center;
@@ -492,7 +527,8 @@ img {
 }
 
 .chip {
-  min-height: 36px;
+  min-height: 44px;
+  min-width: 44px;
   padding: 0 16px;
   cursor: pointer;
   font-weight: 700;
@@ -516,13 +552,13 @@ img {
 .badge-sale {
   background: var(--sale);
   border-color: var(--sale);
-  color: #fff;
+  color: var(--on-primary);
 }
 
 .badge-accent {
   background: var(--accent);
   border-color: var(--accent);
-  color: #000;
+  color: var(--on-primary);
 }
 
 .ascii-rule {
@@ -716,8 +752,9 @@ img {
 
 .prose blockquote {
   margin: 36px 0;
-  padding: 28px 0 28px 28px;
-  border-left: 4px solid var(--sale);
+  padding: 28px;
+  border: 1px solid var(--sale);
+  background: var(--soft-cloud);
   color: var(--ink);
   font-family: var(--font-display);
   font-size: 44px;
@@ -761,8 +798,10 @@ img {
 }
 
 .footer-col a {
-  display: block;
-  padding: 4px 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
   color: var(--mute);
   text-decoration: none;
 }
@@ -917,6 +956,9 @@ img {
   }
 
   .mobile-panel a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
     padding: 10px 0;
     color: var(--ink);
     text-decoration: none;
@@ -962,7 +1004,6 @@ img {
 
   .utility-bar a {
     margin-left: 0;
-    margin-right: 14px;
   }
 
   .brand {
@@ -993,6 +1034,10 @@ img {
 
   .hero-meta {
     display: none !important;
+  }
+
+  .admin-hero-tile {
+    min-height: 390px !important;
   }
 
   .course-poster {

@@ -14,7 +14,7 @@ const { title = '~/devdoido', accent = false } = Astro.props;
     <span class="term-dot" style="background:#27c93f"></span>
     <span style="margin-left:8px">{title}</span>
   </div>
-  <div class="term-body">
+  <div class="term-body" tabindex="0" aria-label={title}>
     <slot />
   </div>
 </div>

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-17T08:34:00-03:00",
+  "title": "Design System: DEVDOIDO",
+  "extensions": {
+    "colorMeta": {
+      "primary-lime": {
+        "role": "primary",
+        "displayName": "Terminal Lime",
+        "canonical": "#c8ff00",
+        "tonalRamp": ["#f0ffc2", "#c8ff00", "#7f9f00"]
+      },
+      "danger-red": {
+        "role": "secondary",
+        "displayName": "Acid Red",
+        "canonical": "#ff3a2d",
+        "tonalRamp": ["#ffd2cf", "#ff3a2d", "#8f140d"]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Blackout Canvas",
+        "canonical": "#0a0a0a",
+        "tonalRamp": ["#262626", "#121212", "#0a0a0a"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Manifest Display",
+        "purpose": "Hero headlines, article theses, course statements."
+      },
+      "body": {
+        "displayName": "Reading Body",
+        "purpose": "Long-form article reading and explanatory copy."
+      },
+      "label": {
+        "displayName": "Terminal Label",
+        "purpose": "Metadata, tags, command-like UI, timestamps."
+      }
+    },
+    "motion": {
+      "durationFast": "140ms",
+      "durationBase": "220ms",
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "reducedMotion": "Respect prefers-reduced-motion. Disable non-essential transforms."
+    },
+    "rules": [
+      "Article reading first.",
+      "CrazyStack sale can be direct, never guru-like.",
+      "Green lime is primary but rare.",
+      "No pastel SaaS, no cute AI blog, no motivational LinkedIn tone.",
+      "Flat by default, depth through tonal layers and grid."
+    ]
+  }
+}

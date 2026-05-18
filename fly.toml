@@ -1,7 +1,7 @@
-# Fly.io — API (Elysia + Bun)
+# Fly.io - API (Elysia + Bun)
 # Deploy from repo root: fly deploy
 
-app = "datacenteruberlandia"
+app = "devdoido-api"
 primary_region = "gru"
 
 [build]
