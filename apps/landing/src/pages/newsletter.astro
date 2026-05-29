@@ -11,7 +11,7 @@ import { newsletterEditions } from '../data/devdoido';
   description="DEVDOIDO Weekly: 1 email por semana, 3 links, 1 opiniao impopular e 1 trecho de codigo em producao."
   canonical="/newsletter"
 >
-  <PageShell active="Home">
+  <PageShell active="Home" breadcrumb={[{ label: 'newsletter' }]}>
     <section style="background:var(--fg);color:#0a0a0a;position:relative;overflow:hidden;min-height:720px">
       <TypeStage word="WEEKLY" invert density={0.08} />
       <div style="position:relative;padding:80px 0 120px;z-index:1">

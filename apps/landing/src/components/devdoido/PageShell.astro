@@ -5,28 +5,35 @@ interface Props {
   active?: string;
   admin?: boolean;
   noFooter?: boolean;
+  breadcrumb?: { label: string; href?: string }[];
 }
 
-const { active = 'Home', admin = false, noFooter = false } = Astro.props;
-const links = [
-  ['Home', '/'],
-  ['Vibe Coding', '/categoria/vibe-coding'],
-  ['IA', '/blog?tag=ia'],
-  ['SaaS', '/blog?tag=saas'],
-  ['Carreira', '/blog?tag=carreira'],
-  ['Cursos', '/cursos/crazystack-typescript'],
-] as const;
-const adminLinks = ['Posts', 'Drafts', 'Transcribe', 'Stats', 'Subscribers', 'Settings'];
+const { active = 'Home', admin = false, noFooter = false, breadcrumb = [] } = Astro.props;
+
+const mainLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Feed', href: '/feed' },
+  { label: 'Vibe Coding', href: '/categoria/vibe-coding' },
+  { label: 'Cursos', href: '/cursos/crazystack-typescript' },
+  { label: 'Cadastrar SaaS', href: '/criar-saas' },
+];
+
+const adminLinks = [
+  { label: 'Editor', href: '/admin/editor' },
+  { label: 'Transcricao', href: '/admin/transcribe' },
+  { label: 'Pipeline YT', href: '/admin/pipeline' },
+];
 ---
 
 <header class="site-header">
   {admin ? (
-    <div style="background:var(--lime-500);color:#0a0a0a;padding:6px 16px;text-align:center;font-family:var(--f-mono);font-size:11px;letter-spacing:.04em">
-      // admin · devdoido.com.br/admin &nbsp;·&nbsp; @devdoido · session 4h 12m · 412 posts
+    <div class="promo-bar">
+      <b>ADMIN</b> &nbsp;·&nbsp; devdoido.com.br/admin &nbsp;·&nbsp; @devdoido &nbsp;·&nbsp; 412 posts publicados &nbsp;·&nbsp; <a href="/" style="color:#0a0a0a;font-weight:700">← voltar ao site</a>
     </div>
   ) : (
     <div class="promo-bar">
-      <b>NEWSLETTER</b> &nbsp;·&nbsp; Toda quinta 6h &nbsp;·&nbsp; 3 links + 1 opiniao + 1 codigo<a href="/newsletter">assinar →</a>
+      <b>NEWSLETTER</b> &nbsp;·&nbsp; Toda quinta 6h &nbsp;·&nbsp; 3 links + 1 opiniao + 1 codigo &nbsp;·&nbsp; <a href="/newsletter">assinar →</a>
     </div>
   )}
 
@@ -36,23 +43,21 @@ const adminLinks = ['Posts', 'Drafts', 'Transcribe', 'Stats', 'Subscribers', 'Se
         <span class="mark">&gt;_</span> {SITE.name.toLowerCase()}<span class="caret"></span>
       </a>
 
-      {admin ? (
-        <div class="nav-links">
-          {adminLinks.map((link) => (
-            <a href={link === 'Transcribe' ? '/admin/transcribe' : '#'} aria-current={link === active ? 'page' : undefined}>{link}</a>
-          ))}
-        </div>
-      ) : (
-        <div class="nav-links">
-          {links.map(([label, href]) => (
-            <a href={href} aria-current={label === active ? 'page' : undefined}>{label}</a>
-          ))}
-        </div>
-      )}
+      <div class="nav-links">
+        {(admin ? adminLinks : mainLinks).map((link) => (
+          <a
+            href={link.href}
+            aria-current={link.label === active ? 'page' : undefined}
+            class:list={[link.label === active && 'active']}
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
 
       <div class="nav-actions">
         {admin ? (
-          <a href="/" class="btn btn-secondary btn-sm">Voltar ao site</a>
+          <a href="/" class="btn btn-secondary btn-sm">← Site publico</a>
         ) : (
           <>
             <label class="search-pill" aria-label="Buscar">
@@ -76,16 +81,52 @@ const adminLinks = ['Posts', 'Drafts', 'Transcribe', 'Stats', 'Subscribers', 'Se
       </button>
 
       <div class="mobile-panel" data-mobile-panel>
-        {(admin ? adminLinks.map((label) => [label, label === 'Transcribe' ? '/admin/transcribe' : '#']) : links).map(([label, href]) => (
-          <a href={href} aria-current={label === active ? 'page' : undefined}>{label}</a>
+        {(admin ? adminLinks : mainLinks).map((link) => (
+          <a href={link.href} aria-current={link.label === active ? 'page' : undefined}>{link.label}</a>
         ))}
+        {!admin && (
+          <>
+            <a href="/sobre">Sobre</a>
+            <a href="/newsletter">Newsletter</a>
+            <a href="/admin/editor">Admin</a>
+          </>
+        )}
       </div>
     </div>
   </nav>
+
+  {admin && (
+    <div class="admin-subnav">
+      <div class="inner">
+        {adminLinks.map((link) => (
+          <a href={link.href} class:list={['admin-subnav-link', link.label === active && 'active']}>
+            {link.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
 </header>
 
 <div style="min-height:100vh">
   <main id="main-content" tabindex="-1">
+    {breadcrumb.length > 0 && (
+      <div style="border-bottom:1px solid var(--border);padding:10px 0">
+        <nav class="page" style="display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:12px;color:var(--fg-muted);flex-wrap:wrap" aria-label="Breadcrumb">
+          <a href="/" style="color:var(--fg-muted)">home</a>
+          {breadcrumb.map((crumb, i) => (
+            <>
+              <span class="sep" style="color:var(--fg-dim)">/</span>
+              {crumb.href ? (
+                <a href={crumb.href} style="color:var(--fg-muted)">{crumb.label}</a>
+              ) : (
+                <span class="here" style="color:var(--lime-400)">{crumb.label}</span>
+              )}
+            </>
+          ))}
+        </nav>
+      </div>
+    )}
     <slot />
   </main>
 </div>
@@ -99,26 +140,26 @@ const adminLinks = ['Posts', 'Drafts', 'Transcribe', 'Stats', 'Subscribers', 'Se
           <p>Conteudo bruto sobre programacao, IA, vibe coding e carreira dev. Sem hype, sem promessa de virar senior em 6 meses.</p>
         </div>
         <div class="foot-col">
-          <h4>Conteudo</h4>
+          <h4>Navegacao</h4>
           <ul>
-            <li><a href="/blog">Ultimos artigos</a></li>
-            <li><a href="/blog">Mais lidos</a></li>
-            <li><a href="/categoria/vibe-coding">Vibe coding</a></li>
-            <li><a href="/blog?tag=ia">IA & agents</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/blog">Blog · 412 artigos</a></li>
+            <li><a href="/feed">Feed da comunidade</a></li>
+            <li><a href="/categoria/vibe-coding">Vibe Coding</a></li>
           </ul>
         </div>
         <div class="foot-col">
-          <h4>Cursos</h4>
+          <h4>Produto</h4>
           <ul>
             <li><a href="/cursos/crazystack-typescript">CrazyStack TypeScript</a></li>
-            <li><a href="/cursos/crazystack-typescript">Bun.js do zero</a></li>
-            <li><a href="/cursos/crazystack-typescript">Claude Code Pro</a></li>
+            <li><a href="/criar-saas">Cadastrar SaaS</a></li>
+            <li><a href="/newsletter">Newsletter</a></li>
+            <li><a href="/sobre">Sobre</a></li>
           </ul>
         </div>
         <div class="foot-col">
           <h4>Comunidade</h4>
           <ul>
-            <li><a href="/newsletter">Newsletter</a></li>
             <li><a href="https://youtube.com/@devdoido" rel="noreferrer">YouTube</a></li>
             <li><a href="https://x.com/devdoido" rel="noreferrer">X/twitter</a></li>
             <li><a href="/rss.xml">RSS feed</a></li>
@@ -135,8 +176,8 @@ const adminLinks = ['Posts', 'Drafts', 'Transcribe', 'Stats', 'Subscribers', 'Se
 
 {admin && (
   <footer style="border-top:1px solid var(--border);padding:32px 48px;display:flex;justify-content:space-between;gap:16px;align-items:center;font-family:var(--f-mono);font-size:11px;color:var(--fg-dim);flex-wrap:wrap">
-    <span>// admin · {SITE.name.toLowerCase()} v.2026.05 · build a8f3c2d</span>
-    <span>whisper-large-v3 · claude-haiku-4-5 · mock local · 8 jobs/h limit</span>
+    <span>// admin · {SITE.name.toLowerCase()} v.2026.05 &middot; <a href="/admin/editor" style="color:var(--lime-400)">editor</a> &middot; <a href="/admin/transcribe" style="color:var(--lime-400)">transcribe</a> &middot; <a href="/admin/pipeline" style="color:var(--lime-400)">pipeline</a></span>
+    <span>whisper-large-v3 · claude-haiku-4-5 · mock local · <a href="/" style="color:var(--lime-400)">← site</a></span>
   </footer>
 )}
 

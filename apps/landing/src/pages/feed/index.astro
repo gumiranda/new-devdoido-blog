@@ -1,0 +1,263 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageShell from '../../components/devdoido/PageShell.astro';
+import AsciiRule from '../../components/devdoido/AsciiRule.astro';
+
+const nicheColors: Record<string, string> = {
+  'Fintech': 'hsl(217 91% 45%)',
+  'IA & LLMs': 'hsl(280 70% 48%)',
+  'E-commerce': 'hsl(38 92% 45%)',
+  'Dev Tools': 'hsl(83 81% 40%)',
+  'Produtividade': 'hsl(180 70% 40%)',
+  'Educação': 'hsl(0 72% 48%)',
+  'Marketing': 'hsl(330 70% 50%)',
+  'Saúde': 'hsl(150 60% 42%)',
+};
+
+const saasList = [
+  { name: 'Faturei', cat: 'Fintech', logo: 'FT', color: 'hsl(217 91% 45%)', fg: '#fff', cover: 'fin', articles: 42, href: '/blog?tag=fintech' },
+  { name: 'NexaAI', cat: 'IA & LLMs', logo: 'NX', color: 'hsl(280 70% 48%)', fg: '#fff', cover: 'ai', articles: 38, href: '#' },
+  { name: 'ZapFlow', cat: 'Dev Tools', logo: 'ZF', color: 'hsl(83 81% 40%)', fg: '#0a0a0a', cover: 'dev', articles: 31, href: '#' },
+  { name: 'Vendoo', cat: 'E-commerce', logo: 'VD', color: 'hsl(38 92% 45%)', fg: '#0a0a0a', cover: 'ecom', articles: 29, href: '#' },
+];
+
+const coverStyles: Record<string, string> = {
+  fin: 'linear-gradient(135deg, hsl(217 91% 55%), hsl(217 91% 22%))',
+  ai: 'linear-gradient(135deg, hsl(280 70% 55%), hsl(280 70% 24%))',
+  ecom: 'linear-gradient(135deg, hsl(38 92% 50%), hsl(38 92% 26%))',
+  dev: 'linear-gradient(135deg, hsl(83 81% 44%), hsl(85 85% 24%))',
+  prod: 'linear-gradient(135deg, hsl(180 70% 45%), hsl(180 70% 20%))',
+  edu: 'linear-gradient(135deg, hsl(0 72% 51%), hsl(0 72% 26%))',
+};
+
+const articles = [
+  { s:'faturei', title:'Se o Cursor cair, voce sabe codar?', exc:'IA gera 100 linhas em 10s. Mas quem corrige quando o build quebra? O modelo mental que separa quem entende de quem cola.', type:'Opiniao', author:'GM', date:'28 MAI', time:'12 MIN', views:2400, gl:'{ }', href:'/blog/pare-de-aprender-framework' },
+  { s:'vendoo', title:'Como cobramos R$0 e crescemos pra 10k MRR em 6 meses', exc:'O playbook completo de freemium que usamos na Vendoo. Metricas reais, erros e o que fariamos diferente.', type:'Estudo de caso', author:'LM', date:'27 MAI', time:'18 MIN', views:1800, gl:'$_' },
+  { s:'nexaai', title:'RAG na pratica: o que ninguem te conta sobre embeddings', exc:'Chunking, reranking, custos de vetorizacao. Um guia honesto pra colocar RAG em producao sem queimar dinheiro.', type:'Tutorial', author:'RS', date:'26 MAI', time:'22 MIN', views:1500, gl:'AI' },
+  { s:'zapflow', title:'Automacao de WhatsApp que nao vira spam', exc:'Como construimos fluxos de mensagem com opt-in real, rate limit e sessoes. Sem cair no banimento.', type:'Tutorial', author:'BC', date:'25 MAI', time:'14 MIN', views:1200, gl:'=>' },
+  { s:'faturei', title:'MEI, ME ou PJ: o que vale a pena pra dev autonomo em 2026', exc:'Tabela comparativa de impostos, limites e burocracia. Com simulacoes reais pra quem fatura de 5k a 50k/mes.', type:'Guia', author:'GM', date:'24 MAI', time:'16 MIN', views:980, gl:'%' },
+  { s:'tasky', title:'Por que matamos nosso onboarding de 7 passos', exc:'Reduzimos pra 2 telas e a ativacao subiu 34%. Os dados, o processo e o que aprendemos sobre friccao.', type:'Bastidores', author:'PA', date:'23 MAI', time:'9 MIN', views:870, gl:'✓' },
+  { s:'nexaai', title:'Fine-tuning vs prompting: quando cada um compensa de verdade', exc:'Analise de custo-beneficio com benchmarks. Spoiler: na maioria dos casos voce nao precisa de fine-tuning.', type:'Opiniao', author:'RS', date:'22 MAI', time:'11 MIN', views:760, gl:'<>' },
+  { s:'eduflow', title:'Como estruturamos um curso que as pessoas terminam', exc:'Taxa de conclusao de 68% num mercado onde a media e 13%. O design pedagogico por tras disso.', type:'Estudo de caso', author:'JS', date:'21 MAI', time:'13 MIN', views:640, gl:'▸' },
+  { s:'vendoo', title:'Checkout em 1 clique: o que quebrou e como consertamos', exc:'Race conditions, double-charge, abandono. Os bugs reais de um checkout de alta conversao e as solucoes.', type:'Bastidores', author:'LM', date:'20 MAI', time:'15 MIN', views:590, gl:'#!' },
+  { s:'zapflow', title:'Webhooks confiaveis: retry, idempotencia e dead letter queue', exc:'O guia tecnico pra webhooks que nao perdem evento. Com exemplos em Node.js e RabbitMQ.', type:'Tutorial', author:'BC', date:'19 MAI', time:'17 MIN', views:520, gl:'⟳' },
+  { s:'tasky', title:'A stack que escolhemos pra escalar sem time de infra', exc:'Serverless, edge functions e um Postgres gerenciado. Como rodamos 200k usuarios com 2 devs.', type:'Guia', author:'PA', date:'18 MAI', time:'12 MIN', views:480, gl:'~' },
+  { s:'faturei', title:'Conciliacao bancaria automatica: o pesadelo dos centavos', exc:'Por que conciliar transacoes e mais dificil que parece, e a arquitetura que finalmente funcionou pra nos.', type:'Bastidores', author:'GM', date:'17 MAI', time:'14 MIN', views:430, gl:'$' },
+];
+
+const getSaas = (key: string) => {
+  const map: Record<string, typeof saasList[0]> = {
+    faturei: saasList[0], nexaai: saasList[1], zapflow: saasList[2], vendoo: saasList[3],
+    tasky: { name:'Tasky', cat:'Produtividade', logo:'TK', color:'hsl(180 70% 40%)', fg:'#fff', cover:'prod', articles: 22, href:'#' },
+    eduflow: { name:'EduFlow', cat:'Educação', logo:'EF', color:'hsl(0 72% 48%)', fg:'#fff', cover:'edu', articles: 15, href:'#' },
+  };
+  return map[key] || saasList[0];
+};
+---
+
+<BaseLayout
+  title="Feed"
+  description="Feed da comunidade CrazyStack: todos os artigos publicados pelos SaaS cadastrados na plataforma."
+  canonical="/feed"
+>
+  <PageShell active="Feed" breadcrumb={[{ label: 'feed' }]}>
+    <!-- Feed header -->
+    <div style="position:relative;overflow:hidden;border-bottom:1px solid var(--border);padding:64px 0 48px">
+      <div class="grid-bg" style="position:absolute;inset:0;background-size:48px 48px;mask-image:radial-gradient(ellipse 70% 70% at 30% 0%, #000 35%, transparent 80%)"></div>
+      <div class="page" style="position:relative">
+        <span class="kicker" style="margin-bottom:22px"><span class="dot"></span> Feed da comunidade</span>
+        <h1 class="t-display">Tudo que os <span style="color:var(--lime-400);font-style:normal">SaaS</span><br />estao escrevendo.</h1>
+        <p style="font-size:18px;color:var(--fg-muted);max-width:580px;line-height:1.55;margin:0 0 32px">
+          O feed agregado de <strong style="color:var(--fg)">todos os SaaS cadastrados</strong> na plataforma. Conteudo tecnico, growth, financas e bastidores — direto de quem esta construindo.
+        </p>
+        <div style="display:flex;gap:32px;flex-wrap:wrap;padding:20px 0;border-top:1px dashed var(--border);font-family:var(--f-mono);font-size:12px;color:var(--fg-muted)">
+          <div>ARTIGOS <b style="color:var(--lime-400)">1.284</b></div>
+          <div>SAAS PUBLICANDO <b style="color:var(--lime-400)">312</b></div>
+          <div>NICHOS <b>9</b></div>
+          <div>ESSA SEMANA <b style="color:var(--lime-400)">+47 novos</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <div class="inner">
+        <label class="search-pill" style="max-width:520px">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input type="text" id="feed-search" placeholder="buscar por titulo, SaaS ou tag..." />
+          <span class="kbd">⌘K</span>
+        </label>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="mono-caption">ordenar</span>
+          <div class="sort-pills" id="sort-pills">
+            <span class="sort-pill active" data-sort="recent">recentes</span>
+            <span class="sort-pill" data-sort="popular">populares</span>
+            <span class="sort-pill" data-sort="trending">em alta</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="max-width:1320px;margin:14px auto 0;padding:0 48px;display:flex;gap:8px;flex-wrap:wrap" id="cat-chips-feed">
+        <span class="chip active" data-cat="all">Todos</span>
+        <span class="chip" data-cat="Fintech">Fintech <span class="count">241</span></span>
+        <span class="chip" data-cat="IA & LLMs">IA &amp; LLMs <span class="count">198</span></span>
+        <span class="chip" data-cat="E-commerce">E-commerce <span class="count">176</span></span>
+        <span class="chip" data-cat="Dev Tools">Dev Tools <span class="count">154</span></span>
+        <span class="chip" data-cat="Produtividade">Produtividade <span class="count">132</span></span>
+        <span class="chip" data-cat="Educação">Educação <span class="count">98</span></span>
+        <span class="chip" data-cat="Marketing">Marketing <span class="count">87</span></span>
+      </div>
+
+      <div style="max-width:1320px;margin:0 auto;padding:12px 48px 0;border-top:1px dashed var(--border);font-family:var(--f-mono);font-size:11px;color:var(--fg-dim);display:flex;align-items:center;gap:12px" id="active-bar">
+        <span>// filtros ativos:</span>
+        <span id="active-summary">nenhum</span>
+        <span style="color:var(--lime-400);cursor:pointer;display:inline-flex;align-items:center;gap:5px" id="clear-filters">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          limpar
+        </span>
+        <span style="margin-left:auto"><b style="color:var(--fg)" id="res-count">1284</b> artigos</span>
+      </div>
+    </div>
+
+    <!-- Feed grid -->
+    <div style="padding:48px 0 96px">
+      <div class="page">
+        <div style="display:grid;grid-template-columns:1fr 300px;gap:56px;align-items:start">
+          <div>
+            <div class="article-grid" style="--grid-cols:2" id="feed-grid"></div>
+            <div style="display:none;text-align:center;padding:80px 20px" id="feed-empty">
+              <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.25" viewBox="0 0 24 24" style="color:var(--fg-dim);margin-bottom:18px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <div style="display:block;font-size:18px;margin-bottom:8px;font-weight:600">Nenhum artigo encontrado</div>
+              <p class="mono-caption" style="font-size:13px;color:var(--fg-muted)">// tente outro nicho ou limpe os filtros</p>
+            </div>
+            <div style="text-align:center;margin-top:40px" id="load-more-wrap">
+              <button class="btn btn-secondary" id="load-more">Carregar mais artigos</button>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <aside class="sidebar">
+            <div class="side-card">
+              <h3>SaaS em destaque <span class="num">/top</span></h3>
+              <div style="display:flex;flex-direction:column;gap:14px">
+                {saasList.map((saas) => (
+                  <div style="display:flex;align-items:center;gap:11px">
+                    <div style="width:34px;height:34px;border-radius:var(--r-md);background:{saas.color};color:{saas.fg};display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:700;font-size:13px;flex-shrink:0">{saas.logo}</div>
+                    <div style="flex:1;min-width:0">
+                      <div style="display:block;font-size:13px;font-weight:600">{saas.name}</div>
+                      <span class="mono-caption" style="font-size:10px">{saas.cat} · {saas.articles} artigos</span>
+                    </div>
+                    <span class="mono-caption" style="color:var(--lime-400);border:1px solid hsl(83 81% 44% / .3);border-radius:4px;padding:4px 8px;cursor:pointer;font-size:10px">seguir</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div class="side-card">
+              <h3>Em alta <span class="num">/05</span></h3>
+              <div class="pop-list">
+                {articles.slice(0, 5).map((a, i) => (
+                  <div class="pop-item">
+                    <span class="num">0{i+1}</span>
+                    <div>
+                      <a href={a.href} class="t">{a.title}</a>
+                      <span class="pop-meta">{getSaas(a.s).name.toUpperCase()} · {a.views>=1000 ? (a.views/1000).toFixed(1)+'k' : a.views} views</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div class="side-card newsletter-card">
+              <div class="tag-line">// tem um SaaS?</div>
+              <h3 style="color:var(--fg) !important;font-family:var(--f-sans) !important;font-size:18px !important;font-weight:700 !important;text-transform:none !important;letter-spacing:-0.01em">Publique no feed</h3>
+              <p>Cadastre seu SaaS e alcance 8.200+ devs e founders escrevendo sobre o que voce constroi.</p>
+              <a href="/criar-saas" class="btn btn-primary btn-sm" style="width:100%;justify-content:center">Cadastrar SaaS →</a>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </PageShell>
+</BaseLayout>
+
+<script define:vars={{ articlesData: JSON.stringify(articles), saasDataJson: JSON.stringify(saasList) }}>
+  (function(){
+    var state = { cat:'all', sort:'recent', q:'', visible: 8 };
+    var grid = document.getElementById('feed-grid');
+    var allArticles = JSON.parse(articlesData);
+    var saasMap = new Map();
+    var saasData = JSON.parse(saasDataJson);
+    saasData.forEach(function(s){ saasMap.set(s.name.toLowerCase(), s); });
+
+    var saasKeyMap = { faturei: 'Faturei', nexaai: 'NexaAI', zapflow: 'ZapFlow', vendoo: 'Vendoo', tasky: 'Tasky', eduflow: 'EduFlow' };
+
+    function filtered(){
+      var list = allArticles.filter(function(a){
+        var sc = saasMap.get(a.s in saasKeyMap ? saasKeyMap[a.s] : 'Faturei');
+        if(!sc) return true;
+        if(state.cat!=='all' && sc.cat!==state.cat) return false;
+        if(state.q){
+          var hay = (a.title+' '+a.exc+' '+sc.name+' '+a.type).toLowerCase();
+          if(hay.indexOf(state.q.toLowerCase())<0) return false;
+        }
+        return true;
+      });
+      if(state.sort==='popular' || state.sort==='trending') list.sort(function(x,y){ return y.views - x.views; });
+      return list;
+    }
+
+    function render(){
+      var list = filtered();
+      document.getElementById('res-count').textContent = list.length;
+      var show = list.slice(0, state.visible);
+      grid.innerHTML = show.map(function(a){
+        var sc = saasMap.get(a.s in saasKeyMap ? saasKeyMap[a.s] : 'Faturei') || saasData[0];
+        var views = a.views>=1000 ? (a.views/1000).toFixed(1)+'k' : a.views;
+        return '<a href="'+a.href+'" class="post-card">'
+          + '<div class="post-cover" style="background:linear-gradient(135deg,'+sc.color+','+sc.color.replace('45%','22%').replace('48%','24%').replace('40%','24%')+');color:'+sc.fg+'">'
+          + '<span class="glyph">'+a.gl+'</span>'
+          + '<span class="cover-cat">'+a.type+'</span></div>'
+          + '<div class="post-body">'
+          + '<div class="publisher"><span class="plogo" style="background:'+sc.color+';color:'+sc.fg+'">'+sc.logo+'</span><b>'+sc.name+'</b><span class="pcat">'+sc.cat+'</span></div>'
+          + '<div class="post-meta-line"><span>'+a.date+' 2026</span><span>·</span><span class="time">'+a.time+'</span><span>·</span><span>'+views+' views</span></div>'
+          + '<h3>'+a.title+'</h3><p>'+a.exc+'</p>'
+          + '<div class="post-foot"><div class="author"><span class="avatar" style="width:22px;height:22px;font-size:9px">'+a.author+'</span><span class="author-name">'+sc.name+'</span></div><span class="read-link">ler →</span></div>'
+          + '</div></a>';
+      }).join('');
+      document.getElementById('feed-empty').style.display = list.length===0 ? 'block' : 'none';
+      document.getElementById('load-more-wrap').style.display = list.length>state.visible ? 'block' : 'none';
+      updateActiveSummary();
+    }
+
+    function updateActiveSummary(){
+      var parts = [];
+      if(state.cat!=='all') parts.push(state.cat);
+      if(state.q) parts.push('"'+state.q+'"');
+      document.getElementById('active-summary').textContent = parts.length ? parts.join(' + ') : 'nenhum';
+    }
+
+    document.getElementById('cat-chips-feed').addEventListener('click', function(e){
+      var c = e.target.closest('.chip'); if(!c) return;
+      document.querySelectorAll('#cat-chips-feed .chip').forEach(function(x){ x.classList.remove('active'); x.setAttribute('aria-pressed','false'); });
+      c.classList.add('active'); c.setAttribute('aria-pressed','true');
+      state.cat = c.getAttribute('data-cat'); state.visible=8; render();
+    });
+    document.getElementById('sort-pills').addEventListener('click', function(e){
+      var p = e.target.closest('.sort-pill'); if(!p) return;
+      document.querySelectorAll('#sort-pills .sort-pill').forEach(function(x){ x.classList.remove('active'); });
+      p.classList.add('active'); state.sort = p.getAttribute('data-sort'); render();
+    });
+    document.getElementById('feed-search').addEventListener('input', function(e){ state.q = e.target.value; state.visible=8; render(); });
+    document.getElementById('clear-filters').addEventListener('click', function(){
+      state = { cat:'all', sort:'recent', q:'', visible:8 };
+      document.getElementById('feed-search').value='';
+      document.querySelectorAll('#cat-chips-feed .chip').forEach(function(x,i){ x.classList.toggle('active', i===0); x.setAttribute('aria-pressed', i===0?'true':'false'); });
+      document.querySelectorAll('#sort-pills .sort-pill').forEach(function(x,i){ x.classList.toggle('active', i===0); });
+      render();
+    });
+    document.getElementById('load-more').addEventListener('click', function(){ state.visible += 6; render(); });
+
+    render();
+  })();
+</script>

@@ -1,0 +1,302 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageShell from '../../../components/devdoido/PageShell.astro';
+---
+
+<BaseLayout title="Editor de Artigo" description="Editor de artigos do CrazyStack." canonical="/admin/editor" noindex>
+  <PageShell active="Editor" admin breadcrumb={[{ label: 'admin' }, { label: 'editor' }]}>
+    <!-- Top bar -->
+    <div style="position:sticky;top:0;z-index:50;background:rgba(10,10,10,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)">
+      <div style="max-width:1440px;margin:0 auto;padding:12px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px">
+        <div style="display:flex;align-items:center;gap:18px">
+          <a href="/" class="brand"><span class="mark">&gt;_</span> devdoido</a>
+          <div style="width:1px;height:24px;background:var(--border)"></div>
+          <div class="crumb">
+            <a href="/admin/transcribe" style="color:var(--fg-muted)">admin</a><span class="sep">/</span><span class="here">editor</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:11px;color:var(--fg-dim)" id="save-state">
+          <span style="display:flex;align-items:center;gap:7px"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--lime-400);box-shadow:0 0 8px var(--lime-400)"></span> <span id="save-text">salvo · auto-save ativo</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <a href="/admin/transcribe" class="btn btn-ghost btn-sm">Transcricao</a>
+          <a href="/admin/pipeline" class="btn btn-ghost btn-sm">Pipeline YT</a>
+          <a href="/" class="btn btn-ghost btn-sm">← Site</a>
+          <button class="btn btn-ghost btn-sm" id="preview-btn">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Pre-visualizar
+          </button>
+          <div style="position:relative" id="status-wrap">
+            <button class="btn btn-secondary btn-sm" id="status-btn" style="display:inline-flex;align-items:center;gap:8px">
+              <span id="status-pip" style="width:8px;height:8px;border-radius:50%;background:var(--warn);box-shadow:0 0 8px hsl(38 92% 50% / .6)"></span>
+              <span id="status-label">Rascunho</span>
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div style="display:none;position:absolute;top:calc(100% + 6px);right:0;z-index:60;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r-md);box-shadow:0 12px 32px rgba(0,0,0,.7);padding:6px;min-width:220px" id="status-menu">
+              <div class="status-opt" data-status="draft" style="display:flex;gap:10px;padding:10px 12px;border-radius:4px;cursor:pointer;background:var(--bg-2)">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--warn);margin-top:4px"></span>
+                <div><b style="display:block;font-size:13px;color:var(--lime-400)">Rascunho</b><span class="mono-caption" style="font-size:10px">so voce ve · nao indexado</span></div>
+              </div>
+              <div class="status-opt" data-status="published" style="display:flex;gap:10px;padding:10px 12px;border-radius:4px;cursor:pointer">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--lime-500);margin-top:4px"></span>
+                <div><b style="display:block;font-size:13px">Publicado</b><span class="mono-caption" style="font-size:10px">visivel ao publico · indexado</span></div>
+              </div>
+              <div class="status-opt" data-status="archived" style="display:flex;gap:10px;padding:10px 12px;border-radius:4px;cursor:pointer">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--fg-dim);margin-top:4px"></span>
+                <div><b style="display:block;font-size:13px">Arquivado</b><span class="mono-caption" style="font-size:10px">fora do ar · mantem URL</span></div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="save-draft-btn">Salvar</button>
+          <button class="btn btn-primary btn-sm" id="publish-btn">
+            Publicar
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Editor grid -->
+    <div style="max-width:1440px;margin:0 auto;display:grid;grid-template-columns:1fr 340px">
+      <!-- Main -->
+      <div style="border-right:1px solid var(--border);min-height:calc(100vh - 57px)">
+        <div style="max-width:760px;margin:0 auto;padding:56px 40px 120px">
+          <!-- Cover upload -->
+          <span class="mono-caption" style="display:block;margin-bottom:10px;font-size:10px;letter-spacing:.14em">// imagem do artigo</span>
+          <label id="cover-drop" style="position:relative;border:1.5px dashed var(--border);border-radius:var(--r-lg);background:var(--bg-1);height:260px;margin-bottom:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:all .2s">
+            <input type="file" id="f-cover" accept="image/*" style="display:none" />
+            <div id="cover-ph" style="text-align:center;pointer-events:none">
+              <svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" style="color:var(--fg-dim);margin-bottom:12px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg>
+              <div style="display:block;font-size:14px;color:var(--fg-muted);font-weight:500">Adicione a imagem de capa</div>
+              <span class="mono-caption" style="display:block;font-size:11px;margin-top:6px">arraste ou clique · 1200×630 · jpg/png ate 4mb</span>
+            </div>
+          </label>
+
+          <!-- Title -->
+          <textarea class="title-input" id="f-title" rows="1" placeholder="Titulo do artigo" style="width:100%;background:none;border:none;outline:none;color:var(--fg);font-family:var(--f-sans);font-weight:800;font-size:46px;line-height:1.05;letter-spacing:-0.03em;resize:none;overflow:hidden;padding:0;margin-bottom:18px"></textarea>
+          <textarea class="subtitle-input" id="f-subtitle" rows="1" placeholder="Subtitulo — uma frase que resume o artigo e fisga o leitor." style="width:100%;background:none;border:none;outline:none;color:var(--fg-muted);font-family:var(--f-sans);font-weight:400;font-size:21px;line-height:1.45;resize:none;overflow:hidden;padding:0;margin-bottom:28px"></textarea>
+
+          <div style="height:1px;background:var(--border);margin:0 0 28px"></div>
+
+          <!-- Formatting toolbar -->
+          <div style="position:sticky;top:73px;z-index:20;display:flex;align-items:center;gap:4px;flex-wrap:wrap;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r-md);padding:6px;margin-bottom:24px" id="fmt-bar">
+            <span class="fb-btn" data-cmd="formatBlock" data-val="h2" title="Titulo" style="width:auto;padding:0 12px;font-weight:700;font-family:var(--f-mono);font-size:13px">H2</span>
+            <span class="fb-btn" data-cmd="formatBlock" data-val="h3" title="Subtitulo" style="width:auto;padding:0 12px;font-weight:700;font-family:var(--f-mono);font-size:13px">H3</span>
+            <span style="width:1px;height:22px;background:var(--border);margin:0 4px"></span>
+            <span class="fb-btn" data-cmd="bold" title="Negrito" style="width:34px;height:34px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg-muted);cursor:pointer;font-family:var(--f-mono);font-size:13px"><b>B</b></span>
+            <span class="fb-btn" data-cmd="italic" title="Italico" style="width:34px;height:34px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg-muted);cursor:pointer;font-family:var(--f-mono);font-size:13px"><i>I</i></span>
+            <span style="width:1px;height:22px;background:var(--border);margin:0 4px"></span>
+            <span class="fb-btn" data-cmd="insertUnorderedList" title="Lista" style="width:34px;height:34px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg-muted);cursor:pointer">•</span>
+            <span class="fb-btn" data-cmd="formatBlock" data-val="blockquote" style="width:34px;height:34px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg-muted);cursor:pointer;font-family:var(--f-mono);font-size:13px">&gt;</span>
+            <span class="fb-btn" data-cmd="code" style="width:34px;height:34px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg-muted);cursor:pointer;font-family:var(--f-mono);font-size:13px">&lt;/&gt;</span>
+            <span class="fb-btn" data-cmd="createLink" style="width:34px;height:34px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg-muted);cursor:pointer;font-family:var(--f-mono);font-size:13px">🔗</span>
+          </div>
+
+          <!-- Content -->
+          <div contenteditable="true" id="f-content" style="outline:none;min-height:320px;font-size:17px;line-height:1.75;color:hsl(0 0% 88%)" data-ph="Comece a escrever seu artigo... Use a barra acima para formatar.">
+            <p>O <strong>Cursor</strong> escreve 100 linhas em 10 segundos. Mas quando o build quebra as 23h de uma sexta, quem e que corrige?</p>
+            <p>Nesse artigo eu mostro o modelo mental que separa o dev que <em>entende</em> o codigo do que so <em>cola</em>.</p>
+            <h2>O problema do codigo colado</h2>
+            <p>Toda vez que voce aceita uma sugestao sem ler, voce acumula divida tecnica que nao sabe que tem.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside style="padding:24px;display:flex;flex-direction:column;gap:22px">
+        <div>
+          <div style="font-family:var(--f-mono);font-size:11px;color:var(--lime-400);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px;display:flex;justify-content:space-between">
+            <span>Publicacao</span><span style="color:var(--fg-dim)">draft</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-family:var(--f-mono);font-size:11px">
+              <span style="color:var(--fg-dim);text-transform:uppercase;letter-spacing:.08em">status</span>
+              <span style="color:var(--lime-400)">● rascunho</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-family:var(--f-mono);font-size:11px">
+              <span style="color:var(--fg-dim);text-transform:uppercase;letter-spacing:.08em">autor</span>
+              <span style="color:var(--fg-muted)">Gustavo Miranda</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-family:var(--f-mono);font-size:11px">
+              <span style="color:var(--fg-dim);text-transform:uppercase;letter-spacing:.08em">tempo leitura</span>
+              <span style="color:var(--fg-muted)" id="read-time">~1 min</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-family:var(--f-mono);font-size:11px">
+              <span style="color:var(--fg-dim);text-transform:uppercase;letter-spacing:.08em">palavras</span>
+              <span style="color:var(--fg-muted)" id="word-count">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border)"></div>
+
+        <div>
+          <div style="font-family:var(--f-mono);font-size:11px;color:var(--lime-400);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px">Slug / URL</div>
+          <div style="display:flex;align-items:stretch;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden">
+            <span style="padding:10px 0 10px 12px;font-family:var(--f-mono);font-size:12px;color:var(--fg-dim);white-space:nowrap">devdoido.com.br/blog/</span>
+            <input type="text" id="f-slug" placeholder="titulo-do-artigo" style="flex:1;background:none;border:none;outline:none;color:var(--lime-400);font-family:var(--f-mono);font-size:12px;padding:10px 12px 10px 2px" />
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+            <span style="font-family:var(--f-mono);font-size:10px;color:var(--lime-400);display:flex;align-items:center;gap:6px"><span class="dot" style="width:5px;height:5px;border-radius:50%;background:var(--lime-400)"></span> disponivel</span>
+            <span style="font-family:var(--f-mono);font-size:10px;color:var(--fg-muted);cursor:pointer" id="slug-regen">↻ gerar do titulo</span>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border)"></div>
+
+        <div>
+          <div style="font-family:var(--f-mono);font-size:11px;color:var(--lime-400);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px">Categoria</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px" id="cat-chips-editor">
+            {['Node.js','React','Next.js','IA & LLMs','SaaS','Carreira','Opiniao'].map((cat, i) => (
+              <span class="chip" data-cat={cat} aria-pressed={i===0?'true':'false'} style="cursor:pointer">{cat}</span>
+            ))}
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border)"></div>
+
+        <div>
+          <div style="font-family:var(--f-mono);font-size:11px;color:var(--lime-400);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px;display:flex;justify-content:space-between">Tags <span style="color:var(--fg-dim)" id="tag-n">3</span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-md);padding:8px" id="tags-box">
+            <span class="tag-item" data-tag="cursor" style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;background:hsl(83 81% 44% / .12);color:var(--lime-400);border-radius:4px;font-family:var(--f-mono);font-size:11px">cursor <button type="button" style="color:var(--lime-400);display:flex;opacity:.7;background:none;border:none;cursor:pointer;padding:0">✕</button></span>
+            <span class="tag-item" data-tag="ia" style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;background:hsl(83 81% 44% / .12);color:var(--lime-400);border-radius:4px;font-family:var(--f-mono);font-size:11px">ia <button type="button" style="color:var(--lime-400);display:flex;opacity:.7;background:none;border:none;cursor:pointer;padding:0">✕</button></span>
+            <span class="tag-item" data-tag="carreira" style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;background:hsl(83 81% 44% / .12);color:var(--lime-400);border-radius:4px;font-family:var(--f-mono);font-size:11px">carreira <button type="button" style="color:var(--lime-400);display:flex;opacity:.7;background:none;border:none;cursor:pointer;padding:0">✕</button></span>
+            <input type="text" id="tag-input" placeholder="+ tag" style="flex:1;min-width:80px;background:none;border:none;outline:none;color:var(--fg);font-family:var(--f-mono);font-size:12px;padding:4px" />
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border)"></div>
+
+        <div>
+          <div style="font-family:var(--f-mono);font-size:11px;color:var(--lime-400);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px">Previa Google</div>
+          <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-md);padding:14px">
+            <div style="font-family:var(--f-mono);font-size:11px;color:var(--lime-600);margin-bottom:6px" id="seo-url">devdoido.com.br › blog › titulo-do-artigo</div>
+            <div style="font-size:15px;color:hsl(217 80% 70%);font-weight:500;margin-bottom:5px;line-height:1.3" id="seo-title">Titulo do artigo | DEVDOIDO</div>
+            <div style="font-size:12px;color:var(--fg-muted);line-height:1.5" id="seo-desc">Subtitulo — uma frase que resume o artigo e fisga o leitor.</div>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border)"></div>
+
+        <div>
+          <span style="font-family:var(--f-mono);font-size:11px;color:var(--fg-dim);cursor:pointer;display:inline-flex;align-items:center;gap:7px" id="delete-link">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            excluir artigo permanentemente
+          </span>
+        </div>
+      </aside>
+    </div>
+  </PageShell>
+</BaseLayout>
+
+<script>
+  (function(){
+    var state = { status:'draft', cat:'Node.js', slugEdited:false, tags:['cursor','ia','carreira'] };
+    var content = document.getElementById('f-content');
+    var titleEl = document.getElementById('f-title');
+    var subEl = document.getElementById('f-subtitle');
+
+    function autosize(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+    [titleEl, subEl].forEach(function(el){ el.addEventListener('input', function(){ autosize(el); }); autosize(el); });
+
+    var slugInput = document.getElementById('f-slug');
+    function slugify(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,60); }
+    function syncSlug(){ if(!state.slugEdited){ slugInput.value = slugify(titleEl.value) || ''; } document.getElementById('seo-url').textContent = 'devdoido.com.br › blog › ' + (slugInput.value || 'titulo-do-artigo'); }
+    slugInput.addEventListener('input', function(){ state.slugEdited = true; syncSlug(); });
+    document.getElementById('slug-regen').addEventListener('click', function(){ state.slugEdited = false; syncSlug(); });
+    titleEl.addEventListener('input', function(){ syncSlug(); document.getElementById('seo-title').textContent = (titleEl.value.trim() || 'Titulo do artigo') + ' | DEVDOIDO'; });
+    subEl.addEventListener('input', function(){ document.getElementById('seo-desc').textContent = subEl.value.trim() || 'Subtitulo — uma frase que resume o artigo e fisga o leitor.'; });
+
+    function countWords(){
+      var text = content.innerText.trim();
+      var words = text ? text.split(/\\s+/).length : 0;
+      document.getElementById('word-count').textContent = words.toLocaleString('pt-BR');
+      document.getElementById('read-time').textContent = '~'+Math.max(1, Math.round(words/200))+' min';
+    }
+    content.addEventListener('input', countWords);
+
+    document.getElementById('fmt-bar').addEventListener('click', function(e){
+      var fb = e.target.closest('.fb-btn'); if(!fb) return;
+      var cmd = fb.getAttribute('data-cmd'); content.focus();
+      if(cmd==='formatBlock') document.execCommand('formatBlock', false, fb.getAttribute('data-val'));
+      else if(cmd==='createLink'){ var url = prompt('URL do link:'); if(url) document.execCommand('createLink', false, url); }
+      else if(cmd==='code'){ var sel = window.getSelection().toString(); if(sel) document.execCommand('insertHTML', false, '<code>'+sel+'</code>'); }
+      else document.execCommand(cmd, false, null);
+      countWords();
+    });
+
+    document.querySelectorAll('#cat-chips-editor .chip').forEach(function(c){
+      c.addEventListener('click', function(){
+        document.querySelectorAll('#cat-chips-editor .chip').forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+        c.setAttribute('aria-pressed','true'); state.cat = c.getAttribute('data-cat');
+      });
+    });
+
+    var tagsBox = document.getElementById('tags-box');
+    var tagInput = document.getElementById('tag-input');
+    function updateTagCount(){ document.getElementById('tag-n').textContent = tagsBox.querySelectorAll('.tag-item').length; }
+    function addTag(t){
+      t = slugify(t); if(!t) return;
+      var existing = tagsBox.querySelector('.tag-item[data-tag="'+t+'"]');
+      if(existing) return;
+      var pill = document.createElement('span');
+      pill.className = 'tag-item'; pill.setAttribute('data-tag',t);
+      pill.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:4px 8px;background:hsl(83 81% 44% / .12);color:var(--lime-400);border-radius:4px;font-family:var(--f-mono);font-size:11px';
+      pill.innerHTML = t + ' <button type="button" style="color:var(--lime-400);display:flex;opacity:.7;background:none;border:none;cursor:pointer;padding:0">✕</button>';
+      tagsBox.insertBefore(pill, tagInput); updateTagCount();
+    }
+    tagInput.addEventListener('keydown', function(e){
+      if(e.key==='Enter' || e.key===','){ e.preventDefault(); addTag(tagInput.value); tagInput.value=''; }
+    });
+    tagsBox.addEventListener('click', function(e){
+      var btn = e.target.closest('button'); if(!btn) return;
+      btn.closest('.tag-item').remove(); updateTagCount();
+    });
+
+    var statusBtn = document.getElementById('status-btn');
+    var statusMenu = document.getElementById('status-menu');
+    statusBtn.addEventListener('click', function(e){ e.stopPropagation(); statusMenu.style.display = statusMenu.style.display==='block'?'none':'block'; });
+    document.addEventListener('click', function(){ statusMenu.style.display = 'none'; });
+    statusMenu.addEventListener('click', function(e){
+      var opt = e.target.closest('.status-opt'); if(!opt) return;
+      var s = opt.getAttribute('data-status');
+      state.status = s;
+      var pip = document.getElementById('status-pip');
+      var label = document.getElementById('status-label');
+      if(s==='draft'){ pip.style.background='var(--warn)'; pip.style.boxShadow='0 0 8px hsl(38 92% 50% / .6)'; label.textContent='Rascunho'; }
+      else if(s==='published'){ pip.style.background='var(--lime-500)'; pip.style.boxShadow='0 0 8px hsl(83 81% 44% / .6)'; label.textContent='Publicado'; }
+      else { pip.style.background='var(--fg-dim)'; pip.style.boxShadow='none'; label.textContent='Arquivado'; }
+      statusMenu.querySelectorAll('.status-opt').forEach(function(o){ o.style.background = o.getAttribute('data-status')===s ? 'var(--bg-2)' : ''; });
+      statusMenu.style.display = 'none';
+    });
+
+    var saveTimer;
+    function markDirty(){
+      document.getElementById('save-text').textContent = 'salvando...';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(function(){ document.getElementById('save-text').textContent = 'salvo · '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }, 800);
+    }
+    [titleEl, subEl, content].forEach(function(el){ el.addEventListener('input', markDirty); });
+
+    document.getElementById('save-draft-btn').addEventListener('click', function(){ markDirty(); });
+    document.getElementById('publish-btn').addEventListener('click', function(){
+      state.status = 'published';
+      document.getElementById('status-pip').style.background='var(--lime-500)';
+      document.getElementById('status-pip').style.boxShadow='0 0 8px hsl(83 81% 44% / .6)';
+      document.getElementById('status-label').textContent = 'Publicado';
+    });
+
+    document.getElementById('preview-btn').addEventListener('click', function(){
+      var w = window.open('','_blank','width=800,height=900');
+      if(!w) return;
+      var html = '<!doctype html><html><head><meta charset=utf-8><title>Preview</title>';
+      html += '<style>body{background:#0a0a0a;color:#f5f5f5;font-family:Geist,sans-serif;max-width:760px;margin:0 auto;padding:40px}h1{font-size:44px;font-weight:800;letter-spacing:-0.03em}h2{font-size:28px;font-weight:700}p{font-size:18px;line-height:1.75;color:#d4d4d4}blockquote{border-left:4px solid #84cc16;padding-left:20px;font-size:20px}</style></head><body>';
+      html += '<h1>'+(titleEl.value||'Titulo')+'</h1><p style="color:#a3a3a3;font-size:20px">'+(subEl.value||'')+'</p><hr style="border-color:#262626">';
+      html += content.innerHTML;
+      html += '</body></html>';
+      w.document.write(html);
+    });
+
+    syncSlug(); countWords(); updateTagCount();
+  })();
+</script>

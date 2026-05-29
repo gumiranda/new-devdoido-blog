@@ -28,15 +28,7 @@ const coverColors = ['a', 'b', 'c'];
   keywords={fullPost.tags}
   author={{ name: SITE.author, url: '/sobre', credentials: 'Autor do DEVDOIDO' }}
 >
-  <PageShell active={fullPost.category === 'Vibe Coding' ? 'Vibe Coding' : 'Home'}>
-    <!-- Breadcrumb -->
-    <div style="border-bottom:1px solid var(--border);padding:10px 0">
-      <div class="page" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
-        <span class="mono-caption" style="color:var(--fg-muted)">// <a href="/">Home</a> / <a href="/blog">{fullPost.category}</a> / <span style="color:var(--lime-400)">{fullPost.slug}</span></span>
-        <a href="/blog" class="t-mono" style="color:var(--lime-400);font-size:12px">&larr; voltar</a>
-      </div>
-    </div>
-
+  <PageShell active="Blog" breadcrumb={[{ label: 'blog', href: '/blog' }, { label: fullPost.slug }]}>
     <!-- Article hero -->
     <section style="padding:48px 0 24px">
       <div class="container-narrow">
@@ -161,13 +153,24 @@ no dedupe, nao inverta a ordem das ops."`}</code></pre>
       </div>
 
       <!-- CTA -->
-      <div style="background:linear-gradient(135deg,var(--bg-1),var(--bg-2));border:1px solid var(--lime-500);border-radius:var(--r-lg);padding:40px;margin-bottom:64px;position:relative;overflow:hidden">
-        <div class="grid-bg" style="position:absolute;inset:0;background-size:32px 32px;opacity:.5"></div>
-        <div style="position:relative">
-          <p class="mono-caption" style="margin-bottom:10px">// nao perca o proximo</p>
-          <h3 style="font-size:26px;font-weight:700;letter-spacing:-0.02em;margin:0 0 10px">Receba o proximo artigo direto no email</h3>
-          <p style="font-size:15px;color:var(--fg-muted);margin:0 0 20px;max-width:480px;line-height:1.55">Toda quinta as 6h. 3 links, 1 opiniao, 1 codigo. 5 minutos de leitura.</p>
-          <a href="/newsletter" class="btn btn-primary">Assinar newsletter &rarr;</a>
+      <div style="display:flex;gap:12px;margin-bottom:64px;flex-wrap:wrap">
+        <div style="flex:1;min-width:280px;background:linear-gradient(135deg,var(--bg-1),var(--bg-2));border:1px solid var(--lime-500);border-radius:var(--r-lg);padding:40px;position:relative;overflow:hidden">
+          <div class="grid-bg" style="position:absolute;inset:0;background-size:32px 32px;opacity:.5"></div>
+          <div style="position:relative">
+            <p class="mono-caption" style="margin-bottom:10px">// nao perca o proximo</p>
+            <h3 style="font-size:22px;font-weight:700;letter-spacing:-0.02em;margin:0 0 8px">Receba o proximo artigo direto no email</h3>
+            <p style="font-size:14px;color:var(--fg-muted);margin:0 0 18px;line-height:1.5">Toda quinta as 6h. 3 links, 1 opiniao, 1 codigo.</p>
+            <a href="/newsletter" class="btn btn-primary btn-sm">Assinar newsletter →</a>
+          </div>
+        </div>
+        <div style="flex:1;min-width:280px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r-lg);padding:40px">
+          <p class="mono-caption" style="margin-bottom:10px">// comunidade</p>
+          <h3 style="font-size:22px;font-weight:700;letter-spacing:-0.02em;margin:0 0 8px">Feed de SaaS brasileiros</h3>
+          <p style="font-size:14px;color:var(--fg-muted);margin:0 0 18px;line-height:1.5">Artigos de fintechs, devtools, e-commerces. Direto de quem constroi.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a href="/feed" class="btn btn-secondary btn-sm">Explorar feed →</a>
+            <a href="/criar-saas" class="btn btn-ghost btn-sm">Cadastrar SaaS</a>
+          </div>
         </div>
       </div>
     </div>

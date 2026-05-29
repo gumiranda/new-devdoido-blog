@@ -13,7 +13,18 @@ import { transcriptSegments } from '../../data/devdoido';
   canonical="/admin/transcribe"
   noindex={true}
 >
-  <PageShell admin active="Transcribe">
+  <PageShell admin active="Transcricao" breadcrumb={[{ label: 'admin' }, { label: 'transcricao' }]}>
+    <div style="padding:32px 48px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div>
+        <h1 class="t-display" style="font-size:36px;margin:0">Transcricao</h1>
+        <p class="t-mono muted" style="margin:4px 0 0;font-size:12px">YouTube → texto → artigo. Pipeline de transcricao automatizada.</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <a href="/admin/editor" class="btn btn-primary btn-sm">← Ir para o Editor</a>
+        <a href="/admin/pipeline" class="btn btn-secondary btn-sm">Pipeline YT</a>
+        <a href="/" class="btn btn-ghost btn-sm">Site publico</a>
+      </div>
+    </div>
     <section class="section" style="padding-top:32px">
       <div class="container">
         <div class="tile admin-hero-tile" style="min-height:300px;padding:0;justify-content:flex-end">

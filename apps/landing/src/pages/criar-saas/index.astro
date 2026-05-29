@@ -1,0 +1,353 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageShell from '../../components/devdoido/PageShell.astro';
+
+const categories = [
+  { id: 'Fintech', label: 'Fintech', desc: 'pagamentos', icon: 'card' },
+  { id: 'E-commerce', label: 'E-commerce', desc: 'lojas / vendas', icon: 'cart' },
+  { id: 'Produtividade', label: 'Produtividade', desc: 'workflow', icon: 'check' },
+  { id: 'IA & LLMs', label: 'IA & LLMs', desc: 'automação', icon: 'cpu' },
+  { id: 'Marketing', label: 'Marketing', desc: 'growth', icon: 'speaker' },
+  { id: 'Educação', label: 'Educação', desc: 'cursos / edtech', icon: 'edu' },
+  { id: 'Saúde', label: 'Saúde', desc: 'healthtech', icon: 'pulse' },
+  { id: 'Dev Tools', label: 'Dev Tools', desc: 'infra / api', icon: 'code' },
+  { id: 'Outro', label: 'Outro', desc: 'nicho próprio', icon: 'dots' },
+];
+---
+
+<BaseLayout
+  title="Criar SaaS"
+  description="Cadastre seu SaaS na vitrine da comunidade CrazyStack. Preencha os campos e a prévia atualiza em tempo real."
+  canonical="/criar-saas"
+>
+  <PageShell active="Cadastrar SaaS" breadcrumb={[{ label: 'cadastrar saas' }]}>
+    <!-- Page head -->
+    <div style="position:relative;overflow:hidden;border-bottom:1px solid var(--border);padding:40px 0 36px">
+      <div class="grid-bg" style="position:absolute;inset:0;background-size:44px 44px;mask-image:radial-gradient(ellipse 60% 80% at 20% 0%, #000 30%, transparent 80%)"></div>
+      <div class="page" style="position:relative">
+        <h1 style="font-size:44px;font-weight:800;letter-spacing:-0.03em;line-height:1;margin:0 0 10px">Cadastre seu <span style="color:var(--lime-400);font-style:normal">SaaS</span></h1>
+        <p style="font-size:15px;color:var(--fg-muted);margin:0;max-width:560px;line-height:1.55">Coloque seu produto na vitrine da comunidade. Preencha os campos — a prévia ao lado atualiza em tempo real. <a href="/feed" style="color:var(--lime-400)">Ver feed →</a></p>
+      </div>
+    </div>
+
+    <div class="page">
+      <div style="display:grid;grid-template-columns:1fr 480px;gap:56px;padding:48px 0 96px;align-items:start">
+        <!-- Form column -->
+        <form style="display:flex;flex-direction:column;gap:32px" id="saas-form" onsubmit="return false">
+
+          <!-- IDENTITY -->
+          <div class="tile" style="min-height:auto">
+            <div style="display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:11px;color:var(--lime-400);text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px">
+              <span style="color:var(--fg-dim)">01 /</span> Identidade <span style="color:var(--danger)">*</span>
+            </div>
+            <p style="font-size:13px;color:var(--fg-muted);margin:0 0 22px;line-height:1.5">Como seu SaaS se chama e a logo que aparece na vitrine.</p>
+
+            <div style="margin-bottom:22px">
+              <label style="display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:11px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">
+                Nome do SaaS <span style="color:var(--lime-400)">obrigatório</span>
+              </label>
+              <input class="input" id="f-name" type="text" maxlength="40" placeholder="ex: Faturei, NoCodeBR, ZapFlow..." />
+              <div style="text-align:right;margin-top:6px"><span class="mono-caption" id="name-count">0 / 40</span></div>
+            </div>
+
+            <div>
+              <label style="display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:11px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">
+                Logo / Foto <span style="color:var(--lime-400)">obrigatório</span>
+              </label>
+              <div style="display:flex;gap:22px;align-items:flex-start">
+                <label class="upload-logo" id="logo-drop" style="width:110px;height:110px;border-radius:50%;border:1.5px dashed var(--border);background:var(--bg-2);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;flex-shrink:0;transition:all .2s">
+                  <input type="file" id="f-logo" accept="image/*" style="display:none" />
+                  <div class="ph" style="text-align:center;pointer-events:none">
+                    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color:var(--fg-dim);margin-bottom:10px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg>
+                    <div style="font-size:12px;color:var(--fg-muted);font-weight:500">logo</div>
+                    <div class="mono-caption" style="font-size:10px;margin-top:4px">1:1 · PNG</div>
+                  </div>
+                  <button type="button" id="logo-clear" style="display:none;position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:4px;background:rgba(10,10,10,.8);border:1px solid var(--border);align-items:center;justify-content:center;color:var(--fg);z-index:3;cursor:pointer" onclick="event.preventDefault();event.stopPropagation();clearLogo()">✕</button>
+                </label>
+                <div style="flex:1;padding-top:4px">
+                  <div style="font-size:13px;color:var(--fg-muted);line-height:1.5">Arraste uma imagem ou clique. Quadrada, mínimo 256×256px, fundo transparente ideal.</div>
+                  <div style="display:flex;gap:8px;margin-top:12px">
+                    <span class="chip" id="shape-round" style="cursor:pointer" aria-pressed="true">● redondo</span>
+                    <span class="chip" id="shape-square" style="cursor:pointer" aria-pressed="false">■ quadrado</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COVER -->
+          <div class="tile" style="min-height:auto">
+            <div style="display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:11px;color:var(--lime-400);text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px">
+              <span style="color:var(--fg-dim)">02 /</span> Foto de capa
+            </div>
+            <p style="font-size:13px;color:var(--fg-muted);margin:0 0 22px;line-height:1.5">Banner que aparece no topo do card. Use um screenshot do produto ou uma arte 3:1.</p>
+            <label id="cover-drop" style="width:100%;height:170px;border:1.5px dashed var(--border);border-radius:8px;background:var(--bg-2);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;transition:all .2s">
+              <input type="file" id="f-cover" accept="image/*" style="display:none" />
+              <div class="ph" style="text-align:center;pointer-events:none">
+                <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color:var(--fg-dim);margin-bottom:10px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg>
+                <div style="font-size:13px;font-weight:500;color:var(--fg-muted)">arraste a foto de capa</div>
+                <div class="mono-caption" style="font-size:10px;margin-top:5px">recomendado 1200×400 · jpg ou png · até 4mb</div>
+              </div>
+              <button type="button" id="cover-clear" style="display:none;position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:4px;background:rgba(10,10,10,.8);border:1px solid var(--border);align-items:center;justify-content:center;color:var(--fg);z-index:3;cursor:pointer" onclick="event.preventDefault();event.stopPropagation();clearCover()">✕</button>
+            </label>
+          </div>
+
+          <!-- CATEGORY -->
+          <div class="tile" style="min-height:auto">
+            <div style="display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:11px;color:var(--lime-400);text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px">
+              <span style="color:var(--fg-dim)">03 /</span> Categoria <span style="color:var(--danger)">*</span>
+            </div>
+            <p style="font-size:13px;color:var(--fg-muted);margin:0 0 22px;line-height:1.5">Qual nicho seu SaaS atende? Ajuda a comunidade a encontrar você.</p>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" id="cat-grid">
+              {categories.map((cat) => (
+                <div class="cat-opt" data-cat={cat.id} style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:8px">
+                  <div style="width:30px;height:30px;border-radius:4px;background:var(--bg-3);display:flex;align-items:center;justify-content:center;color:var(--fg-muted)">
+                    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                      {cat.icon === 'card' ? <><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></> :
+                       cat.icon === 'cart' ? <><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></> :
+                       cat.icon === 'check' ? <><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></> :
+                       cat.icon === 'cpu' ? <><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></> :
+                       cat.icon === 'pulse' ? <><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></> :
+                       <><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></>
+                      }
+                    </svg>
+                  </div>
+                  <div><b style="font-size:13px;font-weight:600">{cat.label}</b></div>
+                  <div class="mono-caption" style="font-size:10px;text-transform:none;letter-spacing:0">{cat.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- LINK -->
+          <div class="tile" style="min-height:auto">
+            <div style="display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:11px;color:var(--lime-400);text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px">
+              <span style="color:var(--fg-dim)">04 /</span> Link <span style="color:var(--danger)">*</span>
+            </div>
+            <p style="font-size:13px;color:var(--fg-muted);margin:0 0 22px;line-height:1.5">Onde a comunidade encontra seu SaaS. Website ou Instagram — você escolhe.</p>
+            <div style="display:inline-flex;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:14px" id="link-seg">
+              <span role="button" style="padding:8px 16px;font-family:var(--f-mono);font-size:12px;border-radius:5px;color:var(--lime-400);background:var(--bg-3);cursor:pointer;display:inline-flex;align-items:center;gap:7px" data-link="web" class="seg-btn active">🌐 website</span>
+              <span role="button" style="padding:8px 16px;font-family:var(--f-mono);font-size:12px;border-radius:5px;color:var(--fg-muted);cursor:pointer;display:inline-flex;align-items:center;gap:7px" data-link="insta" class="seg-btn">📷 instagram</span>
+            </div>
+            <div style="display:flex;align-items:center;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;overflow:hidden" id="link-wrap">
+              <span style="padding:12px 14px;background:var(--bg-3);color:var(--fg-dim);font-family:var(--f-mono);font-size:13px;border-right:1px solid var(--border)">https://</span>
+              <input id="f-link" type="text" placeholder="meusaas.com.br" style="flex:1;background:none;border:none;outline:none;color:var(--fg);padding:12px 14px;font-family:var(--f-mono);font-size:13px" />
+            </div>
+          </div>
+        </form>
+
+        <!-- PREVIEW COLUMN -->
+        <div style="position:sticky;top:96px">
+          <div style="background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg-2);border-bottom:1px solid var(--border);font-family:var(--f-mono);font-size:11px;color:var(--fg-muted)">
+              <div style="display:flex;gap:6px"><span style="width:9px;height:9px;border-radius:50%;background:var(--bg-3)"></span><span style="width:9px;height:9px;border-radius:50%;background:var(--bg-3)"></span><span style="width:9px;height:9px;border-radius:50%;background:var(--bg-3)"></span></div>
+              <span>preview · saas-card.tsx</span>
+              <span style="margin-left:auto;display:flex;align-items:center;gap:6px;color:var(--lime-400)">
+                <span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--lime-400);box-shadow:0 0 8px var(--lime-400)"></span> LIVE
+              </span>
+            </div>
+            <div style="padding:28px">
+              <div class="mono-caption" style="margin-bottom:16px">// como vai aparecer na vitrine</div>
+
+              <!-- SaaS preview card -->
+              <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden">
+                <div style="height:130px;position:relative;background:repeating-linear-gradient(-45deg,var(--bg-3) 0 12px,hsl(0 0% 14%) 12px 24px);display:flex;align-items:flex-end" id="pv-cover">
+                  <div style="position:relative;width:100%;text-align:center;padding-bottom:44px;font-family:var(--f-mono);font-size:11px;color:var(--fg-dim)" id="pv-cover-ph">// foto de capa</div>
+                  <div style="position:absolute;bottom:-28px;left:22px;z-index:2;width:64px;height:64px;border-radius:12px;background:var(--bg-3);border:3px solid var(--bg-2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:700;font-size:24px;color:var(--lime-500)" id="pv-logo"><span>?</span></div>
+                </div>
+                <div style="padding:38px 22px 22px">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+                    <div style="font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--fg-dim);font-weight:500" id="pv-name" class="empty-text">Nome do seu SaaS</div>
+                    <div style="display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:10px;padding:4px 9px;border-radius:4px;background:var(--bg-3);color:var(--fg-dim);border:1px solid var(--border);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0" id="pv-cat" class="empty-cat">categoria</div>
+                  </div>
+                  <div style="display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-family:var(--f-mono);font-size:12px;color:var(--fg-dim);padding:8px 12px;background:var(--bg-3);border-radius:4px;border:1px solid var(--border)" id="pv-link" class="empty-link">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    <span id="pv-link-text">seu-link.com</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Checklist -->
+              <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--fg-muted)" id="ck-name">
+                  <span style="width:18px;height:18px;border-radius:50%;border:1px solid var(--border);background:var(--bg-2);display:flex;align-items:center;justify-content:center"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" style="opacity:0"><polyline points="20 6 9 17 4 12"/></svg></span>
+                  Nome preenchido
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--fg-muted)" id="ck-logo">
+                  <span style="width:18px;height:18px;border-radius:50%;border:1px solid var(--border);background:var(--bg-2);display:flex;align-items:center;justify-content:center"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" style="opacity:0"><polyline points="20 6 9 17 4 12"/></svg></span>
+                  Logo enviada
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--fg-muted)" id="ck-cat">
+                  <span style="width:18px;height:18px;border-radius:50%;border:1px solid var(--border);background:var(--bg-2);display:flex;align-items:center;justify-content:center"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" style="opacity:0"><polyline points="20 6 9 17 4 12"/></svg></span>
+                  Categoria escolhida
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--fg-muted)" id="ck-link">
+                  <span style="width:18px;height:18px;border-radius:50%;border:1px solid var(--border);background:var(--bg-2);display:flex;align-items:center;justify-content:center"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" style="opacity:0"><polyline points="20 6 9 17 4 12"/></svg></span>
+                  Link adicionado
+                </div>
+              </div>
+
+              <div style="display:flex;gap:12px;margin-top:28px">
+                <button class="btn btn-primary" style="flex:1;justify-content:center" id="submit-btn" disabled>
+                  Publicar SaaS
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+                <button class="btn btn-secondary" id="draft-btn">Rascunho</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;font-family:var(--f-mono);font-size:11px;color:var(--fg-dim);padding:0 0 56px">// crazystack vitrine · seu produto na frente de <span style="color:var(--lime-400)">8.200+ devs</span></div>
+  </PageShell>
+</BaseLayout>
+
+<script>
+  (function(){
+    var state = { name:'', logo:null, cover:null, cat:'', shape:'round', linkType:'web', link:'' };
+    var nameInput = document.getElementById('f-name');
+    var nameCount = document.getElementById('name-count');
+    var pvName = document.getElementById('pv-name');
+    var pvLogo = document.getElementById('pv-logo');
+
+    nameInput.addEventListener('input', function(){
+      state.name = nameInput.value.trim();
+      nameCount.textContent = nameInput.value.length + ' / 40';
+      nameCount.style.color = nameInput.value.length > 32 ? 'var(--warn)' : '';
+      if(state.name){
+        pvName.textContent = state.name;
+        pvName.style.color = 'var(--fg)'; pvName.style.fontWeight = '700';
+        if(!state.logo) pvLogo.querySelector('span').textContent = state.name.charAt(0).toUpperCase();
+      } else {
+        pvName.textContent = 'Nome do seu SaaS';
+        pvName.style.color = 'var(--fg-dim)'; pvName.style.fontWeight = '500';
+        if(!state.logo) pvLogo.querySelector('span').textContent = '?';
+      }
+      update();
+    });
+
+    function wireUpload(dropId, inputId, clearId, onLoad, onClear){
+      var drop = document.getElementById(dropId);
+      var input = document.getElementById(inputId);
+      function handle(file){
+        if(!file || !file.type.startsWith('image/')) return;
+        var r = new FileReader();
+        r.onload = function(e){ onLoad(e.target.result); drop.style.borderColor = 'var(--lime-500)'; };
+        r.readAsDataURL(file);
+      }
+      input.addEventListener('change', function(){ handle(input.files[0]); });
+      drop.addEventListener('dragover', function(e){ e.preventDefault(); drop.style.borderColor = 'var(--lime-500)'; });
+      drop.addEventListener('dragleave', function(){ if(!state.logo && !state.cover) drop.style.borderColor = ''; });
+      drop.addEventListener('drop', function(e){ e.preventDefault(); drop.style.borderColor = ''; if(e.dataTransfer.files[0]) handle(e.dataTransfer.files[0]); });
+    }
+
+    wireUpload('logo-drop','f-logo','logo-clear', function(src){
+      state.logo = src;
+      var img = document.getElementById('logo-drop').querySelector('img');
+      if(!img){ img = document.createElement('img'); img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover'; document.getElementById('logo-drop').appendChild(img); }
+      img.src = src;
+      document.getElementById('logo-drop').querySelector('.ph').style.display = 'none';
+      document.getElementById('logo-clear').style.display = 'flex';
+      pvLogo.innerHTML = '<img src="'+src+'" style="width:100%;height:100%;object-fit:cover">';
+      update();
+    }, function(){ state.logo = null; document.getElementById('logo-drop').querySelector('.ph').style.display = ''; document.getElementById('logo-clear').style.display = 'none'; var img = document.getElementById('logo-drop').querySelector('img'); if(img) img.remove(); pvLogo.innerHTML = '<span>'+(state.name?state.name.charAt(0).toUpperCase():'?')+'</span>'; update(); });
+
+    wireUpload('cover-drop','f-cover','cover-clear', function(src){
+      state.cover = src;
+      var img = document.getElementById('cover-drop').querySelector('img');
+      if(!img){ img = document.createElement('img'); img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover'; document.getElementById('cover-drop').appendChild(img); }
+      img.src = src;
+      document.getElementById('cover-drop').querySelector('.ph').style.display = 'none';
+      document.getElementById('cover-clear').style.display = 'flex';
+      var pvImg = document.getElementById('pv-cover').querySelector('img');
+      if(!pvImg){ pvImg = document.createElement('img'); pvImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover'; document.getElementById('pv-cover').insertBefore(pvImg, document.getElementById('pv-cover').firstChild); }
+      pvImg.src = src;
+      document.getElementById('pv-cover-ph').style.display = 'none';
+    }, function(){ state.cover = null; document.getElementById('cover-drop').querySelector('.ph').style.display = ''; document.getElementById('cover-clear').style.display = 'none'; var img = document.getElementById('cover-drop').querySelector('img'); if(img) img.remove(); var pvImg = document.getElementById('pv-cover').querySelector('img'); if(pvImg) pvImg.remove(); document.getElementById('pv-cover-ph').style.display = ''; });
+
+    window.clearLogo = function(){
+      state.logo = null; document.getElementById('logo-drop').querySelector('.ph').style.display = ''; document.getElementById('logo-clear').style.display = 'none'; var img = document.getElementById('logo-drop').querySelector('img'); if(img) img.remove(); pvLogo.innerHTML = '<span>'+(state.name?state.name.charAt(0).toUpperCase():'?')+'</span>'; update();
+    };
+    window.clearCover = function(){
+      state.cover = null; document.getElementById('cover-drop').querySelector('.ph').style.display = ''; document.getElementById('cover-clear').style.display = 'none'; var img = document.getElementById('cover-drop').querySelector('img'); if(img) img.remove(); var pvImg = document.getElementById('pv-cover').querySelector('img'); if(pvImg) pvImg.remove(); document.getElementById('pv-cover-ph').style.display = '';
+    };
+
+    document.getElementById('shape-round').addEventListener('click', function(){ state.shape='round'; this.setAttribute('aria-pressed','true'); document.getElementById('shape-square').setAttribute('aria-pressed','false'); document.getElementById('logo-drop').style.borderRadius='50%'; pvLogo.style.borderRadius='50%'; });
+    document.getElementById('shape-square').addEventListener('click', function(){ state.shape='square'; this.setAttribute('aria-pressed','true'); document.getElementById('shape-round').setAttribute('aria-pressed','false'); document.getElementById('logo-drop').style.borderRadius='8px'; pvLogo.style.borderRadius='12px'; });
+
+    document.querySelectorAll('#cat-grid .cat-opt').forEach(function(opt){
+      opt.addEventListener('click', function(){
+        document.querySelectorAll('#cat-grid .cat-opt').forEach(function(o){ o.style.borderColor='var(--border)'; o.style.background='var(--bg-2)'; o.querySelector('b').style.color=''; });
+        opt.style.borderColor='var(--lime-500)'; opt.style.background='hsl(83 81% 44% / .08)'; opt.querySelector('b').style.color='var(--lime-400)';
+        state.cat = opt.getAttribute('data-cat');
+        var pvCat = document.getElementById('pv-cat');
+        pvCat.textContent = state.cat;
+        pvCat.style.background = 'hsl(83 81% 44% / .12)'; pvCat.style.color = 'var(--lime-400)'; pvCat.style.borderColor = 'hsl(83 81% 44% / .25)';
+        update();
+      });
+    });
+
+    document.querySelectorAll('.seg-btn').forEach(function(b){
+      b.addEventListener('click', function(){
+        document.querySelectorAll('.seg-btn').forEach(function(x){ x.style.color='var(--fg-muted)'; x.style.background='transparent'; });
+        b.style.color='var(--lime-400)'; b.style.background='var(--bg-3)';
+        state.linkType = b.getAttribute('data-link');
+        var px = state.linkType==='web' ? 'https://' : '@';
+        var ph = state.linkType==='web' ? 'meusaas.com.br' : 'meusaas';
+        document.querySelector('#link-wrap span').textContent = px;
+        document.getElementById('f-link').placeholder = ph;
+        renderLink();
+      });
+    });
+
+    document.getElementById('f-link').addEventListener('input', function(){ state.link = this.value.trim(); renderLink(); update(); });
+
+    function renderLink(){
+      var pvLink = document.getElementById('pv-link');
+      var pvLinkText = document.getElementById('pv-link-text');
+      if(state.link){
+        pvLink.style.color = 'var(--lime-400)'; pvLink.style.background = 'hsl(83 81% 44% / .07)'; pvLink.style.borderColor = 'hsl(83 81% 44% / .2)';
+        pvLinkText.textContent = state.linkType==='web' ? state.link.replace(/^https?:\/\//,'') : '@'+state.link.replace(/^@/,'');
+      } else {
+        pvLink.style.color = 'var(--fg-dim)'; pvLink.style.background = 'var(--bg-3)'; pvLink.style.borderColor = 'var(--border)';
+        pvLinkText.textContent = state.linkType==='web' ? 'seu-link.com' : '@seu-perfil';
+      }
+    }
+
+    function update(){
+      toggleCheck('ck-name', !!state.name);
+      toggleCheck('ck-logo', !!state.logo);
+      toggleCheck('ck-cat', !!state.cat);
+      toggleCheck('ck-link', !!state.link);
+      document.getElementById('submit-btn').disabled = !(state.name && state.cat && state.link);
+    }
+
+    function toggleCheck(id, done){
+      var el = document.getElementById(id);
+      var mk = el.querySelector('span');
+      var svg = mk.querySelector('svg');
+      if(done){
+        mk.style.background = 'var(--lime-500)';
+        mk.style.borderColor = 'var(--lime-500)';
+        svg.style.opacity = '1';
+        svg.style.color = '#0a0a0a';
+        el.style.color = 'var(--fg)';
+      } else {
+        mk.style.background = 'var(--bg-2)';
+        mk.style.borderColor = 'var(--border)';
+        svg.style.opacity = '0';
+        el.style.color = 'var(--fg-muted)';
+      }
+    }
+
+    document.getElementById('submit-btn').addEventListener('click', function(){
+      if(this.disabled) return;
+      var orig = this.textContent;
+      this.textContent = '✓ SaaS publicado!';
+      this.style.background = 'var(--lime-400)';
+      setTimeout(function(){ this.textContent = orig; this.style.background = ''; }.bind(this), 2000);
+    });
+  })();
+</script>
