@@ -229,14 +229,6 @@ export const subTags = [
   ['mcp', 6],
 ] as const;
 
-export const newsletterEditions = [
-  ['#141', '08.MAY.2026', 'Por que eu desinstalei o Cursor e voltei pro Zed', '11.2k abriram'],
-  ['#140', '01.MAY.2026', 'O dia que eu deletei 14 cursos da minha biblioteca', '9.8k abriram'],
-  ['#139', '24.APR.2026', 'Antigravity em prod: 30 dias depois', '10.1k abriram'],
-  ['#138', '17.APR.2026', 'IA nao escreveu seu PR. Voce tambem nao.', '12.4k abriram'],
-  ['#137', '10.APR.2026', 'Salario dev BR: 5 dados que ninguem mostra', '13.7k abriram'],
-] as const;
-
 export const courseModules = [
   ['01', 'Setup & filosofia', '1h 12m', 'Stack, ferramentas, mindset. Por que nao usar Webpack em 2026.'],
   ['02', 'Bun + TypeScript do jeito certo', '1h 38m', 'Bun como runtime, package manager e test runner.'],
