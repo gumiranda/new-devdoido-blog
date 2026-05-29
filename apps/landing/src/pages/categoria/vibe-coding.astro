@@ -7,6 +7,7 @@ import { formatDate, posts, subTags } from '../../data/devdoido';
 
 const vibePosts = posts.filter((post) => post.categorySlug === 'vibe-coding');
 const pinned = posts.filter((post) => post.pinned).slice(0, 3);
+const coverColors = ['a', 'b', 'c', 'd', 'e', 'f'];
 ---
 
 <BaseLayout
@@ -15,12 +16,12 @@ const pinned = posts.filter((post) => post.pinned).slice(0, 3);
   canonical="/categoria/vibe-coding"
 >
   <PageShell active="Vibe Coding">
-    <section class="section" style="padding-top:32px">
-      <div class="container">
+    <section style="padding:48px 0 0">
+      <div class="page">
         <div class="tile tile-hero" style="min-height:560px">
-          <div class="stage-grid"></div>
+          <div class="type-stage-grid"></div>
           <div style="position:absolute;top:32px;left:32px;display:flex;gap:8px;z-index:1;flex-wrap:wrap">
-            <span class="badge">categoria</span>
+            <span class="badge badge-dark">categoria</span>
             <span class="badge badge-solid">48 artigos</span>
           </div>
           <div style="position:relative;z-index:1">
@@ -29,7 +30,7 @@ const pinned = posts.filter((post) => post.pinned).slice(0, 3);
               Programar com IA virou jeito de vida ou virou muleta? Artigos sobre Cursor, Claude Code, Lovable, Antigravity e o que sobra depois que o hype acaba.
             </p>
             <div style="display:flex;gap:12px;flex-wrap:wrap">
-              <a class="btn" href="#vibe-list">Ver os 48</a>
+              <a class="btn btn-primary" href="#vibe-list">Ver os 48</a>
               <a class="btn btn-secondary" href="/newsletter">Assinar categoria</a>
             </div>
           </div>
@@ -37,51 +38,51 @@ const pinned = posts.filter((post) => post.pinned).slice(0, 3);
       </div>
     </section>
 
-    <section class="section" style="padding-top:0">
-      <div class="container">
-        <AsciiRule label="// pinned · os 3 + lidos" />
+    <section class="section-sm">
+      <div class="page">
+        <AsciiRule label="// pinned &middot; os 3 + lidos" />
         <div class="article-grid">
-          {pinned.map((post) => (
+          {pinned.map((post, i) => (
             <ArticleCard
               href={`/blog/${post.slug}`}
-              category={`// ${post.minutes} min · pinned`}
+              category={`// ${post.minutes} min &middot; pinned`}
               title={post.title}
               date={formatDate(post.pubDate)}
               reads={post.reads}
-              kind={post.kind}
               display={post.display}
               badges={[{ label: 'pinned', solid: true }]}
+              coverColor={coverColors[i % coverColors.length]}
             />
           ))}
         </div>
       </div>
     </section>
 
-    <section class="section" style="padding-top:0">
-      <div class="container">
+    <section class="section-sm">
+      <div class="page">
         <AsciiRule label="// sub-tags" />
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           {subTags.map(([tag, count]) => (
-            <a class="chip" href={`/blog?tag=${encodeURIComponent(tag)}`}>{tag} <span class="muted">({count})</span></a>
+            <a class="chip" href={`/blog?tag=${encodeURIComponent(tag)}`}>{tag} <span class="count">({count})</span></a>
           ))}
         </div>
       </div>
     </section>
 
-    <section class="section" style="padding-top:0" id="vibe-list">
-      <div class="container">
-        <AsciiRule label="// cronologia · maio 2026" />
+    <section class="section" style="border-bottom:none" id="vibe-list">
+      <div class="page">
+        <AsciiRule label="// cronologia &middot; maio 2026" />
         <div class="article-grid" style="--grid-cols:4">
-          {vibePosts.concat(posts.slice(4, 8)).slice(0, 8).map((post) => (
+          {vibePosts.concat(posts.slice(4, 8)).slice(0, 8).map((post, i) => (
             <ArticleCard
               href={`/blog/${post.slug}`}
-              category={`// vibe · ${post.minutes} min`}
+              category={`// vibe &middot; ${post.minutes} min`}
               title={post.title}
               date={formatDate(post.pubDate)}
               reads={post.reads}
-              kind={post.kind}
               display={post.display}
               badges={post.badges}
+              coverColor={coverColors[i % coverColors.length]}
             />
           ))}
         </div>

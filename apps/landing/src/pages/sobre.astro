@@ -18,47 +18,47 @@ const stats = [
   canonical="/sobre"
 >
   <PageShell active="Home">
-    <section class="section" style="padding-top:32px">
-      <div class="container">
-        <div class="two-col about-hero-grid" style="gap:8px;align-items:stretch">
+    <section style="padding:48px 0 0">
+      <div class="page">
+        <div class="two-col about-grid" style="gap:8px;align-items:stretch">
           <div class="tile" style="min-height:640px;padding:0;justify-content:stretch">
             <TypeStage word="DD" density={0.85} withGrid={false} />
             <img src="/devdoido/devdoido-avatar.png" alt="" style="position:absolute;right:7%;bottom:0;width:min(46%,460px);z-index:1;filter:grayscale(.2);object-fit:contain" />
             <div style="position:relative;z-index:2;padding:32px;height:100%;display:flex;flex-direction:column;justify-content:space-between">
               <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <span class="badge">about · v.0.1</span>
+                <span class="badge badge-dark">about &middot; v.0.1</span>
                 <span class="badge badge-solid">// monogram</span>
               </div>
-              <div class="t-mono muted" style="font-size:11px">
-                // identidade visual · @devdoido<br />
-                // brand mark · 2026
+              <div class="mono-caption">
+                // identidade visual &middot; @devdoido<br />
+                // brand mark &middot; 2026
               </div>
             </div>
           </div>
-          <div style="background:var(--ink);color:var(--canvas);padding:48px;display:flex;flex-direction:column;justify-content:space-between">
+          <div style="background:var(--fg);color:#0a0a0a;padding:48px;display:flex;flex-direction:column;justify-content:space-between;border-radius:var(--r-lg)">
             <div>
-              <span class="t-mono" style="color:var(--canvas);opacity:.6;font-size:11px;text-transform:uppercase">◆ quem e o devdoido</span>
-              <h1 class="t-display" style="margin-top:24px;color:var(--canvas)">Nao sou<br />tech lead.<br />Sou devdoido.</h1>
+              <span class="mono-caption" style="color:#0a0a0a;opacity:.6">// quem e o devdoido</span>
+              <h1 class="t-display" style="margin-top:24px;color:#0a0a0a">Nao sou<br />tech lead.<br />Sou devdoido.</h1>
             </div>
             <div style="margin-top:32px">
-              <p style="margin:0 0 24px;color:var(--canvas);opacity:.85;font-size:17px;line-height:1.6">
+              <p style="margin:0 0 24px;color:#0a0a0a;opacity:.85;font-size:17px;line-height:1.6">
                 Eu programo ha 8 anos, ensino ha 4, e escrevo aqui porque LinkedIn me cansou. Ja fui senior em startup, freelancer remoto, professor, e agora vivo de criar conteudo dev.
                 <br /><br />
                 Brasileiro, mineiro, 32 anos, cafe preto. Stack favorita atual: Bun + Next + Convex + Claude Code. Stack favorita do mes que vem: provavelmente outra.
               </p>
               <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
                 {stats.map(([n, label]) => (
-                  <div style="border-top:1px solid rgba(255,255,255,.2);padding-top:12px">
-                    <div class="t-display" style="font-size:40px;color:var(--canvas);line-height:1">{n}</div>
-                    <div class="t-mono" style="font-size:11px;color:var(--canvas);opacity:.6;text-transform:uppercase;margin-top:4px">{label}</div>
+                  <div style="border-top:1px solid rgba(0,0,0,.2);padding-top:12px">
+                    <div class="t-display" style="font-size:40px;color:#0a0a0a;line-height:1">{n}</div>
+                    <div class="mono-caption" style="color:#0a0a0a;opacity:.6">{label}</div>
                   </div>
                 ))}
               </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <a class="btn btn-outline-on-image btn-sm" href="/newsletter">contato@</a>
-                <a class="btn btn-ghost btn-sm" style="color:var(--canvas);border-color:rgba(255,255,255,.3)" href="https://github.com/devdoido" rel="noreferrer">github</a>
-                <a class="btn btn-ghost btn-sm" style="color:var(--canvas);border-color:rgba(255,255,255,.3)" href="https://youtube.com/@devdoido" rel="noreferrer">youtube</a>
-                <a class="btn btn-ghost btn-sm" style="color:var(--canvas);border-color:rgba(255,255,255,.3)" href="https://x.com/devdoido" rel="noreferrer">x</a>
+                <a class="btn btn-primary btn-sm" href="/newsletter" style="background:#0a0a0a;color:var(--fg)">contato@</a>
+                <a class="btn btn-ghost btn-sm" style="color:#0a0a0a;border-color:rgba(0,0,0,.3)" href="https://github.com/devdoido" rel="noreferrer">github</a>
+                <a class="btn btn-ghost btn-sm" style="color:#0a0a0a;border-color:rgba(0,0,0,.3)" href="https://youtube.com/@devdoido" rel="noreferrer">youtube</a>
+                <a class="btn btn-ghost btn-sm" style="color:#0a0a0a;border-color:rgba(0,0,0,.3)" href="https://x.com/devdoido" rel="noreferrer">x</a>
               </div>
             </div>
           </div>
@@ -66,8 +66,8 @@ const stats = [
       </div>
     </section>
 
-    <section class="section">
-      <div class="container">
+    <section class="section" style="border-bottom:none">
+      <div class="page">
         <AsciiRule label="// current.stack" />
         <div class="two-col">
           <div>
@@ -93,10 +93,10 @@ const stats = [
                 'IA nao vai te tirar emprego. Dev que usa IA, sim.',
                 'Next.js e exagerado pra 80% dos projetos. Use mesmo assim.',
               ].map((opinion, index) => (
-                <li style="display:flex;gap:18px;padding:18px 0;border-bottom:1px solid var(--hairline)">
+                <li style="display:flex;gap:18px;padding:18px 0;border-bottom:1px solid var(--border)">
                   <span class="t-mono muted" style="font-size:11px;width:24px;flex-shrink:0">0{index + 1}</span>
                   <span style="font-size:17px;line-height:1.4;flex:1">{opinion}</span>
-                  {index === 0 && <span class="badge badge-sale">hot</span>}
+                  {index === 0 && <span class="badge badge-danger">hot</span>}
                 </li>
               ))}
             </ol>
@@ -105,8 +105,8 @@ const stats = [
       </div>
     </section>
 
-    <section class="section" style="padding-top:0">
-      <div class="container">
+    <section class="section">
+      <div class="page">
         <AsciiRule label="// timeline" />
         <h2 class="t-section" style="margin-bottom:32px">De onde eu venho</h2>
         {[
@@ -117,8 +117,8 @@ const stats = [
           ['2021', 'Primeiro emprego dev na pandemia. Era pra ser temporario. Vira carreira.'],
           ['2018', 'Largo engenharia mecanica no 7o periodo. Estudo JS sozinho 14h/dia por 6 meses.'],
         ].map(([year, body]) => (
-          <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:32px;padding:24px 0;border-top:1px solid var(--hairline)">
-            <div class="t-display" style="font-size:36px">{year}</div>
+          <div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:32px;padding:24px 0;border-top:1px solid var(--border)">
+            <div style="font-size:36px;font-weight:800;letter-spacing:-0.02em">{year}</div>
             <div style="font-size:17px;line-height:1.5;padding-top:8px">{body}</div>
           </div>
         ))}

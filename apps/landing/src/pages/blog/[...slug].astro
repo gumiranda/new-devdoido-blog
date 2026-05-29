@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageShell from '../../components/devdoido/PageShell.astro';
-import TypeStage from '../../components/devdoido/TypeStage.astro';
 import ArticleCard from '../../components/devdoido/ArticleCard.astro';
 import AsciiRule from '../../components/devdoido/AsciiRule.astro';
+import Terminal from '../../components/devdoido/Terminal.astro';
 import { formatDate, getPost, posts, SITE } from '../../data/devdoido';
 
 export function getStaticPaths() {
@@ -15,6 +15,7 @@ const relatedPosts = posts
   .filter((candidate) => candidate.slug !== post.slug && candidate.tags.some((tag) => post.tags.includes(tag)))
   .slice(0, 3);
 const fullPost = getPost(post.slug) ?? post;
+const coverColors = ['a', 'b', 'c'];
 ---
 
 <BaseLayout
@@ -28,56 +29,53 @@ const fullPost = getPost(post.slug) ?? post;
   author={{ name: SITE.author, url: '/sobre', credentials: 'Autor do DEVDOIDO' }}
 >
   <PageShell active={fullPost.category === 'Vibe Coding' ? 'Vibe Coding' : 'Home'}>
-    <div style="border-bottom:1px solid var(--hairline);padding:12px 0;font-family:var(--font-mono);font-size:12px;color:var(--mute)">
-      <div class="container" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
-        <span>// Home / {fullPost.category} / <span style="color:var(--ink)">{fullPost.slug}</span></span>
-        <a href="/blog" style="color:var(--ink)">← voltar</a>
+    <!-- Breadcrumb -->
+    <div style="border-bottom:1px solid var(--border);padding:10px 0">
+      <div class="page" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <span class="mono-caption" style="color:var(--fg-muted)">// <a href="/">Home</a> / <a href="/blog">{fullPost.category}</a> / <span style="color:var(--lime-400)">{fullPost.slug}</span></span>
+        <a href="/blog" class="t-mono" style="color:var(--lime-400);font-size:12px">&larr; voltar</a>
       </div>
     </div>
 
-    <section class="section" style="padding-top:32px">
-      <div class="container">
-        <div class="tile tile-hero" style="padding:0;justify-content:flex-end">
-          <TypeStage word={fullPost.featured ? 'MANIFESTO' : fullPost.display} density={0.06} />
-          <div style="position:absolute;top:32px;left:32px;display:flex;gap:8px;z-index:1;flex-wrap:wrap">
-            <span class="badge badge-solid">{fullPost.category}</span>
-            <span class="badge">{fullPost.minutes} min de leitura</span>
-            {fullPost.featured && <span class="badge">manifesto</span>}
-          </div>
-          <div class="t-mono muted hero-meta" style="position:absolute;top:32px;right:32px;text-align:right;z-index:1;font-size:11px;line-height:1.6">
-            published {formatDate(fullPost.pubDate)}<br />
-            version v.4.2 · git:a8f3c2d<br />
-            reads {fullPost.reads}
-          </div>
-          <div style="position:relative;z-index:1;padding:48px">
-            <h1 class="t-display" style="max-width:1180px">
-              {fullPost.featured ? (
-                <>Pare de aprender<br />framework.<br />Aprenda a <span style="color:var(--sale)">pensar.</span></>
-              ) : (
-                fullPost.title
-              )}
-            </h1>
-            <p class="tile-sub">{fullPost.description}</p>
-            <div style="display:flex;gap:16px;align-items:center;margin-top:32px;flex-wrap:wrap">
-              <img src="/devdoido/devdoido-avatar.png" alt="" style="width:52px;height:52px;border-radius:50%;object-fit:cover;background:var(--ink)" />
-              <div>
-                <div class="t-body-strong">@devdoido</div>
-                <div class="t-caption">8 anos quebrando codigo em prod · 412 artigos publicados</div>
-              </div>
-              <span style="flex:1;min-width:24px"></span>
-              <a class="btn btn-secondary btn-sm" href="/newsletter">Salvar</a>
-              <a class="btn btn-secondary btn-sm" href="/newsletter">Compartilhar</a>
+    <!-- Article hero -->
+    <section style="padding:48px 0 24px">
+      <div class="container-narrow">
+        <div class="art-cat"><span class="dot"></span> {fullPost.category} {fullPost.featured && '&middot; manifesto'}</div>
+        <h1 class="art-title">
+          {fullPost.featured ? (
+            <>Pare de aprender<br />framework. Aprenda a <span style="color:var(--lime-400)">pensar.</span></>
+          ) : (
+            fullPost.title
+          )}
+        </h1>
+        <p class="art-sub">{fullPost.description}</p>
+
+        <div class="byline">
+          <div class="byline-author">
+            <div class="avatar avatar-xl">{(SITE.author[0] || 'D').toUpperCase()}</div>
+            <div>
+              <b>{SITE.author}</b>
+              <span>founder &middot; {SITE.name}</span>
             </div>
           </div>
+          <div class="byline-meta">
+            <span>{formatDate(fullPost.pubDate).toUpperCase()}</span>
+            <span class="accent">{fullPost.minutes} MIN DE LEITURA</span>
+            <span>{fullPost.reads} VIEWS</span>
+          </div>
         </div>
+
+        <div class="art-cover"><span class="wm">{'{ }'}</span></div>
+        <div class="mono-caption" style="text-align:center;margin-bottom:48px">// fig 1 — {fullPost.display}</div>
       </div>
     </section>
 
-    <article class="section">
+    <!-- Article body -->
+    <article style="padding-bottom:48px">
       <div class="prose">
         {fullPost.featured ? (
           <>
-            <p style="font-size:22px;line-height:1.6;font-weight:700;color:var(--ink)">
+            <p>
               Toda quinta-feira aparece um curso novo prometendo te transformar em senior em 90 dias. Toda quinta-feira aparece um dev iniciante perguntando qual framework deve aprender primeiro.
             </p>
             <p>
@@ -91,7 +89,7 @@ const fullPost = getPost(post.slug) ?? post;
             <p>
               Nao e sobre largar IA. E sobre nao usar IA como muleta antes de tentar pensar. Cinco minutos de pensar. Voce consegue cinco minutos?
             </p>
-            <pre tabindex="0">{`// errado
+            <pre><div class="pre-bar"><div class="lights"><span></span><span></span><span></span></div><span>manifesto.ts</span></div><code>{`// errado
 "escreva uma funcao que pega um array de users
 e retorna os ativos com email"
 
@@ -99,7 +97,7 @@ e retorna os ativos com email"
 // cinco minutos depois de pensar
 "essa funcao retorna duplicados porque
 o filter roda antes do dedupe. mexe so
-no dedupe, nao inverta a ordem das ops."`}</pre>
+no dedupe, nao inverta a ordem das ops."`}</code></pre>
             <h2>Os 4 niveis</h2>
             <p>Tem 4 niveis de quem usa IA pra programar. Voce precisa saber em qual voce esta:</p>
             <ul>
@@ -108,25 +106,19 @@ no dedupe, nao inverta a ordem das ops."`}</pre>
               <li><strong>Nivel 3: operator.</strong> Sabe o que quer, pede em pedacos, valida tudo.</li>
               <li><strong>Nivel 4: arquiteto.</strong> Usa IA pra acelerar o que ja sabia fazer sozinho.</li>
             </ul>
-            <p>
-              A maioria dos cursos vende nivel 4 e entrega nivel 1. Voce sai sabendo gerar landing page e nao sabe debugar uma hidratacao quebrada.
-            </p>
+            <p>A maioria dos cursos vende nivel 4 e entrega nivel 1. Voce sai sabendo gerar landing page e nao sabe debugar uma hidratacao quebrada.</p>
             <h2>O que fazer</h2>
-            <p>
-              Nao vou te dar checklist. Checklist e o problema. Mas tres perguntas valem mais que qualquer curso:
-            </p>
+            <p>Nao vou te dar checklist. Checklist e o problema. Mas tres perguntas valem mais que qualquer curso:</p>
             <p>
               1. Se a IA sumir hoje, voce termina esse projeto sozinho?<br />
               2. Voce sabe explicar por que o codigo ta assim?<br />
               3. Voce consegue fazer a mesma feature em outra stack?
             </p>
-            <p>
-              Se respondeu nao para duas dessas, voce nao ta programando. Ta fazendo prompt engineering com extra steps.
-            </p>
+            <p>Se respondeu nao para duas dessas, voce nao ta programando. Ta fazendo prompt engineering com extra steps.</p>
           </>
         ) : (
           <>
-            <p style="font-size:22px;line-height:1.6;font-weight:700;color:var(--ink)">{fullPost.description}</p>
+            <p>{fullPost.description}</p>
             <p>
               Esse texto e parte do arquivo devdoido. A tese e simples: ferramenta muda, fundamento fica. Se a sua stack depende de hype para parecer boa, o problema ja apareceu.
             </p>
@@ -146,33 +138,56 @@ no dedupe, nao inverta a ordem das ops."`}</pre>
       </div>
     </article>
 
-    <section class="section-tight">
-      <div class="container-narrow">
-        <div style="background:var(--soft-cloud);padding:32px;display:flex;gap:24px;align-items:center;flex-wrap:wrap">
-          <div style="flex:1;min-width:220px">
-            <div class="t-mono muted" style="font-size:11px;text-transform:uppercase;margin-bottom:8px">◆ se chegou ate aqui</div>
-            <div class="t-h-md">Recebe o proximo artigo direto no email. Toda quinta as 6h.</div>
+    <!-- Tags -->
+    <div class="container-narrow">
+      <div class="art-tags">
+        {fullPost.tags.map((tag) => (
+          <a href={`/blog?tag=${encodeURIComponent(tag)}`} class="tag">#{tag}</a>
+        ))}
+      </div>
+
+      <!-- Author box -->
+      <div class="author-box">
+        <div class="av">{(SITE.author[0] || 'D').toUpperCase()}</div>
+        <div>
+          <div class="ab-name">{SITE.author}</div>
+          <div class="ab-role">FOUNDER &middot; {SITE.name.toUpperCase()} &middot; @devdoido</div>
+          <p>Desenvolvedor full-stack ha 8 anos. Escrevo sobre codigo honesto e negocios indie. Stack atual: Bun + Next + Convex + Claude Code.</p>
+          <div style="display:flex;gap:10px">
+            <a href="/sobre" class="btn btn-secondary btn-sm">Ver perfil</a>
+            <a href="/newsletter" class="btn btn-ghost btn-sm">Seguir autor</a>
           </div>
-          <a class="btn" href="/newsletter">Assinar →</a>
         </div>
       </div>
-    </section>
 
-    <section class="section">
-      <div class="container">
+      <!-- CTA -->
+      <div style="background:linear-gradient(135deg,var(--bg-1),var(--bg-2));border:1px solid var(--lime-500);border-radius:var(--r-lg);padding:40px;margin-bottom:64px;position:relative;overflow:hidden">
+        <div class="grid-bg" style="position:absolute;inset:0;background-size:32px 32px;opacity:.5"></div>
+        <div style="position:relative">
+          <p class="mono-caption" style="margin-bottom:10px">// nao perca o proximo</p>
+          <h3 style="font-size:26px;font-weight:700;letter-spacing:-0.02em;margin:0 0 10px">Receba o proximo artigo direto no email</h3>
+          <p style="font-size:15px;color:var(--fg-muted);margin:0 0 20px;max-width:480px;line-height:1.55">Toda quinta as 6h. 3 links, 1 opiniao, 1 codigo. 5 minutos de leitura.</p>
+          <a href="/newsletter" class="btn btn-primary">Assinar newsletter &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related -->
+    <section style="border-top:1px solid var(--border);padding:56px 0 80px">
+      <div class="page">
         <AsciiRule label="// continue lendo" />
         <h2 class="t-section" style="margin-bottom:32px">Mais nesse beco</h2>
         <div class="article-grid">
-          {relatedPosts.map((related) => (
+          {relatedPosts.map((related, i) => (
             <ArticleCard
               href={`/blog/${related.slug}`}
-              category={`// ${related.category} · ${related.minutes} min`}
+              category={`// ${related.category} &middot; ${related.minutes} min`}
               title={related.title}
               date={formatDate(related.pubDate)}
               reads={related.reads}
-              kind={related.kind}
               display={related.display}
               badges={related.badges}
+              coverColor={coverColors[i % coverColors.length]}
             />
           ))}
         </div>

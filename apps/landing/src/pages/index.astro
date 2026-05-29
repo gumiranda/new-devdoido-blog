@@ -9,6 +9,7 @@ import { categories, featuredPost, posts, SITE } from '../data/devdoido';
 
 const trending = posts.slice(1, 4);
 const latest = posts.slice(4, 12);
+const coverColors = ['a', 'b', 'c', 'd', 'e', 'f', 'a', 'b'];
 ---
 
 <BaseLayout
@@ -25,72 +26,95 @@ const latest = posts.slice(4, 12);
   }}
 >
   <PageShell active="Home">
-    <section class="section" style="padding-top:32px">
-      <div class="container">
-        <div class="tile tile-hero" style="padding:0;justify-content:flex-end">
-          <TypeStage word="DEVDOIDO" density={0.07} />
-          <div style="position:absolute;top:32px;left:32px;display:flex;gap:8px;z-index:1;flex-wrap:wrap">
-            <span class="badge">edicao #142</span>
-            <span class="badge badge-solid">manifesto</span>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="page hero-grid">
+        <div>
+          <span class="kicker"><span class="dot"></span> Codigo na unha. Sem muleta.</span>
+          <h1 class="t-display" style="margin:24px 0 20px">
+            Pare de aprender<br />framework. Aprenda<br />a <span style="color:var(--lime-400)">pensar.</span>
+          </h1>
+          <p class="lede">
+            Voce nao precisa de mais um curso de Next.js. Voce precisa parar de tratar IDE como tutorial e codigo como cargo. <strong>O artigo que ninguem quis publicar.</strong>
+          </p>
+          <div class="hero-meta">
+            <div>ARTIGOS <b>412</b></div>
+            <div>NEWSLETTER <b>12.8k</b></div>
+            <div>YOUTUBE <b>48k</b></div>
+            <div>RATING <b>4.9 ★</b></div>
           </div>
-          <div class="t-mono muted hero-meta" style="position:absolute;top:32px;right:32px;text-align:right;z-index:1;font-size:11px;line-height:1.6">
-            published 15.MAY.2026<br />
-            reading time 04:12<br />
-            reads 12,847
+          <div class="hero-cta">
+            <a class="btn btn-primary btn-lg" href={`/blog/${featuredPost.slug}`}>
+              Ler agora
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a class="btn btn-outline" href="/blog">+412 artigos no arquivo</a>
           </div>
-          <div style="position:relative;z-index:1;padding:48px">
-            <p class="t-mono muted" style="margin:0 0 18px;text-transform:uppercase;font-size:12px">◆ artigo da semana · vibe coding</p>
-            <h1 class="t-display">
-              Pare de aprender<br />framework. Aprenda<br />a <span style="color:var(--sale)">pensar.</span>
-            </h1>
-            <p class="tile-sub">
-              Voce nao precisa de mais um curso de Next.js. Voce precisa parar de tratar IDE como tutorial e codigo como cargo. O artigo que ninguem quis publicar.
-            </p>
-            <div style="display:flex;gap:12px;flex-wrap:wrap">
-              <a class="btn" href={`/blog/${featuredPost.slug}`}>Ler agora →</a>
-              <a class="btn btn-secondary" href="/blog">+412 artigos no arquivo</a>
-            </div>
+        </div>
+
+        <!-- Hero terminal -->
+        <div>
+          <Terminal title="gustavo@devdoido · module-01">
+            <span class="prompt">gustavo@stack</span> <span class="comment">~ $</span> <span class="fn">git</span> <span class="kw">clone</span> <span class="str">"devdoido.com.br"</span><br />
+            <span class="comment">// clonando na unha. sem muleta.</span><br />
+            <span class="prompt">gustavo@stack</span> <span class="comment">~ $</span> <span class="fn">bun</span> <span class="kw">install</span><br />
+            <span class="comment">// &check; 184 packages &middot; 3.2s</span><br />
+            <span class="prompt">gustavo@stack</span> <span class="comment">~ $</span> <span class="fn">bun</span> run dev<br />
+            <span style="color:var(--lime-400)">&#x25B8; server ready at :3333</span><br />
+            <span class="prompt">gustavo@stack</span> <span class="comment">~ $</span> <span class="cursor"></span>
+          </Terminal>
+          <div class="term-tiles">
+            <div class="term-tile"><b>412</b><span>artigos</span></div>
+            <div class="term-tile"><b>12.8k</b><span>newsletter</span></div>
+            <div class="term-tile"><b>4.9</b><span>rating</span></div>
           </div>
         </div>
       </div>
     </section>
 
-    <div class="container">
-      <AsciiRule label="// trending now · 7d" />
+    <!-- Stack strip -->
+    <div class="stack-strip">
+      <div class="inner">
+        <span class="lbl">// stack coberta</span>
+        <div class="items">
+          <span>Node.js</span><span>React</span><span>Next.js 16</span><span>React Native</span>
+          <span>TypeScript</span><span>Bun</span><span>Convex</span><span>Claude Code</span>
+          <span>n8n</span><span>Tailwind</span>
+        </div>
+      </div>
     </div>
 
-    <section class="section" style="padding-top:8px">
-      <div class="container">
-        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-bottom:32px">
-          <h2 class="t-section">Em alta na bolha</h2>
-          <a href="/blog" class="t-mono" style="color:var(--ink)">ver tudo →</a>
-        </div>
+    <!-- Trending -->
+    <section class="section" style="border-bottom:none;padding-bottom:48px">
+      <div class="page">
+        <AsciiRule label="// trending now &middot; 7d" />
         <div class="article-grid">
-          {trending.map((post) => (
+          {trending.map((post, i) => (
             <ArticleCard
               href={`/blog/${post.slug}`}
-              category={`// ${post.category} · ${post.minutes} min`}
+              category={`// ${post.category} &middot; ${post.minutes} min`}
               title={post.title}
               date="MAY"
               reads={post.reads}
-              kind={post.kind}
               display={post.display}
               badges={post.badges}
+              coverColor={coverColors[i % coverColors.length]}
             />
           ))}
         </div>
       </div>
     </section>
 
-    <section class="section" style="padding-top:0">
-      <div class="container">
+    <!-- Categories -->
+    <section class="section-sm">
+      <div class="page">
         <AsciiRule label="// browse by categoria" />
         <div class="category-grid">
           {categories.slice(0, 4).map((category) => (
             <a class="cat-tile" href={category.slug === 'vibe-coding' ? '/categoria/vibe-coding' : `/blog?tag=${category.slug}`}>
-              <div class="stage-grid"></div>
+              <div class="stage-grid-bg"></div>
               <div style="position:relative;z-index:1;width:100%;display:flex;align-items:flex-end;justify-content:space-between;gap:16px">
-                <h3 class="cat-tile-name">{category.name}</h3>
+                <h3 class="cat-tile-title">{category.name}</h3>
                 <span class="t-mono muted" style="font-size:11px">{category.count} posts</span>
               </div>
             </a>
@@ -99,9 +123,9 @@ const latest = posts.slice(4, 12);
         <div class="category-grid" style="margin-top:8px">
           {categories.slice(4).map((category) => (
             <a class="cat-tile" style="min-height:150px" href={`/blog?tag=${category.slug}`}>
-              <div class="stage-mono"></div>
+              <div class="stage-grid-bg"></div>
               <div style="position:relative;z-index:1;width:100%;display:flex;align-items:flex-end;justify-content:space-between;gap:16px">
-                <h3 class="cat-tile-name" style="font-size:32px">{category.name}</h3>
+                <h3 class="cat-tile-title" style="font-size:32px">{category.name}</h3>
                 <span class="t-mono muted" style="font-size:11px">{category.count} posts</span>
               </div>
             </a>
@@ -110,35 +134,36 @@ const latest = posts.slice(4, 12);
       </div>
     </section>
 
-    <section class="section">
-      <div class="container">
+    <!-- CrazyStack promo -->
+    <section class="section-sm">
+      <div class="page">
         <div class="two-col home-feature-grid" style="gap:8px">
-          <div class="tile" style="min-height:520px;padding:0;color:var(--canvas);justify-content:flex-end">
+          <div class="tile" style="min-height:520px;padding:0;justify-content:flex-end;background:var(--fg);border-color:var(--fg);color:#0a0a0a">
             <TypeStage word="CRAZY" invert density={0.16} />
             <div style="position:relative;z-index:1;padding:48px">
-              <span class="badge" style="background:transparent;color:var(--canvas);border-color:rgba(255,255,255,0.3)">bootcamp · 14h · 2026</span>
-              <h2 class="t-display" style="margin-top:24px;color:var(--canvas)">CrazyStack<br />TypeScript</h2>
-              <p style="max-width:520px;margin:24px 0 32px;color:var(--canvas);opacity:.82;font-size:17px">
+              <span class="badge" style="background:transparent;color:#0a0a0a;border-color:rgba(0,0,0,.3)">bootcamp &middot; 14h &middot; 2026</span>
+              <h2 class="t-display" style="margin-top:24px;color:#0a0a0a">CrazyStack<br />TypeScript</h2>
+              <p style="max-width:520px;margin:24px 0 32px;color:#0a0a0a;opacity:.82;font-size:17px">
                 Fullstack do zero ao deploy com Claude Code, Bun, Next 16, Convex e n8n. Nao e teoria, e stack em producao.
               </p>
               <div style="display:flex;gap:12px;flex-wrap:wrap">
-                <a class="btn btn-outline-on-image" href="/cursos/crazystack-typescript">Ver modulos →</a>
-                <span class="btn btn-ghost" style="color:var(--canvas);border-color:rgba(255,255,255,0.3)">R$ 497 · 60% OFF</span>
+                <a class="btn btn-primary" href="/cursos/crazystack-typescript" style="background:#0a0a0a;color:var(--fg)">Ver modulos &rarr;</a>
+                <span class="badge badge-dark" style="background:transparent;color:#0a0a0a;border-color:rgba(0,0,0,.3)">R$ 497 &middot; 60% OFF</span>
               </div>
             </div>
           </div>
           <div class="tile" style="min-height:520px">
             <div style="position:relative;z-index:1;width:100%">
-              <p class="t-mono muted" style="font-size:11px;margin:0 0 18px;text-transform:uppercase">◆ manifesto v.0.4</p>
-              <Terminal title="cat MANIFESTO.md" accent>
-                <span class="term-accent"># devdoido nao e tutorial.</span><br />
-                <span class="term-accent"># e o que sobra depois que</span><br />
+              <p class="mono-caption" style="margin:0 0 18px">// manifesto v.0.4</p>
+              <Terminal title="cat MANIFESTO.md">
+                <span class="prompt"># devdoido nao e tutorial.</span><br />
+                <span class="prompt"># e o que sobra depois que</span><br />
                 <span># o hype acaba.</span><br /><br />
-                <span class="term-prompt">&gt;</span> conteudo sem rodeio<br />
-                <span class="term-prompt">&gt;</span> opiniao sem patrocinador<br />
-                <span class="term-prompt">&gt;</span> codigo que roda em prod<br />
-                <span class="term-prompt">&gt;</span> zero promessa de salario<br /><br />
-                <span class="term-prompt">$</span> <span class="term-accent">ler manifesto completo</span><span class="cursor"></span>
+                <span class="comment">&gt;</span> conteudo sem rodeio<br />
+                <span class="comment">&gt;</span> opiniao sem patrocinador<br />
+                <span class="comment">&gt;</span> codigo que roda em prod<br />
+                <span class="comment">&gt;</span> zero promessa de salario<br /><br />
+                <span class="comment">$</span> <span class="prompt">ler manifesto completo</span><span class="cursor"></span>
               </Terminal>
             </div>
           </div>
@@ -146,8 +171,9 @@ const latest = posts.slice(4, 12);
       </div>
     </section>
 
-    <section class="section" style="padding-top:0">
-      <div class="container">
+    <!-- Latest posts -->
+    <section class="section" style="border-bottom:none">
+      <div class="page">
         <AsciiRule label="// ultimos publicados" />
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-bottom:32px;flex-wrap:wrap">
           <h2 class="t-section">Saiu fresquinho</h2>
@@ -160,40 +186,41 @@ const latest = posts.slice(4, 12);
           </div>
         </div>
         <div class="article-grid" style="--grid-cols:4">
-          {latest.map((post) => (
+          {latest.map((post, i) => (
             <ArticleCard
               href={`/blog/${post.slug}`}
-              category={`// ${post.category} · ${post.minutes} min`}
+              category={`// ${post.category} &middot; ${post.minutes} min`}
               title={post.title}
               date="MAY"
               reads={post.reads}
-              kind={post.kind}
               display={post.display}
               badges={post.badges}
+              coverColor={coverColors[i % coverColors.length]}
             />
           ))}
         </div>
-        <div class="center" style="margin-top:48px">
-          <a class="btn btn-secondary" href="/blog">Ver +404 artigos →</a>
+        <div style="display:flex;justify-content:center;margin-top:48px">
+          <a class="btn btn-secondary" href="/blog">Ver +404 artigos &rarr;</a>
         </div>
       </div>
     </section>
 
-    <section style="background:var(--ink);color:var(--canvas);padding:80px 0">
-      <div class="container two-col" style="align-items:center;gap:64px">
+    <!-- Newsletter CTA -->
+    <section style="background:var(--fg);color:#0a0a0a;padding:80px 0">
+      <div class="page two-col" style="align-items:center;gap:64px">
         <div>
-          <p class="t-mono" style="margin:0 0 18px;color:var(--canvas);opacity:.6;text-transform:uppercase;font-size:12px">◆ newsletter · toda quinta · 6h da manha</p>
-          <h2 class="t-display" style="color:var(--canvas)">1 email.<br />0 conselho<br />de coach.</h2>
+          <p class="mono-caption" style="color:#0a0a0a;opacity:.6">// newsletter &middot; toda quinta &middot; 6h da manha</p>
+          <h2 class="t-display" style="color:#0a0a0a">1 email.<br />0 conselho<br />de coach.</h2>
         </div>
         <div>
-          <p style="max-width:480px;margin:0 0 24px;color:var(--canvas);opacity:.8;font-size:17px">
+          <p style="max-width:480px;margin:0 0 24px;color:#0a0a0a;opacity:.8;font-size:17px">
             Toda quinta: 3 links, 1 opiniao impopular, 1 trecho de codigo que esta em producao.
           </p>
           <form style="display:flex;gap:8px;max-width:500px;flex-wrap:wrap" action="/newsletter">
-            <input class="input" style="flex:1;min-width:220px;border-color:rgba(255,255,255,0.3);color:var(--canvas)" placeholder="seu@email.com" />
-            <button class="btn btn-accent">Assinar →</button>
+            <input class="input" style="flex:1;min-width:220px;border-color:rgba(0,0,0,.3);color:#0a0a0a;background:transparent" placeholder="seu@email.com" />
+            <button class="btn btn-primary" style="background:#0a0a0a;color:var(--fg)">Assinar &rarr;</button>
           </form>
-          <p class="t-mono" style="margin:12px 0 0;color:var(--canvas);opacity:.72;font-size:11px">12,847 devs · 0% spam · 1 unsubscribe-click</p>
+          <p class="mono-caption" style="margin:12px 0 0;color:#0a0a0a;opacity:.6">12,847 devs &middot; 0% spam &middot; 1 unsubscribe-click</p>
         </div>
       </div>
     </section>

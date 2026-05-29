@@ -7,14 +7,16 @@ interface Props {
 const { title = '~/devdoido', accent = false } = Astro.props;
 ---
 
-<div class="term" style={accent ? 'border-color:var(--accent)' : undefined}>
-  <div class="term-head">
-    <span class="term-dot" style="background:#ff5f56"></span>
-    <span class="term-dot" style="background:#ffbd2e"></span>
-    <span class="term-dot" style="background:#27c93f"></span>
-    <span style="margin-left:8px">{title}</span>
+<div class="terminal" style={accent ? 'border-color:var(--lime-500)' : undefined}>
+  <div class="bar">
+    <div class="dots">
+      <span style="background:#ff5f56"></span>
+      <span style="background:#ffbd2e"></span>
+      <span style="background:#27c93f"></span>
+    </div>
+    <span>{title}</span>
   </div>
-  <div class="term-body" tabindex="0" aria-label={title}>
+  <div class="body" tabindex="0" aria-label={title}>
     <slot />
   </div>
 </div>

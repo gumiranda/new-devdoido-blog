@@ -4,10 +4,10 @@ interface Props {
 }
 
 const { label = '' } = Astro.props;
-const line = '─'.repeat(120);
+const line = '\u2500'.repeat(120);
 ---
 
-<div class="ascii-rule" aria-hidden={!label}>
-  {label && <span>{label}</span>}
-  <span>{line}</span>
+<div class="sec-num-row" style="margin:0 0 32px" aria-hidden={!label}>
+  {label && <span class="lbl">{label}</span>}
+  <span class="more" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;margin-left:12px">{line}</span>
 </div>

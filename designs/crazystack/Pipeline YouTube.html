@@ -1,0 +1,1102 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1440" />
+<title>Pipeline YouTube — CrazyStack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=Geist:wght@300;400;500;600;700;800;900&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="pipeline.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="sb-brand"><span class="mark">&gt;_</span> crazystack<span class="caret"></span></div>
+
+    <div class="sb-tenant" id="tenant-switch">
+      <div class="tlogo">FT</div>
+      <div class="tinfo"><b>Faturei</b><span>workspace · fintech</span></div>
+      <span class="chev"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="sb-group">
+        <div class="glabel">Conteúdo</div>
+        <div class="sb-item" data-nav="artigos"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Artigos <span class="badge">42</span></div>
+        <div class="sb-item" data-nav="mysaas"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Meu SaaS</div>
+      </div>
+
+      <div class="sb-group">
+        <div class="glabel">Pipeline YouTube</div>
+        <div class="sb-item active" data-nav="overview"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Visão geral</div>
+        <div class="sb-item" data-nav="account"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Conta Google <span class="dot-warn" id="nav-acct-warn"></span></div>
+        <div class="sb-item" data-nav="channels"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg> Canais monitorados <span class="badge" id="nav-chan-count">3</span></div>
+        <div class="sb-item" data-nav="schedule"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Agendamento</div>
+        <div class="sb-item" data-nav="runs"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Execuções</div>
+        <div class="sb-item" data-nav="library"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Biblioteca <span class="badge" id="nav-lib-count">128</span></div>
+        <div class="sb-item" data-nav="automation"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Geração automática</div>
+      </div>
+
+      <div class="sb-group">
+        <div class="glabel">Sistema</div>
+        <div class="sb-item" data-nav="settings"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Configurações</div>
+      </div>
+    </nav>
+
+    <div class="sb-foot">
+      <div class="sb-user">
+        <div class="av">GM</div>
+        <div class="ui"><b>Gustavo Miranda</b><span>founder · faturei</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-left">
+        <div class="tb-crumb">
+          <span>faturei</span><span class="sep">/</span><span>pipeline youtube</span><span class="sep">/</span><span class="here" id="crumb-view">visão geral</span>
+        </div>
+      </div>
+      <div class="tb-right">
+        <div class="tb-status" id="conn-status">
+          <span class="dot off" id="conn-dot"></span>
+          <span id="conn-text">Conta Google não conectada</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="run-now-btn" style="display:none;">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Executar agora
+        </button>
+      </div>
+    </div>
+
+    <div class="view-scroll">
+
+      <!-- ========== OVERVIEW ========== -->
+      <section class="view active" data-view="overview">
+
+        <!-- NOT CONNECTED -->
+        <div id="ov-disconnected">
+          <h1 class="page-title">Pipeline de <em>YouTube</em></h1>
+          <p class="page-desc">Monitore canais do YouTube, busque os vídeos mais recentes automaticamente e transcreva tudo em texto — direto no banco do seu SaaS.</p>
+
+          <div class="connect-hero">
+            <div class="ch-icons">
+              <div class="ch-icon cs"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+              <span class="ch-conn">&lt;—&gt;</span>
+              <div class="ch-icon yt"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.5 15.5v-7l6.5 3.5z"/></svg></div>
+            </div>
+            <h2>Conecte uma conta Google para começar</h2>
+            <p>Para consultar a YouTube Data API precisamos de uma conta Google autorizada. <strong>Não é o seu canal</strong> — essa conta serve apenas como credencial para as chamadas de leitura à API.</p>
+            <button class="btn btn-primary btn-lg" id="open-oauth"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Conectar conta Google</button>
+
+            <div class="perm-list">
+              <div class="perm-col do">
+                <div class="ph"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> O que o CrazyStack faz</div>
+                <ul>
+                  <li><span class="mk">[✓]</span> Lê metadados de vídeos públicos via API</li>
+                  <li><span class="mk">[✓]</span> Consulta os uploads mais recentes dos canais que você definir</li>
+                  <li><span class="mk">[✓]</span> Usa a quota da API em nome desta conta</li>
+                </ul>
+              </div>
+              <div class="perm-col dont">
+                <div class="ph"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> O que NÃO fazemos</div>
+                <ul>
+                  <li><span class="mk">[✗]</span> Acessar ou conectar o seu canal</li>
+                  <li><span class="mk">[✗]</span> Publicar, comentar ou curtir nada</li>
+                  <li><span class="mk">[✗]</span> Ler dados privados ou analytics da conta</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONNECTED -->
+        <div id="ov-connected" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 28px;">
+            <div>
+              <h1 class="page-title">Visão geral</h1>
+              <p class="page-desc" style="margin:0;">Pipeline ativo. Próxima execução automática agendada.</p>
+            </div>
+          </div>
+
+          <div class="grid-4" style="margin-bottom: 18px;">
+            <div class="stat-tile">
+              <div class="st-top"><div class="st-ic yt"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg></div></div>
+              <b id="ov-chan">3</b><span>canais monitorados</span>
+            </div>
+            <div class="stat-tile">
+              <div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div><span class="st-delta">+6 hoje</span></div>
+              <b id="ov-vids">128</b><span>vídeos transcritos</span>
+            </div>
+            <div class="stat-tile">
+              <div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div></div>
+              <b>42</b><span>execuções totais</span>
+            </div>
+            <div class="stat-tile">
+              <div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div></div>
+              <b>32%</b><span>quota usada hoje</span>
+            </div>
+          </div>
+
+          <div class="grid-2" style="grid-template-columns: 1fr 1fr; align-items:start;">
+            <!-- next run -->
+            <div class="next-run">
+              <div class="nr-lbl">// próxima execução automática</div>
+              <div class="nr-time">Amanhã, 08:00</div>
+              <div class="nr-rel">em 14h 32min · America/Sao_Paulo · diariamente</div>
+              <div class="nr-steps">
+                <div class="nr-step"><span class="n">01</span> Consultar uploads recentes de 3 canais</div>
+                <div class="nr-step"><span class="n">02</span> Filtrar vídeos das últimas 24h</div>
+                <div class="nr-step"><span class="n">03</span> Transcrever áudio em texto</div>
+                <div class="nr-step"><span class="n">04</span> Salvar transcrições no banco</div>
+              </div>
+            </div>
+
+            <!-- activity -->
+            <div class="card card-pad">
+              <div class="section-label" style="margin-bottom: 6px;">// atividade recente</div>
+              <div class="activity-list">
+                <div class="act-item">
+                  <div class="act-ic lime"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="at"><b>Execução concluída · <span>6 novos vídeos</span> transcritos</b><div class="when">hoje, 08:00 · 2min 14s · 412 unidades de quota</div></div>
+                </div>
+                <div class="act-item">
+                  <div class="act-ic yt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+                  <div class="at"><b>Rocketseat publicou "Next.js 16: o que muda"</b><div class="when">hoje, 07:42 · capturado às 08:00</div></div>
+                </div>
+                <div class="act-item">
+                  <div class="act-ic info"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg></div>
+                  <div class="at"><b>Canal adicionado: <span>Filipe Deschamps</span></b><div class="when">ontem, 16:20</div></div>
+                </div>
+                <div class="act-item">
+                  <div class="act-ic lime"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="at"><b>Execução concluída · <span>4 novos vídeos</span></b><div class="when">ontem, 08:00 · 1min 52s</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== CONTA GOOGLE ========== -->
+      <section class="view" data-view="account">
+        <h1 class="page-title">Conta Google</h1>
+        <p class="page-desc">A credencial usada para autenticar as chamadas à YouTube Data API.</p>
+
+        <!-- not connected -->
+        <div id="acct-disconnected">
+          <div class="callout callout-warn" style="margin-bottom: 20px;">
+            <svg class="ci" fill="none" stroke="hsl(38 92% 70%)" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div><b>Nenhuma conta conectada</b><p>O pipeline não pode executar sem uma conta Google autorizada para a API.</p></div>
+          </div>
+          <button class="btn btn-primary btn-lg" onclick="document.getElementById('open-oauth').click()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Conectar conta Google</button>
+        </div>
+
+        <!-- connected -->
+        <div id="acct-connected" style="display:none;">
+          <div class="card" style="margin-bottom: 18px;">
+            <div class="acct-card">
+              <div class="gava">G</div>
+              <div class="ai">
+                <b>API Bot Faturei <span class="pill-ok"><span class="dot"></span> conectado</span></b>
+                <div class="gmail" id="acct-email">faturei.api.bot@gmail.com</div>
+                <div class="since">autorizado em 14 abr 2026 · token renovado há 2h</div>
+              </div>
+              <div style="display:flex; gap: 10px;">
+                <button class="btn btn-secondary btn-sm">Reautorizar</button>
+                <button class="btn btn-danger btn-sm" id="disconnect-btn">Desconectar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout callout-info" style="margin-bottom: 24px;">
+            <svg class="ci" fill="none" stroke="hsl(217 85% 75%)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <div><b>Esta conta não é um canal monitorado</b><p>Ela serve apenas como identidade para as chamadas à API. Não acessamos, modificamos nem publicamos em nenhum canal associado a ela. Os canais que você acompanha são definidos em "Canais monitorados".</p></div>
+          </div>
+
+          <div class="grid-2" style="align-items:start;">
+            <div class="card card-pad">
+              <div class="section-label">// permissões concedidas (escopos OAuth)</div>
+              <div class="scope-row">
+                <span class="scope"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> youtube.readonly</span>
+                <span class="scope"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg> userinfo.email</span>
+              </div>
+              <div class="divider"></div>
+              <div class="muted-mono" style="line-height:1.6;">// somente leitura. O CrazyStack nunca recebe escopos de escrita (upload, comentário, gestão de canal).</div>
+            </div>
+
+            <div class="card card-pad">
+              <div class="section-label">// quota da YouTube Data API</div>
+              <div class="quota">
+                <div class="quota-top"><span class="ql">unidades usadas hoje</span><span class="qv"><b>3.180</b> / 10.000</span></div>
+                <div class="quota-bar"><div class="qfill" style="width:32%"></div></div>
+                <div class="quota-legend"><span>● reset em 6h 12min (00:00 PT)</span></div>
+              </div>
+              <div class="divider"></div>
+              <div style="display:flex; justify-content:space-between; font-family: var(--f-mono); font-size: 12px; color: var(--fg-muted);">
+                <span>custo médio / execução</span><span style="color:var(--fg);">~412 unidades</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== CANAIS ========== -->
+      <section class="view" data-view="channels">
+        <div class="list-head">
+          <div>
+            <h1 class="page-title" style="margin-bottom:6px;">Canais monitorados</h1>
+            <p class="page-desc" style="margin:0;">Os canais cujos uploads mais recentes serão consultados a cada execução.</p>
+          </div>
+          <button class="btn btn-primary" id="open-add-channel"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Adicionar canal</button>
+        </div>
+
+        <div id="channels-list">
+          <div class="chan-row" data-chan>
+            <div class="chan-av" style="background:linear-gradient(135deg,#8257e6,#6420aa)">R</div>
+            <div class="chan-meta"><b>Rocketseat <span class="verified" title="verificado"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" fill="none" stroke="currentColor" stroke-width="2"/></svg></span></b><div class="handle">@rocketseat · UCSfwM5u0Kf33Bnzwd9 rocketseat</div></div>
+            <div class="chan-stat"><b>2.1M</b><span>inscritos</span></div>
+            <div class="chan-last">último vídeo<br><span class="ok">capturado hoje 08:00</span></div>
+            <div class="switch on" data-switch></div>
+          </div>
+          <div class="chan-row" data-chan>
+            <div class="chan-av" style="background:linear-gradient(135deg,#06b6d4,#0e7490)">F</div>
+            <div class="chan-meta"><b>Filipe Deschamps <span class="verified"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" fill="none" stroke="currentColor" stroke-width="2"/></svg></span></b><div class="handle">@FilipeDeschamps · UCRWqwD1...</div></div>
+            <div class="chan-stat"><b>1.6M</b><span>inscritos</span></div>
+            <div class="chan-last">último vídeo<br><span class="ok">capturado hoje 08:00</span></div>
+            <div class="switch on" data-switch></div>
+          </div>
+          <div class="chan-row" data-chan>
+            <div class="chan-av" style="background:linear-gradient(135deg,#f59e0b,#b45309)">C</div>
+            <div class="chan-meta"><b>Código Fonte TV</b><div class="handle">@codigofontetv · UClbYj...</div></div>
+            <div class="chan-stat"><b>1.2M</b><span>inscritos</span></div>
+            <div class="chan-last">último vídeo<br><span>capturado ontem</span></div>
+            <div class="switch" data-switch></div>
+          </div>
+        </div>
+
+        <div class="callout callout-lime" style="margin-top: 20px;">
+          <svg class="ci" fill="none" stroke="var(--lime-400)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <div><b>Quota cresce com o número de canais</b><p>Cada canal ativo consome ~100 unidades por execução (busca de uploads + detalhes). Com 10.000 unidades/dia, você pode monitorar dezenas de canais com folga.</p></div>
+        </div>
+      </section>
+
+      <!-- ========== AGENDAMENTO ========== -->
+      <section class="view" data-view="schedule">
+        <h1 class="page-title">Agendamento</h1>
+        <p class="page-desc">Defina quando e com que frequência o pipeline busca e transcreve novos vídeos.</p>
+
+        <div class="sched-grid">
+          <div class="card card-pad">
+            <div class="field">
+              <label>Frequência</label>
+              <div class="seg" id="freq-seg">
+                <button class="active" data-freq="daily">Diária</button>
+                <button data-freq="hours">A cada X horas</button>
+                <button data-freq="weekly">Semanal</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Horário da execução</label>
+              <div class="time-pick">
+                <div class="time-display" id="time-display">08:00<span class="ampm">BRT</span></div>
+                <input type="time" class="input mono" id="time-input" value="08:00" style="max-width: 160px;" />
+              </div>
+              <div class="hint">A cron diária roda neste horário, no fuso configurado abaixo.</div>
+            </div>
+
+            <div class="field">
+              <label>Fuso horário</label>
+              <select class="input mono" id="tz-select">
+                <option selected>America/Sao_Paulo (BRT, UTC-3)</option>
+                <option>America/New_York (EST, UTC-5)</option>
+                <option>Europe/Lisbon (WET, UTC+0)</option>
+                <option>UTC</option>
+              </select>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="field">
+              <label>O que fazer em cada execução</label>
+              <div class="check-opt on" data-check>
+                <div class="check-box"><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="co-text"><b>Buscar vídeos recentes</b><span>Consulta os uploads mais novos de cada canal ativo via YouTube Data API.</span></div>
+              </div>
+              <div class="check-opt on" data-check>
+                <div class="check-box"><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="co-text"><b>Transcrever áudio em texto</b><span>Gera a transcrição completa de cada novo vídeo encontrado.</span></div>
+              </div>
+              <div class="check-opt on" data-check>
+                <div class="check-box"><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="co-text"><b>Salvar no banco de dados</b><span>Persiste metadados + transcrição na tabela do seu SaaS.</span></div>
+              </div>
+              <div class="check-opt" data-check>
+                <div class="check-box"><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="co-text"><b>Me notificar ao concluir</b><span>Envia um resumo por e-mail com os vídeos capturados.</span></div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="grid-2">
+              <div class="field" style="margin:0;">
+                <label>Vídeos por canal (máx.)</label>
+                <select class="input mono"><option>Últimos 3</option><option selected>Últimos 5</option><option>Últimos 10</option></select>
+              </div>
+              <div class="field" style="margin:0;">
+                <label>Janela de publicação</label>
+                <select class="input mono"><option>Últimas 24h</option><option>Últimas 48h</option><option>Última semana</option></select>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top: 28px;">
+              <button class="btn btn-primary" id="save-sched">Salvar agendamento</button>
+              <button class="btn btn-secondary">Cancelar</button>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap: 18px;">
+            <div class="next-run">
+              <div class="nr-lbl">// próxima execução</div>
+              <div class="nr-time" id="sched-next-time">Amanhã, 08:00</div>
+              <div class="nr-rel">em 14h 32min · diariamente</div>
+            </div>
+            <div class="card card-pad">
+              <div class="section-label">// resumo do cron</div>
+              <div style="font-family: var(--f-mono); font-size: 13px; color: var(--fg-muted); line-height: 1.8;">
+                <div style="color:var(--lime-400);" id="cron-expr">0 8 * * *</div>
+                <div style="margin-top:8px;">todos os dias às 08:00</div>
+                <div>fuso America/Sao_Paulo</div>
+                <div>3 canais ativos · ~412 un. de quota</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== EXECUÇÕES ========== -->
+      <section class="view" data-view="runs">
+        <div class="list-head">
+          <div>
+            <h1 class="page-title" style="margin-bottom:6px;">Execuções</h1>
+            <p class="page-desc" style="margin:0;">Histórico de cada rodada do pipeline.</p>
+          </div>
+          <button class="btn btn-secondary"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Atualizar</button>
+        </div>
+
+        <div class="run-row head">
+          <span>quando</span><span>status</span><span>canais</span><span>vídeos novos</span><span>transcritos</span><span>duração</span><span></span>
+        </div>
+        <div class="run-row" data-run>
+          <div class="run-when"><b>hoje 08:00</b><span>29 mai 2026</span></div>
+          <span class="run-status ok"><span class="dot"></span> sucesso</span>
+          <div class="run-metric">3 <span>canais</span></div>
+          <div class="run-metric">6 <span>novos</span></div>
+          <div class="run-metric">6 <span>ok</span></div>
+          <div class="run-metric">2:14</div>
+          <span class="chev"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+        <div class="run-row" data-run>
+          <div class="run-when"><b>ontem 08:00</b><span>28 mai 2026</span></div>
+          <span class="run-status ok"><span class="dot"></span> sucesso</span>
+          <div class="run-metric">3 <span>canais</span></div>
+          <div class="run-metric">4 <span>novos</span></div>
+          <div class="run-metric">4 <span>ok</span></div>
+          <div class="run-metric">1:52</div>
+          <span class="chev"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+        <div class="run-row" data-run>
+          <div class="run-when"><b>27 mai 08:00</b><span>27 mai 2026</span></div>
+          <span class="run-status err"><span class="dot"></span> erro parcial</span>
+          <div class="run-metric">3 <span>canais</span></div>
+          <div class="run-metric">5 <span>novos</span></div>
+          <div class="run-metric">3 <span>ok</span></div>
+          <div class="run-metric">3:40</div>
+          <span class="chev"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+        <div class="run-row" data-run>
+          <div class="run-when"><b>26 mai 08:00</b><span>26 mai 2026</span></div>
+          <span class="run-status ok"><span class="dot"></span> sucesso</span>
+          <div class="run-metric">3 <span>canais</span></div>
+          <div class="run-metric">2 <span>novos</span></div>
+          <div class="run-metric">2 <span>ok</span></div>
+          <div class="run-metric">1:08</div>
+          <span class="chev"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+        <div class="run-row" data-run>
+          <div class="run-when"><b>25 mai 08:00</b><span>25 mai 2026</span></div>
+          <span class="run-status ok"><span class="dot"></span> sucesso</span>
+          <div class="run-metric">3 <span>canais</span></div>
+          <div class="run-metric">3 <span>novos</span></div>
+          <div class="run-metric">3 <span>ok</span></div>
+          <div class="run-metric">1:36</div>
+          <span class="chev"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </div>
+      </section>
+
+      <!-- ========== BIBLIOTECA ========== -->
+      <section class="view" data-view="library">
+        <h1 class="page-title">Biblioteca de transcrições</h1>
+        <p class="page-desc">Todos os vídeos capturados e transcritos, salvos no banco do seu SaaS.</p>
+
+        <div class="lib-toolbar">
+          <div class="lib-filters" id="lib-filters">
+            <span class="fchip active" data-f="all">Todos</span>
+            <span class="fchip" data-f="rocketseat">Rocketseat</span>
+            <span class="fchip" data-f="filipe">Filipe Deschamps</span>
+            <span class="fchip" data-f="codigofonte">Código Fonte TV</span>
+          </div>
+          <div class="search-mini">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="buscar na transcrição..." />
+          </div>
+        </div>
+
+        <div class="vid-grid" id="vid-grid"></div>
+      </section>
+
+      <!-- ========== GERAÇÃO AUTOMÁTICA ========== -->
+      <section class="view" data-view="automation">
+        <div class="list-head">
+          <div>
+            <h1 class="page-title" style="margin-bottom:6px;">Geração <em>automática</em> de artigos</h1>
+            <p class="page-desc" style="margin:0;">Quando a transcrição de um vídeo fica pronta, o CrazyStack gera um artigo de blog automaticamente — usando o prompt que você definir.</p>
+          </div>
+        </div>
+
+        <!-- master rule -->
+        <div class="rule-head on" id="rule-head">
+          <div class="rh-l">
+            <div class="rh-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+            <div class="rh-t">
+              <b>Automação ativa</b>
+              <span>Gerar artigo sempre que uma transcrição for concluída</span>
+            </div>
+          </div>
+          <div class="switch switch-lg on" id="rule-switch"></div>
+        </div>
+
+        <!-- trigger -> action flow -->
+        <div class="flow">
+          <div class="flow-node trigger">
+            <div class="fn-lbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Gatilho (when)</div>
+            <div class="fn-row">
+              <div class="fn-ic"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="fn-tx"><b>Transcrição concluída</b><span>evento: transcription.completed</span></div>
+            </div>
+          </div>
+          <div class="flow-arrow"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+          <div class="flow-node action">
+            <div class="fn-lbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> Ação (then)</div>
+            <div class="fn-row">
+              <div class="fn-ic"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+              <div class="fn-tx"><b>Gerar artigo de blog</b><span>com o prompt + modelo abaixo</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="auto-grid">
+          <!-- left: config -->
+          <div>
+            <!-- conditions -->
+            <div class="card card-pad" style="margin-bottom:18px;">
+              <div class="section-label">// condições — gerar apenas quando</div>
+              <div class="grid-2">
+                <div class="field" style="margin:0;">
+                  <label>Canais</label>
+                  <select class="input mono"><option>Todos os canais monitorados</option><option>Apenas Rocketseat</option><option>Selecionar canais...</option></select>
+                </div>
+                <div class="field" style="margin:0;">
+                  <label>Duração mínima do vídeo</label>
+                  <select class="input mono"><option>Qualquer duração</option><option selected>5 minutos ou mais</option><option>10 minutos ou mais</option></select>
+                </div>
+              </div>
+            </div>
+
+            <!-- PROMPT -->
+            <div class="section-label">// prompt de geração</div>
+            <div class="prompt-editor" id="prompt-editor">
+              <div class="pe-bar">
+                <span class="pe-title"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg> prompt.txt</span>
+                <div class="var-bar">
+                  <span class="vb-lbl">inserir:</span>
+                  <span class="var-chip" data-var="{{transcricao}}">{{transcricao}}</span>
+                  <span class="var-chip" data-var="{{titulo_video}}">{{titulo_video}}</span>
+                  <span class="var-chip" data-var="{{canal}}">{{canal}}</span>
+                  <span class="var-chip" data-var="{{url_video}}">{{url_video}}</span>
+                  <span class="var-chip" data-var="{{data_publicacao}}">{{data_publicacao}}</span>
+                </div>
+              </div>
+              <textarea class="prompt-textarea" id="prompt-area" spellcheck="false">Você é um redator técnico do blog da Faturei. Escreva um artigo completo em português a partir da transcrição de um vídeo do YouTube.
+
+VÍDEO: {{titulo_video}}
+CANAL: {{canal}}
+PUBLICADO EM: {{data_publicacao}}
+
+TRANSCRIÇÃO:
+{{transcricao}}
+
+INSTRUÇÕES:
+- Reescreva o conteúdo com suas próprias palavras, não copie a transcrição.
+- Estruture com um título forte, subtítulo e seções com H2/H3.
+- Tom direto e técnico, voltado para desenvolvedores. Sem enrolação.
+- Use blocos de código quando o vídeo mencionar código.
+- Comprimento alvo: 800–1200 palavras.
+- Ao final, cite o vídeo original como fonte com o link {{url_video}}.
+- Gere também: slug, meta description (até 155 caracteres) e 5 tags.</textarea>
+              <div class="pe-foot">
+                <span class="ok">● prompt válido · 5 variáveis em uso</span>
+                <span id="prompt-chars">0 caracteres</span>
+              </div>
+            </div>
+
+            <div class="var-legend">
+              <div class="vl"><code>{{transcricao}}</code> texto completo da transcrição</div>
+              <div class="vl"><code>{{titulo_video}}</code> título original do vídeo</div>
+              <div class="vl"><code>{{canal}}</code> nome do canal de origem</div>
+              <div class="vl"><code>{{url_video}}</code> link do vídeo no YouTube</div>
+              <div class="vl"><code>{{data_publicacao}}</code> data de publicação</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- model -->
+            <div class="section-label">// modelo de IA</div>
+            <div class="model-row" id="model-row">
+              <div class="model-opt on" data-model="claude"><div class="mo-ic">A</div><div class="mo-t"><b>Claude Sonnet 4.5</b><span>recomendado · melhor p/ técnico</span></div></div>
+              <div class="model-opt" data-model="gpt"><div class="mo-ic">G</div><div class="mo-t"><b>GPT-4.1</b><span>alternativa · rápido</span></div></div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- output -->
+            <div class="section-label">// o que fazer com o artigo gerado</div>
+            <div class="grid-2" style="margin-bottom: 14px;">
+              <div class="field" style="margin:0;">
+                <label>Status inicial</label>
+                <select class="input mono" id="out-status"><option selected>Rascunho (revisar antes de publicar)</option><option>Publicar automaticamente</option><option>Arquivado</option></select>
+              </div>
+              <div class="field" style="margin:0;">
+                <label>Categoria padrão</label>
+                <select class="input mono"><option>Detectar automaticamente</option><option selected>Node.js</option><option>React</option><option>Carreira</option></select>
+              </div>
+            </div>
+            <div class="check-opt on" data-check style="margin-bottom:0;">
+              <div class="check-box"><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="co-text"><b>Vincular o artigo ao vídeo de origem</b><span>Salva a referência do vídeo e da transcrição junto ao artigo.</span></div>
+            </div>
+
+            <div class="sticky-save">
+              <button class="btn btn-primary" id="save-automation">Salvar automação</button>
+              <button class="btn btn-secondary">Restaurar padrão</button>
+            </div>
+          </div>
+
+          <!-- right: test/preview -->
+          <div class="auto-side">
+            <div class="test-card">
+              <div class="tc-head"><b>// testar prompt</b></div>
+              <div class="tc-body">
+                <div class="test-input-vid">
+                  <div class="tiv-th" style="background:linear-gradient(135deg,#8257e6,#3b0d6b)"></div>
+                  <div class="tiv-t"><b>Next.js 16: o que muda na prática</b><span>Rocketseat · transcrição pronta</span></div>
+                </div>
+                <button class="btn btn-primary btn-block" id="test-prompt-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Gerar artigo de teste</button>
+
+                <div class="gen-loading" id="gen-loading">
+                  <div class="spinner"></div>
+                  <div class="gl-steps" id="gl-steps">lendo transcrição...</div>
+                </div>
+
+                <div class="gen-output" id="gen-output">
+                  <div class="divider" style="margin: 18px 0;"></div>
+                  <div class="muted-mono" style="margin-bottom: 14px;">// pré-visualização do artigo gerado</div>
+                  <div class="gen-article">
+                    <span class="ga-status"><span class="dot"></span> rascunho</span>
+                    <h4>Next.js 16 na prática: o novo cache que finalmente faz sentido</h4>
+                    <div class="ga-sub">O que muda no App Router, nos Server Actions e por que o Turbopack agora é padrão.</div>
+                    <div class="ga-excerpt">A versão 16 do Next.js repensou completamente o sistema de cache. Em vez do comportamento implícito que confundia tanta gente, agora cada fetch tem controle explícito — e isso muda o jogo para aplicações grandes...</div>
+                    <div class="ga-tags"><span class="t">nextjs</span><span class="t">cache</span><span class="t">server-actions</span><span class="t">turbopack</span><span class="t">react</span></div>
+                    <div style="display:flex; gap:8px; margin-top:18px;">
+                      <a href="Editor de Artigo.html" class="btn btn-secondary btn-sm" style="flex:1; justify-content:center;">Abrir no editor</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout callout-lime">
+              <svg class="ci" fill="none" stroke="var(--lime-400)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <div><b>Sempre revise antes de publicar</b><p>Com status "Rascunho", todo artigo gerado fica aguardando sua aprovação no editor. Ative a publicação automática só quando confiar no prompt.</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== MEU SAAS ========== -->
+      <section class="view" data-view="mysaas">
+        <h1 class="page-title">Meu SaaS</h1>
+        <p class="page-desc">A identidade pública do seu SaaS — aparece no blog, nos artigos e no feed da comunidade.</p>
+
+        <div class="card card-pad" style="margin-bottom:18px;">
+          <div class="section-label">// marca</div>
+          <div class="field">
+            <label>Foto de capa</label>
+            <label class="upload upload-cover" id="ms-cover-drop">
+              <input type="file" accept="image/*" id="ms-cover" />
+              <div class="ph"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg><b>Banner do blog</b><span>1200×400 · jpg/png</span></div>
+            </label>
+          </div>
+          <div class="saas-brand-row">
+            <label class="upload upload-logo" id="ms-logo-drop">
+              <input type="file" accept="image/*" id="ms-logo" />
+              <div class="ph"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg><b>logo</b></div>
+            </label>
+            <div class="sbr-side">
+              <div class="field" style="margin-bottom:14px;">
+                <label>Nome do SaaS</label>
+                <input class="input" value="Faturei" />
+              </div>
+              <div class="grid-2">
+                <div class="field" style="margin:0;">
+                  <label>Categoria / nicho</label>
+                  <select class="input mono"><option selected>Fintech</option><option>E-commerce</option><option>IA &amp; LLMs</option><option>Dev Tools</option><option>Produtividade</option><option>Educação</option></select>
+                </div>
+                <div class="field" style="margin:0;">
+                  <label>Cor de destaque</label>
+                  <div class="color-row" id="ms-colors">
+                    <div class="color-opt on" style="background:hsl(217 91% 55%)" data-color></div>
+                    <div class="color-opt" style="background:hsl(83 81% 44%)" data-color></div>
+                    <div class="color-opt" style="background:hsl(280 70% 55%)" data-color></div>
+                    <div class="color-opt" style="background:hsl(0 72% 51%)" data-color></div>
+                    <div class="color-opt" style="background:hsl(38 92% 50%)" data-color></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="field" style="margin-top:22px; margin-bottom:0;">
+            <label>Descrição</label>
+            <textarea class="input" rows="3" style="resize:vertical;">Gestão financeira para freelancers e devs autônomos. Notas, contratos e impostos em um lugar só.</textarea>
+          </div>
+        </div>
+
+        <div class="card card-pad" style="margin-bottom:18px;">
+          <div class="section-label">// blog & links</div>
+          <div class="field">
+            <label>Endereço do blog</label>
+            <div class="public-url">
+              <span class="pu-px">crazystack.com.br/</span>
+              <input value="faturei" />
+              <span class="pu-sx">/blog</span>
+            </div>
+            <div class="hint">Este é o endereço público onde seus artigos ficam disponíveis.</div>
+          </div>
+          <div class="grid-2">
+            <div class="field" style="margin:0;">
+              <label>Website</label>
+              <input class="input mono" value="https://faturei.com.br" />
+            </div>
+            <div class="field" style="margin:0;">
+              <label>Instagram</label>
+              <input class="input mono" value="@faturei.app" />
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-4">
+          <div class="stat-tile"><div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div></div><b>42</b><span>artigos publicados</span></div>
+          <div class="stat-tile"><div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div></div><b>18.4k</b><span>views no blog</span></div>
+          <div class="stat-tile"><div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div><b>312</b><span>seguidores</span></div>
+          <div class="stat-tile"><div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div></div><b>28</b><span>gerados por IA</span></div>
+        </div>
+
+        <div class="sticky-save">
+          <button class="btn btn-primary" id="save-mysaas">Salvar alterações</button>
+          <a href="Artigo.html" class="btn btn-secondary">Ver blog público →</a>
+        </div>
+      </section>
+
+      <!-- ========== CONFIGURAÇÕES ========== -->
+      <section class="view" data-view="settings">
+        <h1 class="page-title">Configurações</h1>
+        <p class="page-desc">Conta, workspace, integrações e plano.</p>
+
+        <div class="settings-tabs" id="settings-tabs">
+          <div class="st-tab active" data-tab="perfil"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Perfil</div>
+          <div class="st-tab" data-tab="workspace"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> Workspace</div>
+          <div class="st-tab" data-tab="banco"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> Banco & API</div>
+          <div class="st-tab" data-tab="notif"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9z"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notificações</div>
+          <div class="st-tab" data-tab="plano"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Plano</div>
+        </div>
+
+        <!-- PERFIL -->
+        <div class="set-panel active" data-panel="perfil">
+          <div class="set-section">
+            <div class="ss-title">Perfil</div>
+            <div class="ss-desc">Suas informações pessoais como autor dos artigos.</div>
+            <div class="set-row">
+              <div class="sr-label"><b>Foto</b><span>Aparece como avatar nos artigos.</span></div>
+              <div class="sr-control" style="display:flex; align-items:center; gap:16px;">
+                <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--lime-500),var(--lime-600));color:#0a0a0a;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:700;font-size:18px;">GM</div>
+                <button class="btn btn-secondary btn-sm">Trocar foto</button>
+              </div>
+            </div>
+            <div class="set-row">
+              <div class="sr-label"><b>Nome</b><span>Exibido como autor.</span></div>
+              <div class="sr-control"><input class="input" value="Gustavo Miranda" /></div>
+            </div>
+            <div class="set-row">
+              <div class="sr-label"><b>E-mail</b><span>Login e notificações.</span></div>
+              <div class="sr-control"><input class="input mono" value="gustavo@faturei.com.br" /></div>
+            </div>
+            <div class="set-row">
+              <div class="sr-label"><b>Handle</b><span>Seu @ público.</span></div>
+              <div class="sr-control"><input class="input mono" value="@devdoido" /></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WORKSPACE -->
+        <div class="set-panel" data-panel="workspace">
+          <div class="set-section">
+            <div class="ss-title">Workspace</div>
+            <div class="ss-desc">Configurações da organização Faturei.</div>
+            <div class="set-row">
+              <div class="sr-label"><b>Nome do workspace</b></div>
+              <div class="sr-control"><input class="input" value="Faturei" /></div>
+            </div>
+            <div class="set-row">
+              <div class="sr-label"><b>Idioma padrão</b><span>Para conteúdo gerado.</span></div>
+              <div class="sr-control"><select class="input mono"><option selected>Português (BR)</option><option>English (US)</option><option>Español</option></select></div>
+            </div>
+            <div class="set-row">
+              <div class="sr-label"><b>Fuso horário</b></div>
+              <div class="sr-control"><select class="input mono"><option selected>America/Sao_Paulo (UTC-3)</option><option>UTC</option></select></div>
+            </div>
+            <div class="set-row">
+              <div class="sr-label"><b>Membros</b><span>Quem tem acesso ao workspace.</span></div>
+              <div class="sr-control">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;"><div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--lime-500),var(--lime-600));color:#0a0a0a;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:700;font-size:11px;">GM</div><div style="font-size:13px;">Gustavo Miranda <span class="muted-mono">· owner</span></div></div>
+                <button class="btn btn-secondary btn-sm"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Convidar membro</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BANCO & API -->
+        <div class="set-panel" data-panel="banco">
+          <div class="set-section">
+            <div class="ss-title">Banco de dados & API</div>
+            <div class="ss-desc">Onde as transcrições e artigos são salvos, e suas chaves de acesso.</div>
+            <div class="set-row">
+              <div class="sr-label"><b>Conexão do banco</b><span>String onde os dados são persistidos.</span></div>
+              <div class="sr-control">
+                <div class="secret-field"><input type="password" value="postgresql://faturei:••••••@db.crazystack.io:5432/faturei" /><button data-reveal>mostrar</button></div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:8px;" class="muted-mono"><span class="pill-ok"><span class="dot"></span> conectado</span> latência 12ms</div>
+              </div>
+            </div>
+            <div class="set-row">
+              <div class="sr-label"><b>API Key do CrazyStack</b><span>Para integrar via webhook/SDK.</span></div>
+              <div class="sr-control"><div class="secret-field"><input type="password" value="cs_live_a1b2c3d4e5f6g7h8i9j0k1l2" /><button data-reveal>mostrar</button></div></div>
+            </div>
+            <div class="set-row">
+              <div class="sr-label"><b>Chave de IA</b><span>Usada na geração de artigos.</span></div>
+              <div class="sr-control"><div class="secret-field"><input type="password" value="sk-ant-api03-••••••••••••••••" /><button data-reveal>mostrar</button></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTIFICAÇÕES -->
+        <div class="set-panel" data-panel="notif">
+          <div class="set-section">
+            <div class="ss-title">Notificações</div>
+            <div class="ss-desc">Quando o CrazyStack deve te avisar.</div>
+            <div class="set-row">
+              <div class="sr-label"><b>Execução concluída</b><span>Resumo após cada rodada do pipeline.</span></div>
+              <div class="sr-control"><div class="switch on" data-switch></div></div>
+            </div>
+            <div class="set-row">
+              <div class="sr-label"><b>Artigo gerado por IA</b><span>Quando um rascunho automático ficar pronto.</span></div>
+              <div class="sr-control"><div class="switch on" data-switch></div></div>
+            </div>
+            <div class="set-row">
+              <div class="sr-label"><b>Falha no pipeline</b><span>Erros de quota, token ou transcrição.</span></div>
+              <div class="sr-control"><div class="switch on" data-switch></div></div>
+            </div>
+            <div class="set-row">
+              <div class="sr-label"><b>Resumo semanal</b><span>Relatório toda segunda-feira.</span></div>
+              <div class="sr-control"><div class="switch" data-switch></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PLANO -->
+        <div class="set-panel" data-panel="plano">
+          <div class="set-section">
+            <div class="ss-title">Plano & uso</div>
+            <div class="ss-desc">Sua assinatura do CrazyStack.</div>
+            <div class="plan-card" style="margin: 18px 0;">
+              <div>
+                <div class="pc-name">Pro <span class="badge-plan">ATIVO</span></div>
+                <div class="pc-meta">R$ 79/mês · renova em 14 jun 2026</div>
+              </div>
+              <button class="btn btn-secondary">Gerenciar assinatura</button>
+            </div>
+            <div class="card card-pad">
+              <div class="section-label">// uso do mês</div>
+              <div class="quota" style="margin-bottom:18px;">
+                <div class="quota-top"><span class="ql">artigos gerados por IA</span><span class="qv"><b>28</b> / 100</span></div>
+                <div class="quota-bar"><div class="qfill" style="width:28%"></div></div>
+              </div>
+              <div class="quota">
+                <div class="quota-top"><span class="ql">vídeos transcritos</span><span class="qv"><b>128</b> / 500</span></div>
+                <div class="quota-bar"><div class="qfill" style="width:26%"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="danger-zone" style="margin-top: 24px;">
+            <div class="dz-title">// zona de perigo</div>
+            <div class="danger-row">
+              <div><b>Pausar pipeline</b><span>Para todas as execuções automáticas.</span></div>
+              <button class="btn btn-secondary btn-sm">Pausar</button>
+            </div>
+            <div class="danger-row" style="border-top:1px solid var(--border);">
+              <div><b>Excluir workspace</b><span>Remove permanentemente o SaaS, artigos e transcrições.</span></div>
+              <button class="btn btn-danger btn-sm">Excluir</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== ARTIGOS ========== -->
+      <section class="view" data-view="artigos">
+        <div class="list-head">
+          <div>
+            <h1 class="page-title" style="margin-bottom:6px;">Artigos</h1>
+            <p class="page-desc" style="margin:0;">Todo o conteúdo do blog do seu SaaS — escrito à mão ou gerado por IA.</p>
+          </div>
+          <a href="Editor de Artigo.html" class="btn btn-primary"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Novo artigo</a>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 24px;">
+          <div class="stat-tile"><div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div></div><b>42</b><span>artigos no total</span></div>
+          <div class="stat-tile"><div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div><b>31</b><span>publicados</span></div>
+          <div class="stat-tile"><div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div></div><b>8</b><span>rascunhos</span></div>
+          <div class="stat-tile"><div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><span class="st-delta">+6 esta semana</span></div><b>28</b><span>gerados por IA</span></div>
+        </div>
+
+        <!-- status tabs -->
+        <div class="art-tabs" id="art-tabs">
+          <div class="art-tab active" data-status="all">Todos <span class="ct">42</span></div>
+          <div class="art-tab" data-status="published">Publicados <span class="ct">31</span></div>
+          <div class="art-tab" data-status="draft">Rascunhos <span class="ct">8</span></div>
+          <div class="art-tab" data-status="archived">Arquivados <span class="ct">3</span></div>
+        </div>
+
+        <!-- toolbar -->
+        <div class="art-toolbar">
+          <div class="left">
+            <span class="fchip active" data-src="all">Todas as origens</span>
+            <span class="fchip" data-src="ia">Gerados por IA</span>
+            <span class="fchip" data-src="manual">Escritos à mão</span>
+          </div>
+          <div class="search-mini">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="art-search" placeholder="buscar artigo..." />
+          </div>
+        </div>
+
+        <!-- list head -->
+        <div class="art-row head">
+          <span>artigo</span><span>status</span><span>origem</span><span>categoria</span><span>views</span><span></span>
+        </div>
+
+        <div id="art-list"></div>
+
+        <div class="art-empty" id="art-empty">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <b>Nenhum artigo aqui</b>
+          <p>// ajuste os filtros ou crie um novo artigo</p>
+          <a href="Editor de Artigo.html" class="btn btn-primary btn-sm" style="display:inline-flex;">Novo artigo</a>
+        </div>
+      </section>
+
+      <!-- placeholder view -->
+      <section class="view" data-view="placeholder">
+        <h1 class="page-title">Em breve</h1>
+        <p class="page-desc">Esta seção faz parte do app maior do CrazyStack. O foco deste protótipo é o Pipeline YouTube — navegue pelos itens do grupo "Pipeline YouTube".</p>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ OAUTH MODAL ============ -->
+<div class="overlay" id="oauth-overlay">
+  <div class="modal" id="oauth-modal">
+    <!-- STEP 1: explainer -->
+    <div class="step active" data-step="1">
+      <div class="modal-head"><span class="mh-title">Conectar conta Google</span><span class="mh-step">passo 1 de 3</span></div>
+      <div class="modal-body">
+        <div class="callout callout-info" style="margin-bottom: 20px;">
+          <svg class="ci" fill="none" stroke="hsl(217 85% 75%)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <div><b>Use uma conta dedicada</b><p>Recomendamos uma conta Google criada só para integrações (ex: bot@suaempresa.com), não sua conta pessoal. Ela funcionará como credencial da API.</p></div>
+        </div>
+        <p style="font-size:14px; color:var(--fg-muted); line-height:1.6; margin:0 0 18px;">Na próxima tela, o Google vai pedir que você autorize o CrazyStack a acessar:</p>
+        <div class="scope-row" style="margin-bottom: 18px;">
+          <span class="scope"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Ver dados públicos do YouTube (somente leitura)</span>
+        </div>
+        <div class="muted-mono" style="line-height:1.6;">// escopo: youtube.readonly — não permite publicar, comentar nem alterar canais.</div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close-oauth>Cancelar</button>
+        <button class="btn btn-google" id="to-step-2"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Continuar com Google</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: google consent -->
+    <div class="step" data-step="2">
+      <div class="modal-head"><span class="mh-title" style="color:var(--fg-dim); font-family:var(--f-mono); font-size:12px;">accounts.google.com</span><span class="mh-step">passo 2 de 3</span></div>
+      <div class="modal-body" style="background:#fff; padding:0;">
+        <div class="google-card">
+          <div class="gc-head">
+            <div class="gc-logo"><span class="b">G</span><span class="r">o</span><span class="y">o</span><span class="b2">g</span><span class="g">l</span><span class="r2">e</span></div>
+          </div>
+          <div class="gc-body" id="gc-account-pick">
+            <div class="gc-app">
+              <div class="ic">&gt;_</div>
+              <div class="at"><b>CrazyStack</b><span>quer acessar sua Conta do Google</span></div>
+            </div>
+            <p class="gc-title" style="font-size:16px;">Escolher uma conta</p>
+            <div class="gc-acct" id="pick-acct">
+              <div class="ga">F</div>
+              <div class="gi"><b>API Bot Faturei</b><span>faturei.api.bot@gmail.com</span></div>
+            </div>
+            <div class="gc-acct">
+              <div class="ga" style="background:#5f6368;">+</div>
+              <div class="gi"><b>Usar outra conta</b></div>
+            </div>
+          </div>
+          <div class="gc-body" id="gc-consent" style="display:none;">
+            <div class="gc-app">
+              <div class="ic">&gt;_</div>
+              <div class="at"><b>CrazyStack quer acessar sua Conta do Google</b><span>faturei.api.bot@gmail.com</span></div>
+            </div>
+            <p class="gc-sub">Isso permite que o CrazyStack:</p>
+            <div class="gc-scope">
+              <span class="si"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8z"/></svg></span>
+              <div class="sd"><b>Ver suas atividades e conteúdo público no YouTube</b><p>Consultar vídeos, canais e playlists públicos via API (somente leitura).</p></div>
+            </div>
+            <p class="gc-note">Ao continuar, o Google compartilha seu e-mail e a permissão acima com o CrazyStack. Veja a <a href="#">Política de Privacidade</a> e os <a href="#">Termos</a> do CrazyStack. Você pode remover o acesso a qualquer momento na sua Conta do Google.</p>
+          </div>
+          <div class="gc-foot">
+            <span class="lnk" data-close-oauth>Cancelar</span>
+            <div class="actions">
+              <button class="gbtn gbtn-primary" id="gc-allow" style="display:none;">Permitir</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: success -->
+    <div class="step" data-step="3">
+      <div class="modal-head"><span class="mh-title">Conta conectada</span><span class="mh-step">passo 3 de 3</span></div>
+      <div class="modal-body">
+        <div class="success-step">
+          <div class="sc-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <h3>Tudo pronto!</h3>
+          <p>A conta <b style="color:var(--fg)">faturei.api.bot@gmail.com</b> está autorizada. Agora adicione os canais que você quer monitorar e configure o horário da execução diária.</p>
+        </div>
+      </div>
+      <div class="modal-foot" style="justify-content:space-between;">
+        <button class="btn btn-ghost" data-close-oauth>Fechar</button>
+        <button class="btn btn-primary" id="go-channels">Adicionar canais →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADD CHANNEL MODAL ============ -->
+<div class="overlay" id="addchan-overlay">
+  <div class="modal">
+    <div class="modal-head"><span class="mh-title">Adicionar canal</span><button class="modal-x" data-close-addchan><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="field" style="margin:0;">
+        <label>Link, @handle ou ID do canal</label>
+        <input type="text" class="input mono" id="chan-input" placeholder="@rocketseat ou youtube.com/@rocketseat" />
+        <div class="hint">Cole a URL do canal, o @handle ou o channel ID (UC...).</div>
+      </div>
+
+      <div class="chan-search-result" id="chan-result">
+        <div class="muted-mono" style="margin-bottom:10px;">// canal encontrado</div>
+        <div class="chan-preview">
+          <div class="cp-av" style="background:linear-gradient(135deg,#8257e6,#6420aa)">R</div>
+          <div class="cp-i">
+            <b>Rocketseat <span class="verified"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" fill="none" stroke="currentColor" stroke-width="2"/></svg></span></b>
+            <div class="h">@rocketseat</div>
+            <div class="s"><span>2.1M inscritos</span><span>1.482 vídeos</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close-addchan>Cancelar</button>
+      <button class="btn btn-secondary" id="chan-search-btn">Buscar</button>
+      <button class="btn btn-primary" id="chan-add-btn" style="display:none;">Adicionar ao pipeline</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TRANSCRIPT DRAWER ============ -->
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="dh-l"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> transcrição · salva no banco</div>
+    <button class="modal-x" id="drawer-close"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="drawer-body">
+    <div class="dv-thumb" id="dv-thumb" style="background:linear-gradient(135deg,#8257e6,#3b0d6b)"><span class="dur">18:24</span></div>
+    <h2 class="dv-title" id="dv-title">Next.js 16: o que muda na prática</h2>
+    <div class="dv-meta">
+      <span id="dv-chan">Rocketseat</span>
+      <span>publicado 29 mai 2026</span>
+      <span class="accent" id="dv-words">3.412 palavras</span>
+      <span>capturado hoje 08:00</span>
+    </div>
+    <div class="transcript-head">
+      <span class="th-l">// transcrição completa</span>
+      <button class="btn btn-secondary btn-sm" id="copy-transcript"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar</button>
+    </div>
+    <div class="transcript" id="dv-transcript">
+      <p><span class="seg-time">00:00</span> Fala pessoal, beleza? Hoje a gente vai falar sobre o Next.js 16 e tudo que mudou nessa versão. Tem muita coisa nova, então cola aqui que vale a pena.</p>
+      <p><span class="seg-time">00:32</span> A primeira grande mudança é no sistema de cache. Eles repensaram completamente como o cache funciona no App Router, e agora ficou muito mais previsível.</p>
+      <p><span class="seg-time">01:15</span> Antes, o comportamento padrão confundia bastante gente — você não sabia se a rota estava sendo cacheada ou não. Agora tem um controle explícito pra cada fetch.</p>
+      <p><span class="seg-time">02:08</span> Outra coisa importante: os Server Actions ficaram estáveis e ganharam suporte melhor pra revalidação. Vou mostrar um exemplo prático aqui no editor.</p>
+      <p><span class="seg-time">03:40</span> Repara que agora a gente consegue invalidar só uma tag específica do cache, sem precisar revalidar a página inteira. Isso muda o jogo pra apps grandes.</p>
+      <p><span class="seg-time">05:12</span> Vamos falar também do Turbopack, que finalmente saiu de beta e virou o bundler padrão pra desenvolvimento. A velocidade de hot reload melhorou demais.</p>
+    </div>
+  </div>
+  <div class="drawer-foot">
+    <button class="btn btn-secondary btn-block"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Gerar artigo a partir desta transcrição</button>
+  </div>
+</aside>
+
+<!-- toast -->
+<div class="toast" id="toast">
+  <span class="ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+  <div class="tm"><div id="toast-msg">Salvo</div><span id="toast-sub"></span></div>
+</div>
+
+<script src="pipeline.js"></script>
+</body>
+</html>

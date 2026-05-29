@@ -5,12 +5,7 @@ import ArticleCard from '../../components/devdoido/ArticleCard.astro';
 import AsciiRule from '../../components/devdoido/AsciiRule.astro';
 import { categories, formatDate, posts } from '../../data/devdoido';
 
-const filterGroups = [
-  ['Periodo', ['essa semana', 'esse mes', '2026', '2025', '2024', 'todos']],
-  ['Formato', ['artigo', 'manifesto', 'tutorial']],
-  ['Duracao', ['< 5 min', '5-10 min', 'long read']],
-  ['Stack', ['next.js', 'react', 'bun', 'node', 'claude code', 'cursor', 'n8n']],
-] as const;
+const coverColors = ['a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f'];
 ---
 
 <BaseLayout
@@ -19,83 +14,133 @@ const filterGroups = [
   canonical="/blog"
 >
   <PageShell active="Home">
-    <section style="padding:64px 0 32px;border-bottom:1px solid var(--hairline)">
-      <div class="container">
-        <p class="t-mono muted" style="margin:0 0 18px;text-transform:uppercase;font-size:12px">◆ /blog · 412 artigos · 8 categorias</p>
-        <h1 class="t-display">O Arquivo.</h1>
-        <p style="max-width:720px;margin:18px 0 0;color:var(--mute);font-size:19px">
-          Tudo que eu ja publiquei. Em ordem cronologica, sem filtro de relevancia. Use o filtro embaixo. Ou role. Voce decide.
+    <!-- Masthead -->
+    <header class="masthead">
+      <div class="page">
+        <div class="crumb">
+          <a href="/">home</a><span class="sep">/</span><span class="here">blog</span>
+        </div>
+        <h1 class="t-display">Codigo <span style="color:var(--lime-400)">escrito</span>.<br />Nao <span style="color:var(--lime-400)">colado</span>.</h1>
+        <p class="lede" style="max-width:620px">
+          <strong>412 artigos</strong> sobre Node.js, React, Next.js, IA, SaaS e carreira dev. Tutoriais tecnicos de verdade — sem clickbait, sem prompt magico, sem "revolucione sua carreira".
         </p>
-      </div>
-    </section>
-
-    <section style="padding:16px 0;border-bottom:1px solid var(--hairline);position:sticky;top:66px;background:var(--canvas);z-index:50">
-      <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap">
-        <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1" role="group" aria-label="Filtrar por tag">
-          <button class="chip blog-filter" aria-pressed="true" data-tag="">Tudo · 412</button>
-          {categories.map((category) => (
-            <button class="chip blog-filter" data-tag={category.slug}>{category.name} · {category.count}</button>
-          ))}
+        <div class="blog-meta">
+          <div>ARTIGOS <b class="accent">412</b></div>
+          <div>CATEGORIAS <b>8</b></div>
+          <div>AUTOR <b>@devdoido</b></div>
+          <div>FREQUENCIA <b>3 posts/semana</b></div>
+          <div>ULTIMO UPDATE <b>2026.05.29</b></div>
         </div>
-        <label style="display:flex;align-items:center;gap:8px">
-          <span class="t-caption">ordenar:</span>
-          <select class="input" style="min-height:38px;font-family:var(--font-ui)">
-            <option>+ recentes</option>
-            <option>+ lidos</option>
-            <option>+ comentados</option>
-          </select>
+      </div>
+    </header>
+
+    <!-- Filter bar -->
+    <div class="filter-bar" style="top:66px">
+      <div class="inner">
+        <label class="search-pill" style="max-width:560px">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input placeholder="buscar artigo, tag ou categoria..." />
+          <span class="kbd">⌘K</span>
         </label>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container" style="display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px" id="blog-layout">
-        <div>
-          {filterGroups.map(([title, rows]) => (
-            <div style="margin-bottom:32px">
-              <p class="t-body-strong" style="margin:0 0 12px">{title}</p>
-              <div style="display:flex;flex-direction:column">
-                {rows.map((row, index) => (
-                  <button style="min-height:44px;display:flex;justify-content:space-between;align-items:center;padding:10px 0;background:none;border:0;color:var(--ink);cursor:pointer;text-align:left">
-                    <span>{row}</span>
-                    <span class="muted">({index * 7 + 12})</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="mono-caption">ordenar</span>
+          <div class="sort-pills">
+            <span class="sort-pill active">recentes</span>
+            <span class="sort-pill">populares</span>
+            <span class="sort-pill">curtos</span>
+          </div>
         </div>
+      </div>
+      <div class="cat-chips">
+        <button class="chip blog-filter" aria-pressed="true" data-tag="">Todos</button>
+        {categories.map((category) => (
+          <button class="chip blog-filter" data-tag={category.slug}>{category.name}<span class="count">{category.count}</span></button>
+        ))}
+      </div>
+    </div>
+
+    <!-- Posts grid -->
+    <section style="padding:72px 0;border-bottom:1px solid var(--border)">
+      <div class="page" style="display:grid;grid-template-columns:1fr 320px;gap:64px;align-items:start" class="grid-layout">
         <div>
-          <AsciiRule label="// cronologia · maio 2026" />
-          <div class="article-grid" style="--grid-cols:3" id="blog-posts-list">
-            {posts.map((post) => (
+          <AsciiRule label="// cronologia &middot; maio 2026" />
+          <div class="article-grid" style="--grid-cols:2">
+            {posts.map((post, i) => (
               <div class="blog-post-item" data-tags={[post.categorySlug, ...post.tags].join(' ')}>
                 <ArticleCard
                   href={`/blog/${post.slug}`}
-                  category={`// ${post.category} · ${post.minutes} min`}
+                  category={`// ${post.category} &middot; ${post.minutes} min`}
                   title={post.title}
                   date={formatDate(post.pubDate)}
                   reads={post.reads}
-                  kind={post.kind}
                   display={post.display}
                   badges={post.badges}
+                  coverColor={coverColors[i % coverColors.length]}
                 />
               </div>
             ))}
           </div>
-          <div style="margin-top:64px;padding:32px 0;border-top:1px solid var(--hairline);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-            <span class="t-caption">mostrando 1-12 de 412</span>
-            <div style="display:flex;gap:4px;align-items:center">
-              <button class="btn-icon" disabled aria-label="Anterior">←</button>
-              <button class="chip" aria-pressed="true">1</button>
-              <button class="chip">2</button>
-              <button class="chip">3</button>
-              <span class="t-caption" style="padding:0 8px">...</span>
-              <button class="chip">35</button>
-              <button class="btn-icon" aria-label="Proxima">→</button>
-            </div>
+
+          <!-- Pagination -->
+          <div class="pager">
+            <span class="pg">←</span>
+            <span class="pg active">1</span>
+            <span class="pg">2</span>
+            <span class="pg">3</span>
+            <span class="pg">4</span>
+            <span class="dots">...</span>
+            <span class="pg">35</span>
+            <span class="pg">→</span>
           </div>
         </div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="newsletter-card">
+            <div class="tag-line">// newsletter &middot; 1x por semana</div>
+            <h3>&gt;_ dev raiz</h3>
+            <p>1 artigo profundo, 3 links curados, 0 marketing. Entregue toda quinta as 7h.</p>
+            <div class="input-row">
+              <input type="email" placeholder="voce@dominio.com" />
+              <button class="btn btn-primary btn-sm">assinar</button>
+            </div>
+            <div class="sub">// 3.2k assinantes &middot; sem spam &middot; cancela a qualquer hora</div>
+          </div>
+
+          <div class="side-card">
+            <h3>Top da semana <span class="num">/05</span></h3>
+            <div class="pop-list">
+              {posts.slice(0, 5).map((post, i) => (
+                <div class="pop-item">
+                  <span class="num">0{i + 1}</span>
+                  <div>
+                    <a href={`/blog/${post.slug}`} class="t">{post.title}</a>
+                    <span class="pop-meta">{post.category.toUpperCase()} &middot; {post.reads} views</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div class="side-card">
+            <h3>Stats do blog <span class="num">/live</span></h3>
+            <div class="mini-stats">
+              <div class="mini-stat"><b>412</b><span>artigos</span></div>
+              <div class="mini-stat"><b>284k</b><span>views/mes</span></div>
+              <div class="mini-stat"><b>3.2k</b><span>assinantes</span></div>
+              <div class="mini-stat"><b>7y</b><span>escrevendo</span></div>
+            </div>
+          </div>
+
+          <div class="side-card">
+            <h3>Tags <span class="num">/24</span></h3>
+            <div class="tag-cloud">
+              {['nodejs','react','nextjs','typescript','claude-code','cursor','fastify','prisma','drizzle','trpc','tailwind','shadcn-ui','clean-arch','docker','postgres','mongodb','saas','indie-hacking','carreira','ia'].map((t) => (
+                <span class="tg">{t}</span>
+              ))}
+            </div>
+          </div>
+        </aside>
       </div>
     </section>
   </PageShell>
