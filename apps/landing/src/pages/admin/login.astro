@@ -1,0 +1,72 @@
+---
+import '../../styles/pipeline.css';
+---
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Entrar | DEVDOIDO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+<div style="min-height:100vh;display:grid;place-items:center;padding:24px;">
+  <form id="login-form" class="card card-pad" style="width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px;">
+    <div>
+      <h1 class="page-title" style="margin-bottom:4px;">Entrar</h1>
+      <p class="page-desc" style="margin:0;">Pipeline YouTube · DEVDOIDO</p>
+    </div>
+
+    <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--fg-muted);">
+      Email
+      <input id="email" type="email" required autocomplete="email" value="gustavo@faturei.io"
+        style="padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-2);color:var(--fg);" />
+    </label>
+
+    <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--fg-muted);">
+      Senha
+      <input id="password" type="password" required autocomplete="current-password" value="devdoido123"
+        style="padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-2);color:var(--fg);" />
+    </label>
+
+    <button type="submit" id="login-btn" class="btn btn-primary btn-block">Entrar</button>
+    <p id="login-error" style="margin:0;color:hsl(0 80% 68%);font-size:13px;min-height:1em;"></p>
+  </form>
+</div>
+
+<script>
+  import { authClient } from '../../lib/auth-client';
+
+  const params = new URLSearchParams(location.search);
+  const next = params.get('next') || '/admin/pipeline/overview';
+
+  const form = document.getElementById('login-form') as HTMLFormElement;
+  const btn = document.getElementById('login-btn') as HTMLButtonElement;
+  const errEl = document.getElementById('login-error')!;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errEl.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'entrando...';
+
+    const email = (document.getElementById('email') as HTMLInputElement).value;
+    const password = (document.getElementById('password') as HTMLInputElement).value;
+
+    const { error } = await authClient.signIn.email({ email, password });
+
+    if (error) {
+      errEl.textContent = error.message ?? 'Falha no login';
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+      return;
+    }
+    window.location.href = next;
+  });
+</script>
+</body>
+</html>

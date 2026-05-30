@@ -26,6 +26,16 @@ async function runModeration(articleId: string): Promise<ModStatus> {
   return verdict;
 }
 
+/** Load an article scoped to its workspace (tenant isolation), or null. */
+async function findArticle(workspaceId: string, id: string) {
+  const [row] = await db
+    .select()
+    .from(article)
+    .where(and(eq(article.id, id), eq(article.workspaceId, workspaceId)))
+    .limit(1);
+  return row ?? null;
+}
+
 async function getTagsFor(articleId: string) {
   return db
     .select({ id: articleTag.id, name: articleTag.name, slug: articleTag.slug, color: articleTag.color })
@@ -75,11 +85,7 @@ export const articles = new Elysia({ prefix: "/articles" })
   }, { query: t.Object({ slug: t.String() }) })
 
   .get("/:id", async ({ workspaceId, params, status }) => {
-    const [row] = await db
-      .select()
-      .from(article)
-      .where(and(eq(article.id, params.id), eq(article.workspaceId, workspaceId)))
-      .limit(1);
+    const row = await findArticle(workspaceId, params.id);
     if (!row) return status(404, "Article not found");
     return { ...row, tags: await getTagsFor(row.id) };
   })
@@ -87,7 +93,7 @@ export const articles = new Elysia({ prefix: "/articles" })
   .post(
     "/",
     async ({ workspaceId, userId, body, status }) => {
-      const slug = body.slug ? slugify(body.slug) : slugify(body.title);
+      const slug = slugify(body.slug || body.title);
       const [dupe] = await db
         .select({ id: article.id })
         .from(article)
@@ -132,11 +138,7 @@ export const articles = new Elysia({ prefix: "/articles" })
   .patch(
     "/:id",
     async ({ workspaceId, params, body, status }) => {
-      const [current] = await db
-        .select()
-        .from(article)
-        .where(and(eq(article.id, params.id), eq(article.workspaceId, workspaceId)))
-        .limit(1);
+      const current = await findArticle(workspaceId, params.id);
       if (!current) return status(404, "Article not found");
 
       const patch: Record<string, unknown> = { ...body, updatedAt: new Date() };
@@ -179,11 +181,7 @@ export const articles = new Elysia({ prefix: "/articles" })
 
   // Moderate on demand (stub).
   .post("/:id/moderate", async ({ workspaceId, params, status }) => {
-    const [row] = await db
-      .select({ id: article.id })
-      .from(article)
-      .where(and(eq(article.id, params.id), eq(article.workspaceId, workspaceId)))
-      .limit(1);
+    const row = await findArticle(workspaceId, params.id);
     if (!row) return status(404, "Article not found");
     const verdict = await runModeration(row.id);
     return { verdict };
@@ -193,15 +191,20 @@ export const articles = new Elysia({ prefix: "/articles" })
   .post(
     "/:id/tags",
     async ({ workspaceId, params, body, status }) => {
-      const [art] = await db
-        .select({ id: article.id })
-        .from(article)
-        .where(and(eq(article.id, params.id), eq(article.workspaceId, workspaceId)))
-        .limit(1);
+      const art = await findArticle(workspaceId, params.id);
       if (!art) return status(404, "Article not found");
 
       let tagId = body.tagId;
-      if (!tagId && body.name) {
+      if (tagId) {
+        // The tag MUST belong to this workspace — else a client could attach
+        // (and then read back) another tenant's tag.
+        const [owned] = await db
+          .select({ id: articleTag.id })
+          .from(articleTag)
+          .where(and(eq(articleTag.id, tagId), eq(articleTag.workspaceId, workspaceId)))
+          .limit(1);
+        if (!owned) return status(404, "Tag not found");
+      } else if (body.name) {
         const slug = slugify(body.name);
         const [existing] = await db
           .select({ id: articleTag.id })
@@ -221,11 +224,7 @@ export const articles = new Elysia({ prefix: "/articles" })
   )
 
   .delete("/:id/tags/:tagId", async ({ workspaceId, params, status }) => {
-    const [art] = await db
-      .select({ id: article.id })
-      .from(article)
-      .where(and(eq(article.id, params.id), eq(article.workspaceId, workspaceId)))
-      .limit(1);
+    const art = await findArticle(workspaceId, params.id);
     if (!art) return status(404, "Article not found");
     await db
       .delete(articleTagRelation)

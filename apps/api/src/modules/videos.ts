@@ -9,10 +9,9 @@ export const videos = new Elysia({ prefix: "/videos" })
   .get(
     "/",
     ({ workspaceId, query }) => {
-      const where = query.channel
-        ? and(eq(video.workspaceId, workspaceId), eq(video.channelId, query.channel))
-        : eq(video.workspaceId, workspaceId);
-      return db.select().from(video).where(where).orderBy(desc(video.publishedAt));
+      const conds = [eq(video.workspaceId, workspaceId)];
+      if (query.channel) conds.push(eq(video.channelId, query.channel));
+      return db.select().from(video).where(and(...conds)).orderBy(desc(video.publishedAt));
     },
     { query: t.Object({ channel: t.Optional(t.String()) }) }
   )

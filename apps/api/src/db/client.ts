@@ -31,68 +31,50 @@ const ACTION_CATEGORY: Record<CreditAction, "article" | "transcribe" | "index" |
   recharge: "recharge",
 };
 
+function txType(delta: number): "income" | "expense" {
+  if (delta < 0) return "expense";
+  return "income";
+}
+
 /**
- * Atomically debit credits from a workspace wallet.
- * Locks the wallet row (`FOR UPDATE`), checks balance, then updates balance and
- * logs the expense in the SAME transaction. Throws `InsufficientCreditsError`.
- * Returns the new balance.
+ * Atomically adjust a workspace wallet by a signed `delta` (negative = debit,
+ * positive = credit). Locks the wallet row (`FOR UPDATE`), enforces a sufficient
+ * balance on debits, then updates the balance and logs the transaction in the
+ * SAME tx. Throws `InsufficientCreditsError` on overdraft. Returns the new balance.
  */
-export async function debitCredit(
+async function adjustWallet(
   workspaceId: string,
   action: CreditAction,
-  amount: number,
+  delta: number,
   detail?: string
 ): Promise<number> {
-  if (amount <= 0) throw new Error("debit amount must be > 0");
   return db.transaction(async (tx) => {
-    const [w] = await tx
-      .select()
-      .from(wallet)
-      .where(eq(wallet.workspaceId, workspaceId))
-      .for("update");
+    const [w] = await tx.select().from(wallet).where(eq(wallet.workspaceId, workspaceId)).for("update");
     if (!w) throw new Error(`wallet not found for workspace ${workspaceId}`);
-    if (w.balance < amount) throw new InsufficientCreditsError(amount, w.balance);
+    if (delta < 0 && w.balance < -delta) throw new InsufficientCreditsError(-delta, w.balance);
 
-    const newBalance = w.balance - amount;
+    const newBalance = w.balance + delta;
     await tx.update(wallet).set({ balance: newBalance, updatedAt: new Date() }).where(eq(wallet.id, w.id));
     await tx.insert(creditTransaction).values({
       workspaceId,
-      type: "expense",
+      type: txType(delta),
       action,
       category: ACTION_CATEGORY[action],
       detail,
-      amount: -amount,
+      amount: delta,
     });
     return newBalance;
   });
 }
 
-/** Atomically credit a workspace wallet (recharge / subscription grant). */
-export async function creditWallet(
-  workspaceId: string,
-  action: CreditAction,
-  amount: number,
-  detail?: string
-): Promise<number> {
-  if (amount <= 0) throw new Error("credit amount must be > 0");
-  return db.transaction(async (tx) => {
-    const [w] = await tx
-      .select()
-      .from(wallet)
-      .where(eq(wallet.workspaceId, workspaceId))
-      .for("update");
-    if (!w) throw new Error(`wallet not found for workspace ${workspaceId}`);
+/** Atomically debit credits from a workspace wallet. Throws on overdraft. */
+export function debitCredit(workspaceId: string, action: CreditAction, amount: number, detail?: string) {
+  if (amount <= 0) throw new Error("debit amount must be > 0");
+  return adjustWallet(workspaceId, action, -amount, detail);
+}
 
-    const newBalance = w.balance + amount;
-    await tx.update(wallet).set({ balance: newBalance, updatedAt: new Date() }).where(eq(wallet.id, w.id));
-    await tx.insert(creditTransaction).values({
-      workspaceId,
-      type: "income",
-      action,
-      category: ACTION_CATEGORY[action],
-      detail,
-      amount,
-    });
-    return newBalance;
-  });
+/** Atomically credit a workspace wallet (recharge / subscription grant). */
+export function creditWallet(workspaceId: string, action: CreditAction, amount: number, detail?: string) {
+  if (amount <= 0) throw new Error("credit amount must be > 0");
+  return adjustWallet(workspaceId, action, amount, detail);
 }

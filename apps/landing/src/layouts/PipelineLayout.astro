@@ -48,6 +48,12 @@ const { currentPage, pageTitle } = Astro.props;
 
 <script>
   import { setupToast, setupOAuthFlow, setupAddChannelFlow, setupCheckoutFlow, setupDrawer, setupKeyboardShortcuts } from '../lib/state-machines';
+  import { authClient, loginUrl } from '../lib/auth-client';
+
+  // Gate the admin: no session → bounce to login (preserving the target page).
+  authClient.getSession().then(({ data }) => {
+    if (!data) window.location.href = loginUrl();
+  });
 
   setupToast();
   setupOAuthFlow();

@@ -1,6 +1,10 @@
 /**
- * CORS plugin — echoes allowed Origin with credentials (needed for Better Auth
- * cookies). Ported from the original demo's CORS logic; localhost always allowed.
+ * CORS plugin — echoes an allow-listed Origin with credentials (needed for
+ * Better Auth cookies). Origins come from `env.CORS_ORIGINS` (the `CORS_ORIGIN`
+ * env var, comma-separated) — the SAME list Better Auth trusts, so CORS and the
+ * auth CSRF check stay in sync. Add your dev origin (e.g. http://localhost:4321)
+ * there; there is no implicit localhost allowance (it would let attacker hosts
+ * like `http://localhost.evil.com` through a `startsWith` check).
  */
 import { Elysia } from "elysia";
 import { env } from "../env";
@@ -8,15 +12,13 @@ import { env } from "../env";
 const corsKey = (origin: string) => origin.trim().replace(/\/+$/, "");
 const allowed = new Set(env.CORS_ORIGINS.map(corsKey));
 
-function isOriginAllowed(origin: string): boolean {
-  if (!origin) return false;
-  if (origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1")) return true;
-  return allowed.has(corsKey(origin));
+export function isAllowedOrigin(origin: string | null): boolean {
+  return Boolean(origin) && allowed.has(corsKey(origin as string));
 }
 
 function applyCorsHeaders(origin: string | null, headers: Record<string, string>): void {
-  if (!origin || !isOriginAllowed(origin)) return;
-  headers["Access-Control-Allow-Origin"] = origin;
+  if (!isAllowedOrigin(origin)) return;
+  headers["Access-Control-Allow-Origin"] = origin as string;
   headers["Access-Control-Allow-Credentials"] = "true";
   headers["Access-Control-Allow-Methods"] = "GET, POST, PATCH, PUT, DELETE, OPTIONS";
   headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
