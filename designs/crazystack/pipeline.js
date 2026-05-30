@@ -18,6 +18,7 @@
     overview: 'visão geral', account: 'conta google', channels: 'canais monitorados',
     schedule: 'agendamento', runs: 'execuções', library: 'biblioteca',
     automation: 'geração automática', mysaas: 'meu saas', settings: 'configurações',
+    artigos: 'artigos', credits: 'créditos & cobrança', planos: 'planos',
     placeholder: 'em breve'
   };
   function navTo(view){
@@ -393,52 +394,88 @@
 
   // ========== ARTIGOS ==========
   var artigos = [
-    { title:'Next.js 16 na prática: o novo cache que finalmente faz sentido', status:'draft', src:'ia', cat:'Next.js', from:'Rocketseat', updated:'hoje 08:02', views:0, grad:'linear-gradient(135deg,#8257e6,#3b0d6b)', letter:'N' },
-    { title:'Como funciona o event loop do Node.js', status:'draft', src:'ia', cat:'Node.js', from:'Filipe Deschamps', updated:'hoje 08:01', views:0, grad:'linear-gradient(135deg,#06b6d4,#0c4a6e)', letter:'E' },
-    { title:'Se o Cursor cair, você sabe codar?', status:'published', src:'manual', cat:'Carreira', from:'você', updated:'28 mai', views:2400, grad:'linear-gradient(135deg,#84cc16,#3f6212)', letter:'C' },
-    { title:'Clean Architecture de verdade: o guia sem hype', status:'published', src:'ia', cat:'Arquitetura', from:'Código Fonte TV', updated:'28 mai', views:1820, grad:'linear-gradient(135deg,#f59e0b,#92400e)', letter:'A' },
-    { title:'MEI, ME ou PJ: o que vale a pena pra dev em 2026', status:'published', src:'manual', cat:'Finanças', from:'você', updated:'27 mai', views:980, grad:'linear-gradient(135deg,#3b82f6,#1e3a8a)', letter:'M' },
-    { title:'React Server Components explicado de uma vez', status:'published', src:'ia', cat:'React', from:'Rocketseat', updated:'27 mai', views:1540, grad:'linear-gradient(135deg,#6d28d9,#4c1d95)', letter:'R' },
-    { title:'Postgres: índices que você não usa mas deveria', status:'published', src:'ia', cat:'Banco de dados', from:'Filipe Deschamps', updated:'27 mai', views:1210, grad:'linear-gradient(135deg,#0891b2,#0c4a6e)', letter:'P' },
-    { title:'Como cobrar mais como freelancer sem perder cliente', status:'published', src:'manual', cat:'Finanças', from:'você', updated:'25 mai', views:760, grad:'linear-gradient(135deg,#84cc16,#3f6212)', letter:'F' },
-    { title:'TypeScript avançado: generics na prática', status:'draft', src:'ia', cat:'TypeScript', from:'Código Fonte TV', updated:'24 mai', views:0, grad:'linear-gradient(135deg,#d97706,#92400e)', letter:'T' },
-    { title:'Deploy na AWS sem quebrar o orçamento', status:'archived', src:'ia', cat:'DevOps', from:'Rocketseat', updated:'20 mai', views:430, grad:'linear-gradient(135deg,#8257e6,#3b0d6b)', letter:'D' }
+    { title:'Next.js 16 na prática: o novo cache que finalmente faz sentido', status:'draft', src:'ia', cat:'Next.js', from:'Rocketseat', updated:'hoje 08:02', views:0, grad:'linear-gradient(135deg,#8257e6,#3b0d6b)', letter:'N', slug:'nextjs-16-cache', idx:{state:'na'} },
+    { title:'Como funciona o event loop do Node.js', status:'draft', src:'ia', cat:'Node.js', from:'Filipe Deschamps', updated:'hoje 08:01', views:0, grad:'linear-gradient(135deg,#06b6d4,#0c4a6e)', letter:'E', slug:'event-loop-nodejs', idx:{state:'na'} },
+    { title:'Se o Cursor cair, você sabe codar?', status:'published', src:'manual', cat:'Carreira', from:'você', updated:'28 mai', views:2400, grad:'linear-gradient(135deg,#84cc16,#3f6212)', letter:'C', slug:'cursor-cair-saber-codar', idx:{state:'indexed', coverage:'URL enviada e indexada', crawl:'27 mai 2026', checked:'há 3h'} },
+    { title:'Clean Architecture de verdade: o guia sem hype', status:'published', src:'ia', cat:'Arquitetura', from:'Código Fonte TV', updated:'28 mai', views:1820, grad:'linear-gradient(135deg,#f59e0b,#92400e)', letter:'A', slug:'clean-architecture-guia', idx:{state:'notindexed', coverage:'Descoberta — não indexada no momento', crawl:'—', checked:'há 3h'} },
+    { title:'MEI, ME ou PJ: o que vale a pena pra dev em 2026', status:'published', src:'manual', cat:'Finanças', from:'você', updated:'27 mai', views:980, grad:'linear-gradient(135deg,#3b82f6,#1e3a8a)', letter:'M', slug:'mei-me-pj-dev-2026', idx:{state:'indexed', coverage:'URL enviada e indexada', crawl:'26 mai 2026', checked:'há 1d'} },
+    { title:'React Server Components explicado de uma vez', status:'published', src:'ia', cat:'React', from:'Rocketseat', updated:'27 mai', views:1540, grad:'linear-gradient(135deg,#6d28d9,#4c1d95)', letter:'R', slug:'rsc-explicado', idx:{state:'indexed', coverage:'URL enviada e indexada', crawl:'26 mai 2026', checked:'há 1d'} },
+    { title:'Postgres: índices que você não usa mas deveria', status:'published', src:'ia', cat:'Banco de dados', from:'Filipe Deschamps', updated:'27 mai', views:1210, grad:'linear-gradient(135deg,#0891b2,#0c4a6e)', letter:'P', slug:'postgres-indices', idx:{state:'notindexed', coverage:'Rastreada — não indexada no momento', crawl:'25 mai 2026', checked:'há 2d'} },
+    { title:'Como cobrar mais como freelancer sem perder cliente', status:'published', src:'manual', cat:'Finanças', from:'você', updated:'25 mai', views:760, grad:'linear-gradient(135deg,#84cc16,#3f6212)', letter:'F', slug:'cobrar-mais-freelancer', idx:{state:'unknown'} },
+    { title:'TypeScript avançado: generics na prática', status:'draft', src:'ia', cat:'TypeScript', from:'Código Fonte TV', updated:'24 mai', views:0, grad:'linear-gradient(135deg,#d97706,#92400e)', letter:'T', slug:'typescript-generics', idx:{state:'na'} },
+    { title:'Deploy na AWS sem quebrar o orçamento', status:'archived', src:'ia', cat:'DevOps', from:'Rocketseat', updated:'20 mai', views:430, grad:'linear-gradient(135deg,#8257e6,#3b0d6b)', letter:'D', slug:'deploy-aws-barato', idx:{state:'excluded', coverage:"Excluída por tag 'noindex'", crawl:'19 mai 2026', checked:'há 9d'} }
   ];
   var artStatusMeta = {
     published: { cls:'published', label:'publicado' },
     draft:     { cls:'draft',     label:'rascunho' },
     archived:  { cls:'archived',  label:'arquivado' }
   };
-  var artState = { status:'all', src:'all', q:'' };
+  var idxMeta = {
+    indexed:    { cls:'indexed',    label:'Indexada',     dot:'var(--lime-400)' },
+    notindexed: { cls:'notindexed', label:'Não indexada', dot:'hsl(0 72% 66%)' },
+    excluded:   { cls:'excluded',   label:'Excluída',     dot:'hsl(38 92% 68%)' },
+    unknown:    { cls:'unknown',    label:'Verificar',    dot:'var(--fg-dim)' },
+    checking:   { cls:'checking',   label:'Verificando',  dot:'hsl(217 85% 72%)' },
+    queued:     { cls:'queued',     label:'Na fila',      dot:'var(--fg-muted)' }
+  };
+  var artState = { status:'all', src:'all', idx:'', q:'' };
+
+  // ---- GSC quota / rate-limit model ----
+  var QUOTA_MAX = 2000, RATE_PER_MIN = 600;
+  var gsc = { used: 184, recentWindow: [] }; // recentWindow: timestamps of last-min checks
+  function updateQuotaUI(){
+    document.getElementById('gsc-used').textContent = gsc.used.toLocaleString('pt-BR');
+    var pct = Math.min(100, (gsc.used/QUOTA_MAX)*100);
+    var fill = document.getElementById('gsc-fill');
+    fill.style.width = pct + '%';
+    fill.classList.toggle('high', pct > 80);
+  }
+  function quotaExhausted(){ return gsc.used >= QUOTA_MAX; }
+  function rateLimited(){
+    var now = Date.now();
+    gsc.recentWindow = gsc.recentWindow.filter(function(t){ return now - t < 60000; });
+    return gsc.recentWindow.length >= RATE_PER_MIN;
+  }
+  function spendQuota(){ gsc.used++; gsc.recentWindow.push(Date.now()); updateQuotaUI(); }
 
   function fmtViews(v){ return v>=1000 ? (v/1000).toFixed(1)+'k' : (v===0 ? '—' : v); }
+
+  function idxCellHTML(a, i){
+    if(a.idx.state==='na') return '<div class="idx-cell"><span class="idx-badge na">não publicado</span></div>';
+    var m = idxMeta[a.idx.state] || idxMeta.unknown;
+    var icon = '';
+    if(a.idx.state==='indexed') icon = '<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+    else if(a.idx.state==='notindexed') icon = '<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    else if(a.idx.state==='unknown') icon = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="17" x2="12.01" y2="17"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/></svg>';
+    else icon = '<span class="dot"></span>';
+    return '<div class="idx-cell"><span class="idx-badge '+m.cls+'" data-idxbadge="'+i+'">'+icon+' '+m.label+'</span></div>';
+  }
 
   function renderArtigos(){
     var list = artigos.filter(function(a){
       if(artState.status!=='all' && a.status!==artState.status) return false;
       if(artState.src!=='all' && a.src!==artState.src) return false;
+      if(artState.idx==='notindexed' && a.idx.state!=='notindexed' && a.idx.state!=='excluded') return false;
       if(artState.q && (a.title+' '+a.cat+' '+a.from).toLowerCase().indexOf(artState.q.toLowerCase())<0) return false;
       return true;
     });
     var wrap = document.getElementById('art-list');
-    wrap.innerHTML = list.map(function(a, i){
+    wrap.innerHTML = list.map(function(a){
+      var i = artigos.indexOf(a);
       var sm = artStatusMeta[a.status];
       var spark = a.src==='ia' ? '<span class="ai-spark"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>' : '';
-      var srcCell = a.src==='ia'
-        ? '<span class="src-tag ia"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> '+a.from+'</span>'
-        : '<span class="src-tag"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> à mão</span>';
+      var sub = (a.src==='ia' ? '⚡ de '+a.from : '✎ à mão') + ' · ' + a.cat;
       return '<div class="art-row" data-i="'+i+'">'
         + '<div class="art-main"><div class="art-thumb" style="background:'+a.grad+'">'+a.letter+spark+'</div>'
-        + '<div class="art-info"><b>'+a.title+'</b><div class="sub">atualizado '+a.updated+(a.src==='ia'?' · de vídeo de '+a.from:'')+'</div></div></div>'
+        + '<div class="art-info"><b>'+a.title+'</b><div class="sub">'+sub+'</div></div></div>'
         + '<div><span class="spill '+sm.cls+'"><span class="dot"></span> '+sm.label+'</span></div>'
-        + '<div>'+srcCell+'</div>'
-        + '<div class="art-cat-cell">'+a.cat+'</div>'
+        + idxCellHTML(a, i)
         + '<div class="art-views-cell">'+fmtViews(a.views)+'</div>'
         + '<div style="position:relative; text-align:right;"><button class="art-kebab" data-kebab="'+i+'"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>'
         + '<div class="art-menu" data-menu="'+i+'">'
         + '<a href="Editor de Artigo.html" class="am-item"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> Editar</a>'
         + '<a href="Artigo.html" class="am-item"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Ver no blog</a>'
-        + '<div class="am-item"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Duplicar</div>'
+        + (a.idx.state!=='na' ? '<div class="am-item" data-recheck="'+i+'"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Verificar indexação</div>' : '')
         + '<div class="am-sep"></div>'
         + '<div class="am-item danger"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg> Excluir</div>'
         + '</div></div>'
@@ -453,17 +490,112 @@
         var id = btn.getAttribute('data-kebab');
         var menu = wrap.querySelector('[data-menu="'+id+'"]');
         var isOpen = menu.classList.contains('open');
-        wrap.querySelectorAll('.art-menu').forEach(function(m){ m.classList.remove('open'); });
+        closeAllMenus();
         if(!isOpen) menu.classList.add('open');
       });
     });
-    wrap.querySelectorAll('.art-menu .am-item.danger').forEach(function(it){
-      it.addEventListener('click', function(){ toast('Artigo excluído', '// movido para a lixeira'); wrap.querySelectorAll('.art-menu').forEach(function(m){ m.classList.remove('open'); }); });
+    wrap.querySelectorAll('.am-item.danger').forEach(function(it){
+      it.addEventListener('click', function(){ toast('Artigo excluído', '// movido para a lixeira'); closeAllMenus(); });
+    });
+    wrap.querySelectorAll('[data-recheck]').forEach(function(it){
+      it.addEventListener('click', function(){ closeAllMenus(); checkOne(parseInt(it.getAttribute('data-recheck'),10)); });
+    });
+    wrap.querySelectorAll('[data-idxbadge]').forEach(function(b){
+      b.addEventListener('click', function(e){ e.stopPropagation(); openIdxPop(parseInt(b.getAttribute('data-idxbadge'),10), b); });
     });
   }
-  document.addEventListener('click', function(){
-    document.querySelectorAll('.art-menu').forEach(function(m){ m.classList.remove('open'); });
-  });
+
+  function closeAllMenus(){ document.querySelectorAll('.art-menu').forEach(function(m){ m.classList.remove('open'); }); closeIdxPop(); }
+
+  // ---- single check (rate-limit aware) ----
+  function checkOne(i, silent){
+    var a = artigos[i];
+    if(a.idx.state==='na') return;
+    if(quotaExhausted()){ toast('Quota diária esgotada', '// 2.000/2.000 · reset à meia-noite PT'); return; }
+    if(rateLimited()){ showRateWarn(); }
+    setBadge(i, 'checking');
+    setTimeout(function(){
+      spendQuota();
+      // resolve to a state (demo: keep current if known, else infer)
+      var prev = a.idx.state;
+      var resolved = (prev==='checking' || prev==='queued' || prev==='unknown') ? (Math.random()>0.45?'indexed':'notindexed') : prev;
+      if(resolved==='indexed'){ a.idx = {state:'indexed', coverage:'URL enviada e indexada', crawl:'29 mai 2026', checked:'agora'}; }
+      else if(resolved==='notindexed'){ a.idx = {state:'notindexed', coverage:'Descoberta — não indexada no momento', crawl:'—', checked:'agora'}; }
+      else { a.idx.checked = 'agora'; }
+      renderArtigos();
+      if(!silent) toast('Indexação verificada', '// '+ idxMeta[a.idx.state].label.toLowerCase() +' · 1 verificação usada');
+    }, 1300);
+  }
+  function setBadge(i, state){ artigos[i].idx.state = state; renderArtigos(); }
+
+  // ---- batch check (queue + rate limit) ----
+  var batchRunning = false;
+  function checkAll(){
+    if(batchRunning) return;
+    var targets = artigos.map(function(a,i){return i;}).filter(function(i){ return artigos[i].idx.state!=='na'; });
+    if(!targets.length) return;
+    if(quotaExhausted()){ toast('Quota diária esgotada', '// reset à meia-noite PT'); return; }
+    batchRunning = true;
+    document.getElementById('check-all-btn').disabled = true;
+    // mark all queued
+    targets.forEach(function(i){ artigos[i].idx.state = 'queued'; });
+    renderArtigos();
+    showRateWarn(); // demonstrate the rate-limit queue
+    var k = 0;
+    (function next(){
+      if(k>=targets.length || quotaExhausted()){
+        batchRunning = false;
+        document.getElementById('check-all-btn').disabled = false;
+        hideRateWarn();
+        toast('Verificação em lote concluída', '// '+k+' URLs inspecionadas');
+        return;
+      }
+      var i = targets[k++];
+      artigos[i].idx.state = 'checking'; renderArtigos();
+      setTimeout(function(){
+        spendQuota();
+        var r = Math.random();
+        if(r>0.7) artigos[i].idx = {state:'notindexed', coverage:'Descoberta — não indexada no momento', crawl:'—', checked:'agora'};
+        else artigos[i].idx = {state:'indexed', coverage:'URL enviada e indexada', crawl:'29 mai 2026', checked:'agora'};
+        renderArtigos();
+        next();
+      }, 600); // throttled to respect rate limit
+    })();
+  }
+  function showRateWarn(){ document.getElementById('rate-warn').style.display = 'flex'; }
+  function hideRateWarn(){ document.getElementById('rate-warn').style.display = 'none'; }
+
+  // ---- inspection popover ----
+  function closeIdxPop(){ var p = document.getElementById('idx-pop'); if(p) p.remove(); }
+  function openIdxPop(i, anchor){
+    closeAllMenus();
+    var a = artigos[i];
+    if(a.idx.state==='na' || a.idx.state==='checking' || a.idx.state==='queued'){ return; }
+    var m = idxMeta[a.idx.state] || idxMeta.unknown;
+    var covOk = a.idx.state==='indexed';
+    var pop = document.createElement('div');
+    pop.className = 'idx-pop open'; pop.id = 'idx-pop';
+    pop.innerHTML =
+      '<div class="ip-head"><span class="ih-status" style="color:'+m.dot+'"><span class="dot" style="background:'+m.dot+'"></span> '+m.label+'</span>'
+      + '<button class="modal-x" id="idx-pop-x" style="width:26px;height:26px;"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>'
+      + '<div class="ip-body">'
+      + '<div class="ip-url">crazystack.com.br/faturei/blog/'+a.slug+'</div>'
+      + '<div class="ip-kv"><span class="k">cobertura</span><span class="v '+(covOk?'ok':(a.idx.state==='unknown'?'':'bad'))+'">'+(a.idx.coverage||'não verificada')+'</span></div>'
+      + '<div class="ip-kv"><span class="k">último rastreio</span><span class="v">'+(a.idx.crawl||'—')+'</span></div>'
+      + '<div class="ip-kv"><span class="k">no sitemap</span><span class="v ok">sim</span></div>'
+      + '<div class="ip-kv"><span class="k">verificado</span><span class="v">'+(a.idx.checked||'nunca')+'</span></div>'
+      + '</div>'
+      + (a.idx.checked && a.idx.checked!=='agora' && a.idx.checked!=='nunca' ? '<div class="ip-cooldown">// dados em cache do Search Console · reverificar consome 1 da quota</div>' : '')
+      + '<div class="ip-foot"><button class="btn btn-secondary btn-sm" id="idx-pop-recheck" style="flex:1; justify-content:center;"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Reverificar</button>'
+      + '<a href="#" class="btn btn-secondary btn-sm" style="justify-content:center;"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>';
+    anchor.closest('.art-row').querySelector('div[style*="position:relative"]') ? null : null;
+    var cell = anchor.closest('.idx-cell'); cell.style.position='relative'; cell.appendChild(pop);
+    document.getElementById('idx-pop-x').addEventListener('click', function(e){ e.stopPropagation(); closeIdxPop(); });
+    document.getElementById('idx-pop-recheck').addEventListener('click', function(e){ e.stopPropagation(); closeIdxPop(); checkOne(i); });
+    pop.addEventListener('click', function(e){ e.stopPropagation(); });
+  }
+
+  document.addEventListener('click', closeAllMenus);
 
   var artTabs = document.getElementById('art-tabs');
   if(artTabs){
@@ -474,11 +606,154 @@
     });
     document.querySelector('[data-view="artigos"] .art-toolbar .left').addEventListener('click', function(e){
       var c = e.target.closest('.fchip'); if(!c) return;
-      this.querySelectorAll('.fchip').forEach(function(x){ x.classList.remove('active'); });
-      c.classList.add('active'); artState.src = c.getAttribute('data-src'); renderArtigos();
+      if(c.hasAttribute('data-idx')){
+        var on = c.classList.toggle('active');
+        artState.idx = on ? 'notindexed' : '';
+      } else {
+        this.querySelectorAll('.fchip[data-src]').forEach(function(x){ x.classList.remove('active'); });
+        c.classList.add('active'); artState.src = c.getAttribute('data-src');
+      }
+      renderArtigos();
     });
     document.getElementById('art-search').addEventListener('input', function(){ artState.q = this.value; renderArtigos(); });
+    document.getElementById('check-all-btn').addEventListener('click', checkAll);
+    updateQuotaUI();
     renderArtigos();
   }
+
+  // ========== CRÉDITOS & PLANOS & CHECKOUT ==========
+  var BALANCE_MAX = 3000;
+  var credits = { balance: 1240 };
+  function fmtN(n){ return n.toLocaleString('pt-BR'); }
+  function refreshCredits(){
+    var pct = Math.max(0, Math.min(100, (credits.balance/BALANCE_MAX)*100));
+    var cp = document.getElementById('cp-balance'); if(cp) cp.textContent = fmtN(credits.balance);
+    var cpf = document.getElementById('cp-fill'); if(cpf){ cpf.style.width = pct+'%'; cpf.style.background = pct<15 ? 'var(--warn)' : 'var(--lime-500)'; }
+    var cb = document.getElementById('cb-balance'); if(cb) cb.textContent = fmtN(credits.balance);
+    var cbf = document.getElementById('cb-fill'); if(cbf){ cbf.style.width = pct+'%'; cbf.classList.toggle('high', pct<15); }
+    var warn = document.getElementById('low-credit-warn'); if(warn) warn.style.display = pct<15 ? 'flex' : 'none';
+  }
+  refreshCredits();
+
+  // credit pill -> credits view
+  document.getElementById('credit-pill').addEventListener('click', function(){ navTo('credits'); });
+  var gotoPlanos = document.getElementById('goto-planos'); if(gotoPlanos) gotoPlanos.addEventListener('click', function(){ navTo('planos'); });
+
+  // billing cycle toggle
+  var billCycle = document.getElementById('bill-cycle');
+  if(billCycle){
+    billCycle.addEventListener('click', function(e){
+      var b = e.target.closest('button'); if(!b) return;
+      billCycle.querySelectorAll('button').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      var yearly = b.getAttribute('data-cycle')==='year';
+      document.querySelectorAll('.plan-tier .amt[data-price-month]').forEach(function(el){
+        var m = el.getAttribute('data-price-month'), y = el.getAttribute('data-price-year');
+        el.textContent = yearly ? Math.round(y/12) : m;
+      });
+      document.querySelectorAll('.plan-tier .per').forEach(function(el){ el.textContent = yearly ? '/mês · anual' : '/mês'; });
+    });
+  }
+
+  // ---- checkout state ----
+  var checkoutOverlay = document.getElementById('checkout-overlay');
+  var coState = { kind:'topup', credits:5000, price:79, label:'Pacote 5.000 créditos', sub:'recarga avulsa', method:'pix' };
+
+  function coStep(s){ document.querySelectorAll('#checkout-overlay .step').forEach(function(st){ st.classList.toggle('active', st.getAttribute('data-co-step')===s); }); }
+  function fmtBRL(n){ return 'R$ ' + n.toFixed(2).replace('.', ','); }
+  function genQR(){
+    var svg = document.getElementById('pix-qr-svg'); if(!svg) return;
+    var cells = 25, html = '<rect width="100" height="100" fill="#fff"/>';
+    for(var y=0;y<cells;y++){ for(var x=0;x<cells;x++){
+      if((x*7 + y*13 + x*y) % 3 === 0) html += '<rect x="'+(x*4)+'" y="'+(y*4)+'" width="4" height="4" fill="#0a0a0a"/>';
+    }}
+    // finder squares
+    [[0,0],[0,84],[84,0]].forEach(function(p){ html += '<rect x="'+p[0]+'" y="'+p[1]+'" width="16" height="16" fill="#fff"/><rect x="'+(p[0]+2)+'" y="'+(p[1]+2)+'" width="12" height="12" fill="#0a0a0a"/><rect x="'+(p[0]+5)+'" y="'+(p[1]+5)+'" width="6" height="6" fill="#fff"/>'; });
+    svg.innerHTML = html;
+  }
+  function renderCheckout(){
+    document.getElementById('co-credits').textContent = fmtN(coState.credits) + ' cr';
+    document.getElementById('co-credits-sub').textContent = coState.sub;
+    document.getElementById('co-item-label').textContent = coState.label;
+    document.getElementById('co-item-price').textContent = fmtBRL(coState.price);
+    var disc = coState.method==='pix' ? +(coState.price*0.05).toFixed(2) : 0;
+    document.getElementById('co-discount').textContent = '−' + fmtBRL(disc);
+    document.getElementById('co-total').textContent = fmtBRL(coState.price - disc);
+    document.getElementById('co-pay-btn').textContent = coState.method==='pix' ? 'Pagar com Pix' : 'Pagar com cartão';
+    document.getElementById('co-title').textContent = coState.kind==='sub' ? 'Assinar plano '+coState.planName : 'Comprar créditos';
+    // panels
+    document.querySelectorAll('#checkout-overlay .pay-panel').forEach(function(p){ p.classList.toggle('active', p.getAttribute('data-panel')===coState.method); });
+    document.querySelectorAll('#pay-methods .pay-method').forEach(function(m){ m.classList.toggle('on', m.getAttribute('data-method')===coState.method); });
+    if(coState.method==='pix') genQR();
+  }
+  function openCheckout(){ coStep('pay'); renderCheckout(); checkoutOverlay.classList.add('open'); }
+  function closeCheckout(){ checkoutOverlay.classList.remove('open'); }
+
+  // open from buy-credits (default pack)
+  var buyBtn = document.getElementById('buy-credits-btn');
+  if(buyBtn) buyBtn.addEventListener('click', function(){ coState = {kind:'topup', credits:5000, price:79, label:'Pacote 5.000 créditos', sub:'recarga avulsa', method:'pix'}; openCheckout(); });
+
+  // packs
+  document.querySelectorAll('.pack').forEach(function(pk){
+    pk.addEventListener('click', function(){
+      var cr = parseInt(pk.getAttribute('data-pack'),10), pr = parseInt(pk.getAttribute('data-price'),10);
+      coState = {kind:'topup', credits:cr, price:pr, label:'Pacote '+fmtN(cr)+' créditos', sub:'recarga avulsa', method:'pix'};
+      openCheckout();
+    });
+  });
+
+  // plan buttons
+  document.querySelectorAll('.plan-tier [data-plan]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var plan = btn.getAttribute('data-plan'), amt = parseInt(btn.getAttribute('data-amount'),10);
+      if(btn.textContent.trim()==='Plano atual') { toast('Já é seu plano', '// plano '+plan+' ativo'); return; }
+      var planCredits = plan==='Scale' ? 12000 : 3000;
+      coState = {kind:'sub', planName:plan, credits:planCredits, price:amt, label:'Assinatura '+plan+' · mensal', sub:'franquia mensal', method:'pix'};
+      openCheckout();
+    });
+  });
+
+  // method switch
+  document.getElementById('pay-methods').addEventListener('click', function(e){
+    var m = e.target.closest('.pay-method'); if(!m) return;
+    coState.method = m.getAttribute('data-method'); renderCheckout();
+  });
+
+  // pix copy
+  document.getElementById('pix-copy-btn').addEventListener('click', function(){
+    var inp = document.getElementById('pix-code'); inp.select();
+    this.textContent = 'copiado!'; var self=this; setTimeout(function(){ self.textContent='copiar'; }, 1500);
+    toast('Código Pix copiado', '// cole no app do seu banco');
+  });
+
+  // pay
+  document.getElementById('co-pay-btn').addEventListener('click', function(){
+    var btn = this;
+    if(coState.method==='pix'){
+      var st = document.getElementById('pix-status');
+      st.className = 'pix-status'; st.innerHTML = '<span class="dot"></span> aguardando pagamento...';
+      btn.disabled = true; btn.textContent = 'aguardando Pix...';
+      setTimeout(function(){
+        st.className = 'pix-status paid'; st.innerHTML = '<span class="dot"></span> pagamento recebido!';
+        setTimeout(finishCheckout, 700);
+      }, 2200);
+    } else {
+      btn.disabled = true; btn.textContent = 'processando...';
+      setTimeout(finishCheckout, 1600);
+    }
+  });
+  function finishCheckout(){
+    var btn = document.getElementById('co-pay-btn'); btn.disabled=false; btn.textContent = coState.method==='pix'?'Pagar com Pix':'Pagar com cartão';
+    credits.balance += coState.credits; refreshCredits();
+    document.getElementById('co-success-credits').textContent = '+' + fmtN(coState.credits) + ' créditos';
+    document.getElementById('co-success-msg').textContent = coState.kind==='sub'
+      ? 'Plano '+coState.planName+' ativado! Sua franquia mensal de créditos já está no saldo.'
+      : 'Seus créditos avulsos já estão disponíveis no saldo da plataforma.';
+    coStep('success');
+    toast(coState.kind==='sub'?'Plano ativado':'Créditos adicionados', '// +'+fmtN(coState.credits)+' cr via '+(coState.method==='pix'?'Abacate Pay':'Stripe'));
+  }
+
+  document.querySelectorAll('[data-close-checkout]').forEach(function(b){ b.addEventListener('click', function(){ closeCheckout(); if(coState.kind!=='sub') navTo('credits'); }); });
+  checkoutOverlay.addEventListener('click', function(e){ if(e.target===checkoutOverlay) closeCheckout(); });
 
 })();
