@@ -1,3 +1,6 @@
+import { api } from './eden';
+import { loginUrl } from './auth-client';
+
 declare global {
   interface Window {
     showToast: (msg: string, sub?: string) => void;
@@ -132,6 +135,38 @@ export function setupAddChannelFlow() {
   });
 }
 
+// UI selection → API body. Amounts are NEVER sent — the server prices the
+// chosen pack/plan (see apps/api lib/plans.ts). null = unmappable selection.
+const PACK_INDEX_BY_CREDITS: Record<number, number> = { 1000: 0, 5000: 1, 15000: 2 };
+const API_PLAN_BY_LABEL: Record<string, 'pro' | 'scale'> = { Pro: 'pro', Scale: 'scale' };
+const PAY_LABEL = { pix: 'Pagar com Pix', card: 'Pagar com cartão' } as const;
+
+type CheckoutBody = {
+  kind: 'topup' | 'subscription';
+  method: 'pix' | 'card';
+  packIndex?: number;
+  planName?: 'pro' | 'scale';
+};
+
+function checkoutBody(s: CheckoutState): CheckoutBody | null {
+  if (s.kind === 'sub') {
+    const planName = API_PLAN_BY_LABEL[s.planName ?? ''];
+    if (!planName) return null;
+    return { kind: 'subscription', method: s.method, planName };
+  }
+  const packIndex = PACK_INDEX_BY_CREDITS[s.credits];
+  if (packIndex === undefined) return null;
+  return { kind: 'topup', method: s.method, packIndex };
+}
+
+function describeError(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (value && typeof value === 'object' && 'error' in value) {
+    return String((value as { error: unknown }).error);
+  }
+  return 'erro inesperado';
+}
+
 export function setupCheckoutFlow() {
   const overlay = document.getElementById('checkout-overlay')!;
   let state: CheckoutState = { kind: 'topup', credits: 5000, price: 79, label: 'Pacote 5.000 créditos', sub: 'recarga avulsa', method: 'pix' };
@@ -194,21 +229,72 @@ export function setupCheckoutFlow() {
     svg.innerHTML = html;
   }
 
-  function finishCheckout() {
+  function reflectBalance(balance: number) {
+    const el = document.getElementById('cb-balance');
+    if (el) el.textContent = formatBr(balance);
+  }
+
+  function resetPayButton() {
     const btn = document.getElementById('co-pay-btn') as HTMLButtonElement;
     btn.disabled = false;
-    btn.textContent = state.method === 'pix' ? 'Pagar com Pix' : 'Pagar com cartão';
+    btn.textContent = PAY_LABEL[state.method];
+    if (state.method === 'pix') {
+      const st = document.getElementById('pix-status');
+      if (st) {
+        st.className = 'pix-status';
+        st.innerHTML = '<span class="dot"></span> aguardando pagamento...';
+      }
+    }
+  }
 
-    document.getElementById('co-success-credits')!.textContent = '+' + formatBr(state.credits) + ' créditos';
+  // Real credits/balance come from the API response, not the UI selection.
+  function finishCheckout(credits: number, balance: number) {
+    const btn = document.getElementById('co-pay-btn') as HTMLButtonElement;
+    btn.disabled = false;
+    btn.textContent = PAY_LABEL[state.method];
+
+    if (state.method === 'pix') {
+      const st = document.getElementById('pix-status');
+      if (st) {
+        st.className = 'pix-status paid';
+        st.innerHTML = '<span class="dot"></span> pagamento recebido!';
+      }
+    }
+
+    document.getElementById('co-success-credits')!.textContent = '+' + formatBr(credits) + ' créditos';
     document.getElementById('co-success-msg')!.textContent = state.kind === 'sub'
       ? 'Plano ' + (state.planName ?? '') + ' ativado! Sua franquia mensal já está no saldo.'
       : 'Seus créditos avulsos já estão disponíveis.';
 
+    reflectBalance(balance);
     coStep('success');
     window.showToast(
       state.kind === 'sub' ? 'Plano ativado' : 'Créditos adicionados',
-      '// +' + formatBr(state.credits) + ' cr via ' + (state.method === 'pix' ? 'Abacate Pay' : 'Stripe')
+      '// +' + formatBr(credits) + ' cr · saldo ' + formatBr(balance) + ' via ' + (state.method === 'pix' ? 'Abacate Pay' : 'Stripe')
     );
+  }
+
+  // POST the chosen pack/plan; the server prices it and credits the wallet.
+  async function submitCheckout() {
+    const body = checkoutBody(state);
+    if (!body) {
+      window.showToast('Seleção inválida', '// pacote ou plano não reconhecido');
+      resetPayButton();
+      return;
+    }
+
+    const { data, error } = await api.billing.checkout.post(body);
+    if (error) {
+      if (error.status === 401) {
+        window.location.href = loginUrl();
+        return;
+      }
+      window.showToast('Falha no pagamento', '// ' + describeError(error.value));
+      resetPayButton();
+      return;
+    }
+
+    finishCheckout(data.payment.credits, data.balance);
   }
 
   window.openCheckout = (s: CheckoutState) => {
@@ -246,22 +332,16 @@ export function setupCheckoutFlow() {
 
   document.getElementById('co-pay-btn')?.addEventListener('click', () => {
     const btn = document.getElementById('co-pay-btn') as HTMLButtonElement;
+    btn.disabled = true;
     if (state.method === 'pix') {
       const st = document.getElementById('pix-status')!;
       st.className = 'pix-status';
       st.innerHTML = '<span class="dot"></span> aguardando pagamento...';
-      btn.disabled = true;
       btn.textContent = 'aguardando Pix...';
-      setTimeout(() => {
-        st.className = 'pix-status paid';
-        st.innerHTML = '<span class="dot"></span> pagamento recebido!';
-        setTimeout(finishCheckout, 700);
-      }, 2200);
     } else {
-      btn.disabled = true;
       btn.textContent = 'processando...';
-      setTimeout(finishCheckout, 1600);
     }
+    void submitCheckout();
   });
 
   document.getElementById('buy-credits-btn')?.addEventListener('click', () => {

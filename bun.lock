@@ -34,6 +34,7 @@
         "@elysiajs/eden": "^1.4.0",
         "api": "workspace:*",
         "astro": "^5.0.0",
+        "better-auth": "^1.6.12",
         "daisyui": "^4.12.14",
         "tailwindcss": "^3.4.17",
       },
