@@ -1,89 +1,234 @@
-import { Elysia } from 'elysia';
-import { db } from '../db/client';
-import { authGuard } from '../auth/guard';
-import * as schema from '../db/schema';
-import { eq, and } from 'drizzle-orm';
-import { slugify } from '../lib/validation';
+import { Elysia, t } from "elysia";
+import { and, desc, eq, ilike, inArray } from "drizzle-orm";
+import { db } from "../db/client";
+import { article, articleTag, articleTagRelation, moderationResult } from "../db/schema";
+import { authGuard } from "../auth/guard";
+import { slugify } from "../lib/slug";
 
-export const articlesModule = new Elysia({ prefix: '/articles' })
+type ModStatus = "approved" | "flagged" | "needs_review" | "blocked";
+
+/**
+ * Moderation — STUB. Real OpenAI moderation call is TODO. Records a
+ * `moderation_result` row and mirrors the verdict onto `article.moderationStatus`.
+ */
+async function runModeration(articleId: string): Promise<ModStatus> {
+  const verdict: ModStatus = "approved"; // TODO: call OpenAI moderation API
+  await db.insert(moderationResult).values({
+    articleId,
+    status: verdict,
+    provider: "openai",
+    rawResultJson: { stub: true },
+  });
+  await db
+    .update(article)
+    .set({ moderationStatus: verdict, moderationCheckedAt: new Date() })
+    .where(eq(article.id, articleId));
+  return verdict;
+}
+
+async function getTagsFor(articleId: string) {
+  return db
+    .select({ id: articleTag.id, name: articleTag.name, slug: articleTag.slug, color: articleTag.color })
+    .from(articleTagRelation)
+    .innerJoin(articleTag, eq(articleTag.id, articleTagRelation.tagId))
+    .where(eq(articleTagRelation.articleId, articleId));
+}
+
+export const articles = new Elysia({ prefix: "/articles" })
   .use(authGuard)
-  .get('/', async ({ workspaceId }) => {
-    const articles = await db.query.article.findMany({
-      where: (a, { eq: e }) => e(a.workspaceId, workspaceId),
-      with: { tags: { with: { tag: true } } },
-      orderBy: (a, { desc: d }) => [d(a.updatedAt)],
-    });
 
-    return articles.map((a) => ({
-      id: a.id,
-      title: a.title,
-      subtitle: a.subtitle,
-      slug: a.slug,
-      status: a.status,
-      source: a.source,
-      category: a.category,
-      sourceLabel: a.sourceLabel,
-      gradient: a.gradient,
-      letter: a.letter,
-      views: a.views,
-      publishedAt: a.publishedAt,
-      indexState: a.indexState,
-      indexCoverage: a.indexCoverage,
-      indexCrawledAt: a.indexCrawledAt,
-      indexCheckedAt: a.indexCheckedAt,
-      moderationStatus: a.moderationStatus,
-      tags: a.tags.map((tr: any) => tr.tag?.name).filter(Boolean),
-      updatedAt: a.updatedAt,
-    }));
+  // List with filters: ?status= &tag=slug &moderationStatus= &q=
+  .get(
+    "/",
+    ({ workspaceId, query }) => {
+      const conds = [eq(article.workspaceId, workspaceId)];
+      if (query.status) conds.push(eq(article.status, query.status as never));
+      if (query.moderationStatus) conds.push(eq(article.moderationStatus, query.moderationStatus as never));
+      if (query.q) conds.push(ilike(article.title, `%${query.q}%`));
+      if (query.tag) {
+        const sub = db
+          .select({ id: articleTagRelation.articleId })
+          .from(articleTagRelation)
+          .innerJoin(articleTag, eq(articleTag.id, articleTagRelation.tagId))
+          .where(and(eq(articleTag.workspaceId, workspaceId), eq(articleTag.slug, query.tag)));
+        conds.push(inArray(article.id, sub));
+      }
+      return db.select().from(article).where(and(...conds)).orderBy(desc(article.updatedAt));
+    },
+    {
+      query: t.Object({
+        status: t.Optional(t.String()),
+        tag: t.Optional(t.String()),
+        moderationStatus: t.Optional(t.String()),
+        q: t.Optional(t.String()),
+      }),
+    }
+  )
+
+  .get("/slug-available", async ({ workspaceId, query }) => {
+    const [row] = await db
+      .select({ id: article.id })
+      .from(article)
+      .where(and(eq(article.workspaceId, workspaceId), eq(article.slug, query.slug)))
+      .limit(1);
+    return { available: !row };
+  }, { query: t.Object({ slug: t.String() }) })
+
+  .get("/:id", async ({ workspaceId, params, status }) => {
+    const [row] = await db
+      .select()
+      .from(article)
+      .where(and(eq(article.id, params.id), eq(article.workspaceId, workspaceId)))
+      .limit(1);
+    if (!row) return status(404, "Article not found");
+    return { ...row, tags: await getTagsFor(row.id) };
   })
-  .post('/', async ({ workspaceId, body }: any) => {
-    const s = body.slug ?? slugify(body.title);
 
-    const existing = await db.query.article.findFirst({
-      where: (a, { eq: e, and: an }) => an(e(a.workspaceId, workspaceId), e(a.slug, s)),
-    });
-    if (existing) throw new Error('Slug already taken');
+  .post(
+    "/",
+    async ({ workspaceId, userId, body, status }) => {
+      const slug = body.slug ? slugify(body.slug) : slugify(body.title);
+      const [dupe] = await db
+        .select({ id: article.id })
+        .from(article)
+        .where(and(eq(article.workspaceId, workspaceId), eq(article.slug, slug)))
+        .limit(1);
+      if (dupe) return status(409, "Slug already in use");
 
-    const [article] = await db
-      .insert(schema.article)
-      .values({
-        workspaceId,
-        authorId: body.authorId,
-        title: body.title,
-        subtitle: body.subtitle ?? '',
-        slug: s,
-        contentHtml: body.contentHtml ?? '',
-        excerpt: body.excerpt ?? '',
-        category: body.category ?? 'Node.js',
-        status: body.status ?? 'draft',
-        source: body.source ?? 'manual',
-        sourceLabel: body.sourceLabel ?? '',
-        gradient: body.gradient,
-        letter: body.letter,
-      })
-      .returning();
+      const [row] = await db
+        .insert(article)
+        .values({
+          workspaceId,
+          authorId: userId,
+          title: body.title,
+          subtitle: body.subtitle,
+          slug,
+          contentHtml: body.contentHtml,
+          excerpt: body.excerpt,
+          coverUrl: body.coverUrl,
+          category: body.category,
+          source: body.source ?? "manual",
+          sourceVideoId: body.sourceVideoId,
+        })
+        .returning();
+      return row;
+    },
+    {
+      body: t.Object({
+        title: t.String({ minLength: 1 }),
+        subtitle: t.Optional(t.String()),
+        slug: t.Optional(t.String()),
+        contentHtml: t.Optional(t.String()),
+        excerpt: t.Optional(t.String()),
+        coverUrl: t.Optional(t.String()),
+        category: t.Optional(t.String()),
+        source: t.Optional(t.Union([t.Literal("ia"), t.Literal("manual")])),
+        sourceVideoId: t.Optional(t.String()),
+      }),
+    }
+  )
 
-    return article;
+  // Update / publish. Publish honors the moderation gate when auto-publish is on.
+  .patch(
+    "/:id",
+    async ({ workspaceId, params, body, status }) => {
+      const [current] = await db
+        .select()
+        .from(article)
+        .where(and(eq(article.id, params.id), eq(article.workspaceId, workspaceId)))
+        .limit(1);
+      if (!current) return status(404, "Article not found");
+
+      const patch: Record<string, unknown> = { ...body, updatedAt: new Date() };
+
+      if (body.status === "published" && current.status !== "published") {
+        const verdict = await runModeration(current.id);
+        if (verdict !== "approved") {
+          // keep as draft, surface needs-review
+          return status(409, { error: "moderation_failed", verdict });
+        }
+        patch.publishedAt = new Date();
+      }
+
+      const [row] = await db
+        .update(article)
+        .set(patch)
+        .where(and(eq(article.id, params.id), eq(article.workspaceId, workspaceId)))
+        .returning();
+      return row;
+    },
+    {
+      body: t.Partial(
+        t.Object({
+          title: t.String(),
+          subtitle: t.String(),
+          contentHtml: t.String(),
+          excerpt: t.String(),
+          coverUrl: t.String(),
+          category: t.String(),
+          status: t.Union([t.Literal("draft"), t.Literal("published"), t.Literal("archived")]),
+        })
+      ),
+    }
+  )
+
+  .delete("/:id", async ({ workspaceId, params }) => {
+    await db.delete(article).where(and(eq(article.id, params.id), eq(article.workspaceId, workspaceId)));
+    return { ok: true };
   })
-  .patch('/:id', async ({ workspaceId, params, body }: any) => {
-    const [article] = await db
-      .update(schema.article)
-      .set({ ...body, updatedAt: new Date() })
-      .where(and(eq(schema.article.id, params.id), eq(schema.article.workspaceId, workspaceId)))
-      .returning();
 
-    return article;
+  // Moderate on demand (stub).
+  .post("/:id/moderate", async ({ workspaceId, params, status }) => {
+    const [row] = await db
+      .select({ id: article.id })
+      .from(article)
+      .where(and(eq(article.id, params.id), eq(article.workspaceId, workspaceId)))
+      .limit(1);
+    if (!row) return status(404, "Article not found");
+    const verdict = await runModeration(row.id);
+    return { verdict };
   })
-  .get('/slug-available', async ({ query }: any) => {
-    const existing = await db.query.article.findFirst({
-      where: (a, { eq: e }) => e(a.slug, query.slug),
-    });
-    return { available: !existing };
-  })
-  .post('/:id/moderate', async ({ params }: any) => {
-    return {
-      id: params.id,
-      moderationStatus: 'approved',
-      message: 'Moderation stub — always approved',
-    };
+
+  // Tags: associate (by tagId or name — creates the tag if needed).
+  .post(
+    "/:id/tags",
+    async ({ workspaceId, params, body, status }) => {
+      const [art] = await db
+        .select({ id: article.id })
+        .from(article)
+        .where(and(eq(article.id, params.id), eq(article.workspaceId, workspaceId)))
+        .limit(1);
+      if (!art) return status(404, "Article not found");
+
+      let tagId = body.tagId;
+      if (!tagId && body.name) {
+        const slug = slugify(body.name);
+        const [existing] = await db
+          .select({ id: articleTag.id })
+          .from(articleTag)
+          .where(and(eq(articleTag.workspaceId, workspaceId), eq(articleTag.slug, slug)))
+          .limit(1);
+        tagId =
+          existing?.id ??
+          (await db.insert(articleTag).values({ workspaceId, name: body.name, slug }).returning())[0].id;
+      }
+      if (!tagId) return status(400, "Provide tagId or name");
+
+      await db.insert(articleTagRelation).values({ articleId: art.id, tagId }).onConflictDoNothing();
+      return getTagsFor(art.id);
+    },
+    { body: t.Object({ tagId: t.Optional(t.String()), name: t.Optional(t.String()) }) }
+  )
+
+  .delete("/:id/tags/:tagId", async ({ workspaceId, params, status }) => {
+    const [art] = await db
+      .select({ id: article.id })
+      .from(article)
+      .where(and(eq(article.id, params.id), eq(article.workspaceId, workspaceId)))
+      .limit(1);
+    if (!art) return status(404, "Article not found");
+    await db
+      .delete(articleTagRelation)
+      .where(and(eq(articleTagRelation.articleId, art.id), eq(articleTagRelation.tagId, params.tagId)));
+    return getTagsFor(art.id);
   });

@@ -1,337 +1,167 @@
-import { db } from './client';
-import * as schema from './schema';
+/**
+ * Seed — ports the frontend MOCK (`apps/landing/src/lib/mock.ts`) into the DB.
+ * User is created via Better Auth (password hashing); domain rows via Drizzle.
+ * Idempotent: reuses the existing user/org and wipes that workspace's domain rows.
+ *
+ * Run: `bun run db:seed`
+ */
+import { eq } from "drizzle-orm";
+import { auth } from "../auth/auth";
+import { db } from "./client";
+import * as s from "./schema";
 
-function uid(): string {
-  return crypto.randomUUID();
+const EMAIL = "gustavo@faturei.io";
+const PASSWORD = "devdoido123";
+const NAME = "Gustavo Miranda";
+const ORG_SLUG = "devdoido";
+
+const daysAgo = (d: number) => new Date(Date.now() - d * 86_400_000);
+
+async function ensureUser(): Promise<string> {
+  try {
+    const res = await auth.api.signUpEmail({ body: { email: EMAIL, password: PASSWORD, name: NAME } });
+    return (res as { user: { id: string } }).user.id;
+  } catch {
+    const [u] = await db.select({ id: s.user.id }).from(s.user).where(eq(s.user.email, EMAIL)).limit(1);
+    if (!u) throw new Error("could not create or find seed user");
+    return u.id;
+  }
 }
 
-async function seed() {
-  console.log('Seeding database...');
+async function ensureOrg(userId: string): Promise<string> {
+  const [existing] = await db
+    .select({ id: s.organization.id })
+    .from(s.organization)
+    .where(eq(s.organization.slug, ORG_SLUG))
+    .limit(1);
+  if (existing) return existing.id;
 
-  // 1. Create or get dev user
-  const user = await db.query.user.findFirst({
-    where: (u, { eq: e }) => e(u.email, 'gustavo@devdoido.com.br'),
-  });
-  let userId: string;
-  if (!user) {
-    userId = uid();
-    await db.insert(schema.user).values({
-      id: userId,
-      name: 'Gustavo Miranda',
-      email: 'gustavo@devdoido.com.br',
-      emailVerified: true,
-    });
-  } else {
-    userId = user.id;
-  }
-
-  // 2. Create or get workspace (organization)
-  const org = await db.query.organization.findFirst({
-    where: (o, { eq: e }) => e(o.slug, 'devdoido'),
-  });
-  let orgId: string;
-  if (!org) {
-    orgId = uid();
-    await db.insert(schema.organization).values({
-      id: orgId,
-      name: 'DEVDOIDO',
-      slug: 'devdoido',
-    });
-  } else {
-    orgId = org.id;
-  }
-
-  // Membership
-  const memExists = await db.query.member.findFirst({
-    where: (m, { eq: e, and: an }) =>
-      an(e(m.organizationId, orgId), e(m.userId, userId)),
-  });
-  if (!memExists) {
-    await db.insert(schema.member).values({
-      id: uid(),
-      organizationId: orgId,
-      userId,
-      role: 'owner',
-    });
-  }
-
-  // 3. Workspace settings
-  const wsExists = await db.query.workspaceSettings.findFirst({
-    where: (ws, { eq: e }) => e(ws.workspaceId, orgId),
-  });
-  if (!wsExists) {
-    await db.insert(schema.workspaceSettings).values({
-      workspaceId: orgId,
-      blogSlug: 'blog',
-      category: 'Blog / Conteudo',
-      color: 'hsl(217 91% 55%)',
-      description: 'Blog sobre programacao, IA, SaaS e carreira dev.',
-      website: 'https://devdoido.com.br',
-      instagram: '@devdoido',
-    });
-  }
-
-  // 4. Google connection
-  const conn = await db.query.googleConnection.findFirst({
-    where: (gc, { eq: e }) => e(gc.workspaceId, orgId),
-  });
-  let connId: string;
-  if (!conn) {
-    connId = uid();
-    await db.insert(schema.googleConnection).values({
-      id: connId,
-      workspaceId: orgId,
-      accountEmail: 'devdoido.bot@gmail.com',
-      avatarLetter: 'D',
-      authorizedAt: new Date('2026-04-14'),
-      tokenRenewedAt: new Date(),
-      tokenExpiresAt: new Date(Date.now() + 3600000),
-    });
-  } else {
-    connId = conn.id;
-  }
-
-  // 5. Channels
-  const channelDefs = [
-    { name: 'Rocketseat', handle: '@rocketseat', youtubeChannelId: 'UCSfwM5u0Kf33Bnzwd9rocket', color: 'linear-gradient(135deg,#8257e6,#6420aa)', letter: 'R', subscribers: 2100000, active: true },
-    { name: 'Filipe Deschamps', handle: '@FilipeDeschamps', youtubeChannelId: 'UCRWqwD1abc', color: 'linear-gradient(135deg,#06b6d4,#0e7490)', letter: 'F', subscribers: 1600000, active: true },
-    { name: 'Codigo Fonte TV', handle: '@codigofontetv', youtubeChannelId: 'UClbYj678xyz', color: 'linear-gradient(135deg,#f59e0b,#b45309)', letter: 'C', subscribers: 1200000, active: false },
-  ];
-
-  const channelIds: Record<string, string> = {};
-  for (const ch of channelDefs) {
-    const exists = await db.query.channel.findFirst({
-      where: (c, { eq: e }) => e(c.handle, ch.handle),
-    });
-    if (exists) {
-      channelIds[ch.name] = exists.id;
-      continue;
-    }
-    const id = uid();
-    channelIds[ch.name] = id;
-    await db.insert(schema.channel).values({
-      id,
-      workspaceId: orgId,
-      googleConnectionId: connId,
-      name: ch.name,
-      handle: ch.handle,
-      youtubeChannelId: ch.youtubeChannelId,
-      color: ch.color,
-      letter: ch.letter,
-      subscribers: ch.subscribers,
-      active: ch.active,
-      lastVideoLabel: ch.active ? 'capturado hoje 08:00' : 'capturado ontem',
-    });
-  }
-
-  // 6. Videos
-  const videoDefs = [
-    { channelName: 'Rocketseat', title: 'Next.js 16: o que muda na pratica', dur: 1104, words: 3412, status: 'done' as const, thumbGrad: 'linear-gradient(135deg,#8257e6,#3b0d6b)' },
-    { channelName: 'Rocketseat', title: 'Como estruturar um monorepo com Turborepo', dur: 1450, words: 4108, status: 'done' as const, thumbGrad: 'linear-gradient(135deg,#7c3aed,#4c1d95)' },
-    { channelName: 'Filipe Deschamps', title: 'Construindo um sistema de filas do zero', dur: 2512, words: 7220, status: 'processing' as const, thumbGrad: 'linear-gradient(135deg,#06b6d4,#0c4a6e)' },
-    { channelName: 'Codigo Fonte TV', title: 'O que e Clean Architecture de verdade', dur: 930, words: 2890, status: 'done' as const, thumbGrad: 'linear-gradient(135deg,#f59e0b,#92400e)' },
-    { channelName: 'Rocketseat', title: 'React Server Components explicado', dur: 1268, words: 3940, status: 'done' as const, thumbGrad: 'linear-gradient(135deg,#6d28d9,#4c1d95)' },
-    { channelName: 'Filipe Deschamps', title: 'Postgres: indices que voce nao usa mas deveria', dur: 1994, words: 6012, status: 'done' as const, thumbGrad: 'linear-gradient(135deg,#0891b2,#0c4a6e)' },
-    { channelName: 'Codigo Fonte TV', title: 'TypeScript avancado: generics na pratica', dur: 1185, words: 3510, status: 'queued' as const, thumbGrad: 'linear-gradient(135deg,#d97706,#92400e)' },
-    { channelName: 'Rocketseat', title: 'Deploy na AWS sem quebrar o orcamento', dur: 1650, words: 4880, status: 'done' as const, thumbGrad: 'linear-gradient(135deg,#8257e6,#3b0d6b)' },
-    { channelName: 'Filipe Deschamps', title: 'Como funciona o event loop do Node.js', dur: 2282, words: 6740, status: 'done' as const, thumbGrad: 'linear-gradient(135deg,#06b6d4,#0c4a6e)' },
-  ];
-
-  for (const v of videoDefs) {
-    const cId = channelIds[v.channelName];
-    if (!cId) continue;
-    const exists = await db.query.video.findFirst({
-      where: (vi, { eq: e, and: an }) =>
-        an(e(vi.title, v.title), e(vi.channelId, cId)),
-    });
-    if (exists) continue;
-    await db.insert(schema.video).values({
-      channelId: cId,
-      title: v.title,
-      durationSeconds: v.dur,
-      wordCount: v.words,
-      status: v.status,
-      thumbGrad: v.thumbGrad,
-      publishedAt: new Date('2026-05-29'),
-    });
-  }
-
-  // 7. Runs
-  const runDefs = [
-    { startedAt: '2026-05-29T08:00:00', finishedAt: '2026-05-29T08:02:14', status: 'ok' as const, chans: 3, news: 6, done: 6, dur: 134, quota: 412 },
-    { startedAt: '2026-05-28T08:00:00', finishedAt: '2026-05-28T08:01:52', status: 'ok' as const, chans: 3, news: 4, done: 4, dur: 112, quota: 412 },
-    { startedAt: '2026-05-27T08:00:00', finishedAt: '2026-05-27T08:03:40', status: 'partial' as const, chans: 3, news: 5, done: 3, dur: 220, quota: 412 },
-    { startedAt: '2026-05-26T08:00:00', finishedAt: '2026-05-26T08:01:08', status: 'ok' as const, chans: 3, news: 2, done: 2, dur: 68, quota: 412 },
-    { startedAt: '2026-05-25T08:00:00', finishedAt: '2026-05-25T08:01:36', status: 'ok' as const, chans: 3, news: 3, done: 3, dur: 96, quota: 412 },
-  ];
-
-  for (const r of runDefs) {
-    const exists = await db.query.run.findFirst({
-      where: (ru, { eq: e, and: an }) =>
-        an(e(ru.workspaceId, orgId), e(ru.startedAt, new Date(r.startedAt))),
-    });
-    if (exists) continue;
-    await db.insert(schema.run).values({
-      workspaceId: orgId,
-      startedAt: new Date(r.startedAt),
-      finishedAt: new Date(r.finishedAt),
-      status: r.status,
-      channelsCount: r.chans,
-      newVideos: r.news,
-      transcribedCount: r.done,
-      durationSeconds: r.dur,
-      quotaUsed: r.quota,
-    });
-  }
-
-  // 8. Tags
-  const tagDefs = [
-    'nextjs', 'cache', 'react', 'server-actions', 'carreira', 'ia', 'nodejs',
-    'postgres', 'typescript', 'clean-architecture', 'devops', 'financas',
-    'arquitetura', 'banco-de-dados',
-  ];
-
-  const tagIds: Record<string, string> = {};
-  for (const slug of tagDefs) {
-    const existing = await db.query.articleTag.findFirst({
-      where: (t, { eq: e, and: an }) => an(e(t.workspaceId, orgId), e(t.slug, slug)),
-    });
-    if (existing) {
-      tagIds[slug] = existing.id;
-      continue;
-    }
-    const id = uid();
-    tagIds[slug] = id;
-    await db.insert(schema.articleTag).values({
-      id,
-      workspaceId: orgId,
-      name: slug,
-      slug,
-    });
-  }
-
-  // 9. Articles
-  const articleDefs = [
-    { title: 'Next.js 16 na pratica: o novo cache que finalmente faz sentido', slug: 'nextjs-16-cache', status: 'draft' as const, source: 'ia' as const, category: 'Next.js', sourceLabel: 'Rocketseat', gradient: 'linear-gradient(135deg,#8257e6,#3b0d6b)', letter: 'N', views: 0, tagSlugs: ['nextjs', 'cache', 'react', 'server-actions'], idx: null as any },
-    { title: 'Como funciona o event loop do Node.js', slug: 'event-loop-nodejs', status: 'draft' as const, source: 'ia' as const, category: 'Node.js', sourceLabel: 'Filipe Deschamps', gradient: 'linear-gradient(135deg,#06b6d4,#0c4a6e)', letter: 'E', views: 0, tagSlugs: ['nodejs', 'carreira'], idx: null },
-    { title: 'Se o Cursor cair, voce sabe codar?', slug: 'cursor-cair-saber-codar', status: 'published' as const, source: 'manual' as const, category: 'Carreira', sourceLabel: 'voce', gradient: 'linear-gradient(135deg,#84cc16,#3f6212)', letter: 'C', views: 2400, tagSlugs: ['carreira', 'ia'], idx: { state: 'indexed', coverage: 'URL enviada e indexada', crawl: new Date('2026-05-27'), checked: new Date('2026-05-29') } as any },
-    { title: 'Clean Architecture de verdade: o guia sem hype', slug: 'clean-architecture-guia', status: 'published' as const, source: 'ia' as const, category: 'Arquitetura', sourceLabel: 'Codigo Fonte TV', gradient: 'linear-gradient(135deg,#f59e0b,#92400e)', letter: 'A', views: 1820, tagSlugs: ['clean-architecture', 'arquitetura'], idx: { state: 'notindexed', coverage: 'Descoberta — nao indexada no momento', checked: new Date('2026-05-29') } as any },
-    { title: 'MEI, ME ou PJ: o que vale a pena pra dev em 2026', slug: 'mei-me-pj-dev-2026', status: 'published' as const, source: 'manual' as const, category: 'Financas', sourceLabel: 'voce', gradient: 'linear-gradient(135deg,#3b82f6,#1e3a8a)', letter: 'M', views: 980, tagSlugs: ['financas', 'carreira'], idx: { state: 'indexed', coverage: 'URL enviada e indexada', crawl: new Date('2026-05-26'), checked: new Date('2026-05-28') } as any },
-    { title: 'React Server Components explicado de uma vez', slug: 'rsc-explicado', status: 'published' as const, source: 'ia' as const, category: 'React', sourceLabel: 'Rocketseat', gradient: 'linear-gradient(135deg,#6d28d9,#4c1d95)', letter: 'R', views: 1540, tagSlugs: ['react', 'nextjs'], idx: { state: 'indexed', coverage: 'URL enviada e indexada', crawl: new Date('2026-05-26'), checked: new Date('2026-05-28') } as any },
-    { title: 'Postgres: indices que voce nao usa mas deveria', slug: 'postgres-indices', status: 'published' as const, source: 'ia' as const, category: 'Banco de dados', sourceLabel: 'Filipe Deschamps', gradient: 'linear-gradient(135deg,#0891b2,#0c4a6e)', letter: 'P', views: 1210, tagSlugs: ['postgres', 'banco-de-dados'], idx: { state: 'notindexed', coverage: 'Rastreada — nao indexada no momento', crawl: new Date('2026-05-25'), checked: new Date('2026-05-27') } as any },
-    { title: 'Como cobrar mais como freelancer sem perder cliente', slug: 'cobrar-mais-freelancer', status: 'published' as const, source: 'manual' as const, category: 'Financas', sourceLabel: 'voce', gradient: 'linear-gradient(135deg,#84cc16,#3f6212)', letter: 'F', views: 760, tagSlugs: ['financas', 'carreira'], idx: { state: 'unknown' } as any },
-    { title: 'TypeScript avancado: generics na pratica', slug: 'typescript-generics', status: 'draft' as const, source: 'ia' as const, category: 'TypeScript', sourceLabel: 'Codigo Fonte TV', gradient: 'linear-gradient(135deg,#d97706,#92400e)', letter: 'T', views: 0, tagSlugs: ['typescript'], idx: null },
-    { title: 'Deploy na AWS sem quebrar o orcamento', slug: 'deploy-aws-barato', status: 'archived' as const, source: 'ia' as const, category: 'DevOps', sourceLabel: 'Rocketseat', gradient: 'linear-gradient(135deg,#8257e6,#3b0d6b)', letter: 'D', views: 430, tagSlugs: ['devops'], idx: { state: 'excluded', coverage: "Excluida por tag 'noindex'", crawl: new Date('2026-05-19'), checked: new Date('2026-05-20') } as any },
-  ];
-
-  for (const a of articleDefs) {
-    const exists = await db.query.article.findFirst({
-      where: (ar, { eq: e, and: an }) => an(e(ar.workspaceId, orgId), e(ar.slug, a.slug)),
-    });
-    if (exists) continue;
-
-    const articleId = uid();
-    await db.insert(schema.article).values({
-      id: articleId,
-      workspaceId: orgId,
-      authorId: userId,
-      title: a.title,
-      slug: a.slug,
-      status: a.status,
-      source: a.source,
-      category: a.category,
-      sourceLabel: a.sourceLabel,
-      gradient: a.gradient,
-      letter: a.letter,
-      views: a.views,
-      indexState: a.idx?.state ?? 'na',
-      indexCoverage: a.idx?.coverage ?? null,
-      indexCrawledAt: a.idx?.crawl ?? null,
-      indexCheckedAt: a.idx?.checked ?? null,
-      excerpt: a.title,
-      contentHtml: `<p>${a.title}</p>`,
-    });
-
-    for (const tagSlug of a.tagSlugs) {
-      const tagId = tagIds[tagSlug];
-      if (tagId) {
-        await db.insert(schema.articleTagRelation).values({ articleId, tagId });
-      }
-    }
-  }
-
-  // 10. Automation config
-  const acExists = await db.query.automationConfig.findFirst({
-    where: (ac, { eq: e }) => e(ac.workspaceId, orgId),
-  });
-  if (!acExists) {
-    await db.insert(schema.automationConfig).values({
-      workspaceId: orgId,
-      enabled: true,
-      model: 'claude',
-      generateOnTranscript: true,
-      promptTemplate: 'Voce e um redator tecnico do blog. Escreva um artigo completo a partir da transcricao de um video do YouTube.',
-    });
-  }
-
-  // 11. Schedule config
-  const scExists = await db.query.scheduleConfig.findFirst({
-    where: (sc, { eq: e }) => e(sc.workspaceId, orgId),
-  });
-  if (!scExists) {
-    await db.insert(schema.scheduleConfig).values({
-      workspaceId: orgId,
-      frequency: 'daily',
-      cronExpr: '0 8 * * *',
-      timezone: 'America/Sao_Paulo',
-      quotaPerRun: 412,
-      nextRunAt: new Date('2026-05-30T08:00:00'),
-    });
-  }
-
-  // 12. Wallet
-  const wExists = await db.query.wallet.findFirst({
-    where: (w, { eq: e }) => e(w.workspaceId, orgId),
-  });
-  if (!wExists) {
-    await db.insert(schema.wallet).values({
-      workspaceId: orgId,
-      balance: 1240,
-      plan: 'pro',
-      planRenewsAt: new Date('2026-06-14'),
-      cardLast4: '4242',
-    });
-  }
-
-  // 13. Credit transactions (only if empty)
-  const txExists = await db.query.creditTransaction.findFirst({
-    where: (ct, { eq: e }) => e(ct.workspaceId, orgId),
-  });
-  if (!txExists) {
-    const creditTxns = [
-      { type: 'expense' as const, action: 'generate_article' as const, detail: 'Geracao de artigo', amount: -25, category: 'article' as const },
-      { type: 'expense' as const, action: 'transcribe_minute' as const, detail: 'Transcricao · 6 videos', amount: -60, category: 'transcribe' as const },
-      { type: 'income' as const, action: 'recharge' as const, detail: 'Recarga via Pix · Abacate Pay', amount: 5000, category: 'recharge' as const },
-      { type: 'expense' as const, action: 'index_check' as const, detail: 'Verificacao de indexacao · lote', amount: -9, category: 'index' as const },
-      { type: 'income' as const, action: 'monthly_subscription' as const, detail: 'Renovacao mensal · plano Pro', amount: 3000, category: 'subscription' as const },
-    ];
-
-    for (const tx of creditTxns) {
-      await db.insert(schema.creditTransaction).values({
-        workspaceId: orgId,
-        type: tx.type,
-        action: tx.action,
-        detail: tx.detail,
-        amount: tx.amount,
-        category: tx.category,
-      });
-    }
-  }
-
-  console.log('Seed complete!');
+  const id = crypto.randomUUID();
+  await db.insert(s.organization).values({ id, name: "DEVDOIDO", slug: ORG_SLUG });
+  await db.insert(s.member).values({ id: crypto.randomUUID(), organizationId: id, userId, role: "owner" });
+  return id;
 }
 
-seed().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+async function wipe(ws: string) {
+  // article delete cascades to article_tag_relation + moderation_result
+  await db.delete(s.article).where(eq(s.article.workspaceId, ws));
+  await db.delete(s.articleTag).where(eq(s.articleTag.workspaceId, ws));
+  await db.delete(s.video).where(eq(s.video.workspaceId, ws));
+  await db.delete(s.channel).where(eq(s.channel.workspaceId, ws));
+  await db.delete(s.googleConnection).where(eq(s.googleConnection.workspaceId, ws));
+  await db.delete(s.run).where(eq(s.run.workspaceId, ws));
+  await db.delete(s.creditTransaction).where(eq(s.creditTransaction.workspaceId, ws));
+  await db.delete(s.payment).where(eq(s.payment.workspaceId, ws));
+  await db.delete(s.wallet).where(eq(s.wallet.workspaceId, ws));
+  await db.delete(s.automationConfig).where(eq(s.automationConfig.workspaceId, ws));
+  await db.delete(s.scheduleConfig).where(eq(s.scheduleConfig.workspaceId, ws));
+  await db.delete(s.workspaceSettings).where(eq(s.workspaceSettings.workspaceId, ws));
+}
+
+async function main() {
+  const userId = await ensureUser();
+  const ws = await ensureOrg(userId);
+  await wipe(ws);
+
+  await db.insert(s.workspaceSettings).values({
+    workspaceId: ws,
+    blogSlug: ORG_SLUG,
+    category: "blog",
+    color: "hsl(217 91% 55%)",
+    description: "Blog sobre programação, IA, SaaS e carreira dev.",
+    website: "https://devdoido.com.br",
+    instagram: "@devdoido",
+  });
+
+  const [conn] = await db
+    .insert(s.googleConnection)
+    .values({ workspaceId: ws, accountEmail: "devdoido.bot@gmail.com", avatarLetter: "D", status: "active", tokenExpiresAt: new Date(Date.now() + 3_600_000) })
+    .returning();
+
+  const channelsData = [
+    { name: "Rocketseat", handle: "@rocketseat", youtubeChannelId: "UCSfwM5u0Kf33Bnzwd9rocket", letter: "R", subscribers: 2_100_000, active: true },
+    { name: "Filipe Deschamps", handle: "@FilipeDeschamps", youtubeChannelId: "UCRWqwD1", letter: "F", subscribers: 1_600_000, active: true },
+    { name: "Código Fonte TV", handle: "@codigofontetv", youtubeChannelId: "UClbYj", letter: "C", subscribers: 1_200_000, active: false },
+  ];
+  const insertedChannels = await db
+    .insert(s.channel)
+    .values(channelsData.map((c) => ({ workspaceId: ws, googleConnectionId: conn.id, lastVideoLabel: "capturado hoje 08:00", ...c })))
+    .returning();
+  const chByName = Object.fromEntries(insertedChannels.map((c) => [c.name, c.id]));
+
+  await db.insert(s.video).values([
+    { workspaceId: ws, channelId: chByName["Rocketseat"], title: "Next.js 16: o que muda na prática", durationSeconds: 1104, wordCount: 3412, status: "done", publishedAt: daysAgo(1) },
+    { workspaceId: ws, channelId: chByName["Filipe Deschamps"], title: "Construindo um sistema de filas do zero", durationSeconds: 2512, wordCount: 7220, status: "processing", publishedAt: daysAgo(1) },
+    { workspaceId: ws, channelId: chByName["Código Fonte TV"], title: "O que é Clean Architecture de verdade", durationSeconds: 930, wordCount: 2890, status: "done", publishedAt: daysAgo(2) },
+    { workspaceId: ws, channelId: chByName["Código Fonte TV"], title: "TypeScript avançado: generics na prática", durationSeconds: 1185, wordCount: 0, status: "queued", publishedAt: daysAgo(4) },
+  ]);
+
+  await db.insert(s.run).values([
+    { workspaceId: ws, status: "ok", channelsCount: 3, newVideos: 6, transcribedCount: 6, durationSeconds: 134, quotaUsed: 412, startedAt: daysAgo(0) },
+    { workspaceId: ws, status: "ok", channelsCount: 3, newVideos: 4, transcribedCount: 4, durationSeconds: 112, startedAt: daysAgo(1) },
+    { workspaceId: ws, status: "partial", channelsCount: 3, newVideos: 5, transcribedCount: 3, durationSeconds: 220, startedAt: daysAgo(2) },
+  ]);
+
+  const tagRows = await db
+    .insert(s.articleTag)
+    .values([
+      { workspaceId: ws, name: "Next.js", slug: "nextjs" },
+      { workspaceId: ws, name: "Node.js", slug: "nodejs" },
+      { workspaceId: ws, name: "Carreira", slug: "carreira" },
+      { workspaceId: ws, name: "Arquitetura", slug: "arquitetura" },
+    ])
+    .returning();
+  const tagBySlug = Object.fromEntries(tagRows.map((t) => [t.slug, t.id]));
+
+  const artRows = await db
+    .insert(s.article)
+    .values([
+      { workspaceId: ws, authorId: userId, title: "Next.js 16 na prática: o novo cache que finalmente faz sentido", slug: "nextjs-16-cache", status: "draft", source: "ia", category: "Next.js", sourceLabel: "Rocketseat", views: 0, indexState: "na" },
+      { workspaceId: ws, authorId: userId, title: "Se o Cursor cair, você sabe codar?", slug: "cursor-cair-saber-codar", status: "published", source: "manual", category: "Carreira", views: 2400, indexState: "indexed", indexCoverage: "URL enviada e indexada", publishedAt: daysAgo(2), moderationStatus: "approved", moderationCheckedAt: daysAgo(2) },
+      { workspaceId: ws, authorId: userId, title: "Clean Architecture de verdade: o guia sem hype", slug: "clean-architecture-guia", status: "published", source: "ia", category: "Arquitetura", sourceLabel: "Código Fonte TV", views: 1820, indexState: "notindexed", indexCoverage: "Descoberta — não indexada no momento", publishedAt: daysAgo(2), moderationStatus: "approved" },
+    ])
+    .returning();
+  const artBySlug = Object.fromEntries(artRows.map((a) => [a.slug, a.id]));
+
+  await db.insert(s.articleTagRelation).values([
+    { articleId: artBySlug["nextjs-16-cache"], tagId: tagBySlug["nextjs"] },
+    { articleId: artBySlug["cursor-cair-saber-codar"], tagId: tagBySlug["carreira"] },
+    { articleId: artBySlug["clean-architecture-guia"], tagId: tagBySlug["arquitetura"] },
+  ]);
+
+  await db.insert(s.wallet).values({ workspaceId: ws, balance: 1240, plan: "pro", planRenewsAt: new Date(Date.now() + 16 * 86_400_000), cardLast4: "4242" });
+
+  await db.insert(s.creditTransaction).values([
+    { workspaceId: ws, type: "expense", action: "generate_article", category: "article", detail: 'Geração de artigo · "Next.js 16 na prática"', amount: -25 },
+    { workspaceId: ws, type: "expense", action: "transcribe_minute", category: "transcribe", detail: "Transcrição · 6 vídeos", amount: -60 },
+    { workspaceId: ws, type: "income", action: "recharge", category: "recharge", detail: "Recarga via Pix · Abacate Pay", amount: 5000 },
+    { workspaceId: ws, type: "income", action: "monthly_subscription", category: "subscription", detail: "Renovação mensal · plano Pro", amount: 3000 },
+  ]);
+
+  await db.insert(s.automationConfig).values({
+    workspaceId: ws,
+    enabled: true,
+    model: "claude-sonnet-4-5",
+    generateOnTranscript: true,
+    autoPublish: false,
+    promptTemplate: "Escreva um artigo de blog a partir da transcrição do vídeo {{transcript}}.",
+  });
+
+  await db.insert(s.scheduleConfig).values({
+    workspaceId: ws,
+    frequency: "daily",
+    cronExpr: "0 8 * * *",
+    timezone: "America/Sao_Paulo",
+    quotaPerRun: 412,
+    nextRunAt: new Date(Date.now() + 14 * 3_600_000),
+  });
+
+  console.log(`✓ Seeded workspace ${ws} (user ${EMAIL} / ${PASSWORD})`);
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });

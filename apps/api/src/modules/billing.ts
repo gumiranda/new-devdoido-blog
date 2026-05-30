@@ -1,71 +1,71 @@
-import { Elysia } from 'elysia';
-import { db, debitCredit } from '../db/client';
-import { authGuard } from '../auth/guard';
-import * as schema from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { Elysia, t } from "elysia";
+import { desc, eq } from "drizzle-orm";
+import { db, creditWallet } from "../db/client";
+import { payment, wallet } from "../db/schema";
+import { authGuard } from "../auth/guard";
+import { PLAN_CREDITS, type PlanName } from "../lib/plans";
 
-const PACKS = [
-  { credits: 1000, priceCents: 1900 },
-  { credits: 5000, priceCents: 7900 },
-  { credits: 15000, priceCents: 19900 },
-];
-
-export const billingModule = new Elysia({ prefix: '/billing' })
+export const billing = new Elysia({ prefix: "/billing" })
   .use(authGuard)
-  .get('/packs', () => PACKS)
-  .post('/checkout', async ({ workspaceId, body }: any) => {
-    const { kind, credits, priceCents, method, planName } = body;
+  .get("/payments", ({ workspaceId }) =>
+    db.select().from(payment).where(eq(payment.workspaceId, workspaceId)).orderBy(desc(payment.createdAt))
+  )
+  /**
+   * Checkout — STUB. Creates a `payment`, then immediately simulates "paid" and
+   * credits the wallet. Real Pix (Abacate Pay) / card (Stripe) flow + webhooks are TODO.
+   */
+  .post(
+    "/checkout",
+    async ({ workspaceId, body }) => {
+      const provider = body.provider ?? (body.method === "pix" ? "abacatepay" : "stripe");
+      const credits =
+        body.kind === "subscription" && body.planName
+          ? PLAN_CREDITS[body.planName as PlanName]
+          : body.credits ?? 0;
 
-    const discountCents = method === 'pix' ? Math.round(priceCents * 0.05) : 0;
-
-    const [payment] = await db
-      .insert(schema.payment)
-      .values({
-        workspaceId,
-        provider: method === 'pix' ? 'abacatepay' : 'stripe',
-        kind,
-        method,
-        credits,
-        amountCents: priceCents,
-        discountCents,
-        status: 'pending',
-        planName: planName ?? null,
-      })
-      .returning();
-
-    return { id: payment.id, status: payment.status, url: null };
-  })
-  .post('/checkout/:id/confirm', async ({ workspaceId, params }: any) => {
-    const payment = await db.query.payment.findFirst({
-      where: (p, { eq: e, and: an }) => an(e(p.id, params.id), e(p.workspaceId, workspaceId)),
-    });
-    if (!payment) throw new Error('Payment not found');
-    if (payment.status !== 'pending') throw new Error('Payment already processed');
-
-    await db
-      .update(schema.payment)
-      .set({ status: 'paid', paidAt: new Date() })
-      .where(eq(schema.payment.id, params.id));
-
-    await debitCredit(
-      workspaceId,
-      payment.credits,
-      payment.kind === 'subscription' ? 'monthly_subscription' : 'recharge',
-      payment.kind === 'subscription'
-        ? `Renovação mensal · plano ${payment.planName}`
-        : `Recarga via ${payment.method === 'pix' ? 'Pix · Abacate Pay' : 'Stripe'} · pacote ${payment.credits} créditos`,
-      payment.kind === 'subscription' ? 'subscription' : 'recharge',
-    );
-
-    if (payment.kind === 'subscription') {
-      await db
-        .update(schema.wallet)
-        .set({
-          plan: (payment.planName?.toLowerCase() ?? 'pro') as any,
-          planRenewsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      const [pay] = await db
+        .insert(payment)
+        .values({
+          workspaceId,
+          provider,
+          kind: body.kind,
+          method: body.method,
+          credits,
+          amountCents: body.amountCents,
+          planName: body.planName,
+          status: "pending",
         })
-        .where(eq(schema.wallet.workspaceId, workspaceId));
-    }
+        .returning();
 
-    return { id: payment.id, status: 'paid', credits: payment.credits };
-  });
+      // --- STUB: simulate successful payment ---
+      const balance = await creditWallet(
+        workspaceId,
+        body.kind === "subscription" ? "monthly_subscription" : "recharge",
+        credits,
+        body.kind === "subscription" ? `Plano ${body.planName}` : "Recarga de créditos"
+      );
+      if (body.kind === "subscription" && body.planName) {
+        await db
+          .update(wallet)
+          .set({ plan: body.planName as PlanName, updatedAt: new Date() })
+          .where(eq(wallet.workspaceId, workspaceId));
+      }
+      const [paid] = await db
+        .update(payment)
+        .set({ status: "paid", paidAt: new Date() })
+        .where(eq(payment.id, pay.id))
+        .returning();
+
+      return { payment: paid, balance };
+    },
+    {
+      body: t.Object({
+        kind: t.Union([t.Literal("topup"), t.Literal("subscription")]),
+        method: t.Union([t.Literal("pix"), t.Literal("card")]),
+        provider: t.Optional(t.Union([t.Literal("abacatepay"), t.Literal("stripe")])),
+        credits: t.Optional(t.Integer()),
+        amountCents: t.Integer(),
+        planName: t.Optional(t.Union([t.Literal("pro"), t.Literal("scale")])),
+      }),
+    }
+  );

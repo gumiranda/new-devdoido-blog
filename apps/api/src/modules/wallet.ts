@@ -1,46 +1,29 @@
-import { Elysia } from 'elysia';
-import { db } from '../db/client';
-import { authGuard } from '../auth/guard';
-import * as schema from '../db/schema';
-import { eq, and } from 'drizzle-orm';
+import { Elysia } from "elysia";
+import { and, desc, eq, sql } from "drizzle-orm";
+import { db } from "../db/client";
+import { wallet, creditTransaction } from "../db/schema";
+import { authGuard } from "../auth/guard";
 
-export const walletModule = new Elysia({ prefix: '/wallet' })
-  .use(authGuard)
-  .get('/', async ({ workspaceId }) => {
-    const walletData = await db.query.wallet.findFirst({
-      where: (w, { eq: e }) => e(w.workspaceId, workspaceId),
-    });
+export const walletModule = new Elysia({ prefix: "/wallet" }).use(authGuard).get("/", async ({ workspaceId }) => {
+  const [w] = await db.select().from(wallet).where(eq(wallet.workspaceId, workspaceId)).limit(1);
 
-    const transactions = await db.query.creditTransaction.findMany({
-      where: (ct, { eq: e }) => e(ct.workspaceId, workspaceId),
-      orderBy: (ct, { desc: d }) => [d(ct.createdAt)],
-      limit: 50,
-    });
+  // Consumption aggregated by category (expenses only).
+  const consumption = await db
+    .select({
+      category: creditTransaction.category,
+      total: sql<number>`(-sum(${creditTransaction.amount}))::int`,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(creditTransaction)
+    .where(and(eq(creditTransaction.workspaceId, workspaceId), eq(creditTransaction.type, "expense")))
+    .groupBy(creditTransaction.category);
 
-    const stats = await db
-      .select({
-        category: schema.creditTransaction.category,
-        totalAmount: sql<number>`sum(${schema.creditTransaction.amount})`.mapWith(Number),
-      })
-      .from(schema.creditTransaction)
-      .where(
-        and(
-          eq(schema.creditTransaction.workspaceId, workspaceId),
-          eq(schema.creditTransaction.type, 'expense'),
-        )
-      )
-      .groupBy(schema.creditTransaction.category);
+  const history = await db
+    .select()
+    .from(creditTransaction)
+    .where(eq(creditTransaction.workspaceId, workspaceId))
+    .orderBy(desc(creditTransaction.createdAt))
+    .limit(20);
 
-    return {
-      balance: walletData?.balance ?? 0,
-      plan: walletData?.plan ?? 'free',
-      planRenewsAt: walletData?.planRenewsAt,
-      cardLast4: walletData?.cardLast4,
-      balanceMax: 3000,
-      consumption: stats.map((s) => ({
-        category: s.category,
-        total: s.totalAmount,
-      })),
-      transactions,
-    };
-  });
+  return { wallet: w ?? null, consumption, history };
+});

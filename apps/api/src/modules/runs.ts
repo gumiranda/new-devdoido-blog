@@ -1,21 +1,23 @@
-import { Elysia } from 'elysia';
-import { db } from '../db/client';
-import { authGuard } from '../auth/guard';
+import { Elysia } from "elysia";
+import { desc, eq, sql } from "drizzle-orm";
+import { db } from "../db/client";
+import { run, channel } from "../db/schema";
+import { authGuard } from "../auth/guard";
 
-export const runsModule = new Elysia({ prefix: '/runs' })
+export const runs = new Elysia({ prefix: "/runs" })
   .use(authGuard)
-  .get('/', async ({ workspaceId }) => {
-    return db.query.run.findMany({
-      where: (r, { eq: e }) => e(r.workspaceId, workspaceId),
-      orderBy: (r, { desc: d }) => [d(r.startedAt)],
-    });
-  })
-  .post('/trigger', async ({ workspaceId }) => {
-    const [lastRun] = await db.query.run.findMany({
-      where: (r, { eq: e }) => e(r.workspaceId, workspaceId),
-      orderBy: (r, { desc: d }) => [d(r.startedAt)],
-      limit: 1,
-    });
-
-    return { message: 'Run triggered (stub)', lastRun };
+  .get("/", ({ workspaceId }) =>
+    db.select().from(run).where(eq(run.workspaceId, workspaceId)).orderBy(desc(run.startedAt))
+  )
+  // Manual trigger — STUB. Real pipeline (YouTube fetch + transcription) is TODO.
+  .post("/trigger", async ({ workspaceId }) => {
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(channel)
+      .where(eq(channel.workspaceId, workspaceId));
+    const [row] = await db
+      .insert(run)
+      .values({ workspaceId, status: "ok", channelsCount: count, newVideos: 0, transcribedCount: 0 })
+      .returning();
+    return row;
   });

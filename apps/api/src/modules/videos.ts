@@ -1,35 +1,28 @@
-import { Elysia } from 'elysia';
-import { db } from '../db/client';
-import { authGuard } from '../auth/guard';
+import { Elysia, t } from "elysia";
+import { and, desc, eq } from "drizzle-orm";
+import { db } from "../db/client";
+import { video } from "../db/schema";
+import { authGuard } from "../auth/guard";
 
-
-export const videosModule = new Elysia({ prefix: '/videos' })
+export const videos = new Elysia({ prefix: "/videos" })
   .use(authGuard)
-  .get('/', async () => {
-    const videos = await db.query.video.findMany({
-      with: { channel: true },
-      orderBy: (v, { desc: d }) => [d(v.createdAt)],
-    });
-
-    return videos.map((v) => ({
-      id: v.id,
-      title: v.title,
-      durationSeconds: v.durationSeconds,
-      publishedAt: v.publishedAt,
-      wordCount: v.wordCount,
-      status: v.status,
-      thumbGrad: v.thumbGrad,
-      channel: v.channel ? {
-        name: v.channel.name,
-        color: v.channel.color,
-        letter: v.channel.letter,
-      } : null,
-    }));
-  })
-  .get('/:id/transcript', async ({ params }: any) => {
-    const video = await db.query.video.findFirst({
-      where: (v, { eq: e }) => e(v.id, params.id),
-    });
-    if (!video) throw new Error('Video not found');
-    return { id: video.id, title: video.title, transcript: video.transcript };
+  .get(
+    "/",
+    ({ workspaceId, query }) => {
+      const where = query.channel
+        ? and(eq(video.workspaceId, workspaceId), eq(video.channelId, query.channel))
+        : eq(video.workspaceId, workspaceId);
+      return db.select().from(video).where(where).orderBy(desc(video.publishedAt));
+    },
+    { query: t.Object({ channel: t.Optional(t.String()) }) }
+  )
+  .get("/:id/transcript", async ({ workspaceId, params, status }) => {
+    const [row] = await db
+      .select({ id: video.id, title: video.title, status: video.status, transcript: video.transcript })
+      .from(video)
+      .where(and(eq(video.id, params.id), eq(video.workspaceId, workspaceId)))
+      .limit(1);
+    if (!row) return status(404, "Video not found");
+    if (row.status !== "done") return status(409, "Transcript not ready");
+    return row;
   });

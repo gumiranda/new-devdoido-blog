@@ -1,5 +1,5 @@
 {
-  "id": "2e9cc17b-75c8-487d-b7bf-996796b00c58",
+  "id": "834291e0-b66a-487f-8d14-a8f4adce0fd7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -14,12 +14,6 @@
           "primaryKey": true,
           "notNull": true
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "account_id": {
           "name": "account_id",
           "type": "text",
@@ -32,6 +26,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "access_token": {
           "name": "access_token",
           "type": "text",
@@ -40,6 +40,12 @@
         },
         "refresh_token": {
           "name": "refresh_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_token": {
+          "name": "id_token",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -58,12 +64,6 @@
         },
         "scope": {
           "name": "scope",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "id_token": {
-          "name": "id_token",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -204,18 +204,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "gradient": {
-          "name": "gradient",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "letter": {
-          "name": "letter",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "views": {
           "name": "views",
           "type": "integer",
@@ -285,8 +273,8 @@
         }
       },
       "indexes": {
-        "article_slug_unique": {
-          "name": "article_slug_unique",
+        "article_slug_per_ws": {
+          "name": "article_slug_per_ws",
           "columns": [
             {
               "expression": "workspace_id",
@@ -405,8 +393,8 @@
         }
       },
       "indexes": {
-        "tag_slug_unique": {
-          "name": "tag_slug_unique",
+        "tag_slug_per_ws": {
+          "name": "tag_slug_per_ws",
           "columns": [
             {
               "expression": "workspace_id",
@@ -540,10 +528,10 @@
         },
         "model": {
           "name": "model",
-          "type": "varchar(100)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "'claude'"
+          "default": "'claude-sonnet-4-5'"
         },
         "generate_on_transcript": {
           "name": "generate_on_transcript",
@@ -552,18 +540,18 @@
           "notNull": true,
           "default": true
         },
+        "auto_publish": {
+          "name": "auto_publish",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "options": {
           "name": "options",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
@@ -636,7 +624,7 @@
           "name": "handle",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "youtube_channel_id": {
           "name": "youtube_channel_id",
@@ -648,15 +636,13 @@
           "name": "color",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'linear-gradient(135deg,#8257e6,#6420aa)'"
+          "notNull": false
         },
         "letter": {
           "name": "letter",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'C'"
+          "notNull": false
         },
         "subscribers": {
           "name": "subscribers",
@@ -680,13 +666,6 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -718,7 +697,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "restrict",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -747,14 +726,21 @@
         },
         "type": {
           "name": "type",
-          "type": "transaction_type",
+          "type": "credit_type",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
         "action": {
           "name": "action",
-          "type": "transaction_action",
+          "type": "credit_action",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "credit_category",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
@@ -768,13 +754,6 @@
         "amount": {
           "name": "amount",
           "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "category": {
-          "name": "category",
-          "type": "transaction_category",
-          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -835,8 +814,15 @@
           "name": "avatar_letter",
           "type": "text",
           "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "google_conn_status",
+          "typeSchema": "public",
+          "primaryKey": false,
           "notNull": true,
-          "default": "'G'"
+          "default": "'active'"
         },
         "access_token": {
           "name": "access_token",
@@ -860,7 +846,8 @@
           "name": "authorized_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "now()"
         },
         "token_renewed_at": {
           "name": "token_renewed_at",
@@ -870,13 +857,6 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -900,15 +880,7 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "google_connection_workspace_id_unique": {
-          "name": "google_connection_workspace_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "workspace_id"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -939,7 +911,7 @@
           "name": "role",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "status": {
           "name": "status",
@@ -1087,14 +1059,14 @@
         },
         "status": {
           "name": "status",
-          "type": "moderation_status",
+          "type": "moderation_result_status",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
         "provider": {
           "name": "provider",
-          "type": "varchar(50)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "default": "'openai'"
@@ -1170,18 +1142,18 @@
           "primaryKey": false,
           "notNull": false
         },
-        "metadata": {
-          "name": "metadata",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -1249,8 +1221,7 @@
           "name": "amount_cents",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "default": 0
+          "notNull": true
         },
         "discount_cents": {
           "name": "discount_cents",
@@ -1279,18 +1250,18 @@
           "primaryKey": false,
           "notNull": false
         },
-        "paid_at": {
-          "name": "paid_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "paid_at": {
+          "name": "paid_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -1336,7 +1307,8 @@
           "name": "started_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         },
         "finished_at": {
           "name": "finished_at",
@@ -1377,8 +1349,7 @@
           "name": "duration_seconds",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "default": 0
+          "notNull": false
         },
         "quota_used": {
           "name": "quota_used",
@@ -1461,20 +1432,13 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": 412
+          "default": 0
         },
         "next_run_at": {
           "name": "next_run_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
@@ -1524,9 +1488,9 @@
           "primaryKey": true,
           "notNull": true
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true
         },
@@ -1535,24 +1499,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "ip_address": {
-          "name": "ip_address",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "user_agent": {
-          "name": "user_agent",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -1567,6 +1513,30 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "ip_address": {
+          "name": "ip_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "active_organization_id": {
+          "name": "active_organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -1586,7 +1556,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "session_token_unique": {
+          "name": "session_token_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -1719,6 +1697,12 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "channel_id": {
           "name": "channel_id",
           "type": "uuid",
@@ -1741,8 +1725,7 @@
           "name": "duration_seconds",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "default": 0
+          "notNull": false
         },
         "published_at": {
           "name": "published_at",
@@ -1783,17 +1766,23 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {},
       "foreignKeys": {
+        "video_workspace_id_organization_id_fk": {
+          "name": "video_workspace_id_organization_id_fk",
+          "tableFrom": "video",
+          "tableTo": "organization",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
         "video_channel_id_channel_id_fk": {
           "name": "video_channel_id_channel_id_fk",
           "tableFrom": "video",
@@ -1858,13 +1847,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
@@ -1924,21 +1906,19 @@
           "name": "blog_slug",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "category": {
           "name": "category",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'blog'"
+          "notNull": false
         },
         "color": {
           "name": "color",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'hsl(217 91% 55%)'"
+          "notNull": false
         },
         "description": {
           "name": "description",
@@ -2034,6 +2014,45 @@
         "archived"
       ]
     },
+    "public.credit_action": {
+      "name": "credit_action",
+      "schema": "public",
+      "values": [
+        "transcribe_minute",
+        "generate_article",
+        "index_check",
+        "monthly_subscription",
+        "recharge"
+      ]
+    },
+    "public.credit_category": {
+      "name": "credit_category",
+      "schema": "public",
+      "values": [
+        "article",
+        "transcribe",
+        "index",
+        "recharge",
+        "subscription"
+      ]
+    },
+    "public.credit_type": {
+      "name": "credit_type",
+      "schema": "public",
+      "values": [
+        "income",
+        "expense"
+      ]
+    },
+    "public.google_conn_status": {
+      "name": "google_conn_status",
+      "schema": "public",
+      "values": [
+        "active",
+        "expired",
+        "revoked"
+      ]
+    },
     "public.index_state": {
       "name": "index_state",
       "schema": "public",
@@ -2045,6 +2064,16 @@
         "unknown",
         "checking",
         "queued"
+      ]
+    },
+    "public.moderation_result_status": {
+      "name": "moderation_result_status",
+      "schema": "public",
+      "values": [
+        "approved",
+        "flagged",
+        "needs_review",
+        "blocked"
       ]
     },
     "public.moderation_status": {
@@ -2106,38 +2135,8 @@
       "schema": "public",
       "values": [
         "daily",
-        "hours",
-        "weekly"
-      ]
-    },
-    "public.transaction_action": {
-      "name": "transaction_action",
-      "schema": "public",
-      "values": [
-        "transcribe_minute",
-        "generate_article",
-        "index_check",
-        "monthly_subscription",
-        "recharge"
-      ]
-    },
-    "public.transaction_category": {
-      "name": "transaction_category",
-      "schema": "public",
-      "values": [
-        "article",
-        "transcribe",
-        "index",
-        "recharge",
-        "subscription"
-      ]
-    },
-    "public.transaction_type": {
-      "name": "transaction_type",
-      "schema": "public",
-      "values": [
-        "income",
-        "expense"
+        "weekly",
+        "monthly"
       ]
     },
     "public.video_status": {
