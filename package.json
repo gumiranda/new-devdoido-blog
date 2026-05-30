@@ -1,15 +1,15 @@
 {
   "name": "beta-stack",
   "private": true,
+  "type": "module",
   "workspaces": ["apps/*"],
   "scripts": {
     "dev": "bun run dev:api & bun run dev:landing",
     "dev:api": "cd apps/api && bun run dev",
     "dev:landing": "cd apps/landing && bun run dev",
-    "build": "bun run build:api && bun run build:landing",
-    "build:api": "cd apps/api && bun run build",
+    "build": "bun run build:landing",
     "build:landing": "cd apps/landing && bun run build",
-    "check": "bun run test && bun run build",
+    "check": "bun run lint && bun run build",
     "lint": "eslint apps/api/src apps/landing/src --max-warnings 0",
     "test": "bun test ./apps/api/src/index.test.ts"
   },

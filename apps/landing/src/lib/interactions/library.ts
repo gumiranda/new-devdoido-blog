@@ -35,7 +35,6 @@ export function setupLibraryView() {
     grid.querySelectorAll('.vid-card').forEach((card) => {
       card.addEventListener('click', () => {
         const ch = card.getAttribute('data-vid')!;
-        const [chId] = ch.split('-');
         const video = MOCK.videos.find((v) => v.ch + '-' + v.title === ch);
         if (video) window.openDrawer(video);
       });
