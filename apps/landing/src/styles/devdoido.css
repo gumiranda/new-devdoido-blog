@@ -1001,6 +1001,15 @@ details.faq .q-num { font-family: var(--f-mono); font-size: 12px; color: var(--f
 .art-cat .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lime-500); }
 .art-title { font-size: clamp(40px, 4.6vw, 60px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.04; margin: 0 0 20px; text-wrap: balance; }
 .art-sub { font-size: 21px; line-height: 1.5; color: var(--fg-muted); margin: 0 0 32px; }
+.answer-box {
+  border: 1px solid var(--lime-500);
+  background: var(--bg-1);
+  padding: 20px 24px;
+  margin: 0 0 40px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--fg);
+}
 
 .art-tags {
   display: flex; flex-wrap: wrap; gap: 8px;

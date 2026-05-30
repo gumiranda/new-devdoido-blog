@@ -19,6 +19,7 @@ interface Article {
   coverUrl?: string;
   category?: string;
   publishedAt?: string;
+  updatedAt?: string;
   views: number;
   contentHtml?: string;
   metaTitle?: string;
@@ -47,11 +48,21 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
-const post = allArticles.find((a) => a.slug === slug);
 
-if (!post) {
+// The list endpoint above carries only summary fields. Fetch the single public
+// endpoint to get the body, custom schema, FAQ and tags for this article.
+let full: Article | undefined;
+try {
+  const r = await fetch(`${API_BASE}/api/v1/public/articles/devdoido/${slug}`);
+  if (r.ok) full = await r.json();
+} catch {
+  /* API offline at build time */
+}
+const resolved = full ?? allArticles.find((a) => a.slug === slug);
+if (!resolved) {
   return Astro.redirect('/404');
 }
+const post = resolved;
 
 const relatedArticles = allArticles
   .filter((a) => a.slug !== post.slug && a.category === post.category)
@@ -61,6 +72,21 @@ const coverColors = ['a', 'b', 'c'];
 const articleSection = post.category ?? 'Blog';
 const postTags = post.tags?.map((t) => t.slug) ?? [];
 const pubDate = post.publishedAt ?? new Date().toISOString();
+
+// AEO/SEO structured data emitted in <head>: custom JSON-LD + FAQPage from faqJson.
+const faqEntries = Array.isArray(post.faqJson) ? post.faqJson : [];
+const faqLd = faqEntries.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqEntries.map((f: any) => ({
+        '@type': 'Question',
+        name: f.question ?? f.q ?? '',
+        acceptedAnswer: { '@type': 'Answer', text: f.answer ?? f.a ?? '' },
+      })),
+    }
+  : null;
+const jsonLd = [post.schemaJson, faqLd].filter(Boolean) as Record<string, unknown>[];
 ---
 
 <BaseLayout
@@ -69,6 +95,9 @@ const pubDate = post.publishedAt ?? new Date().toISOString();
   canonical={`/blog/${post.slug}`}
   type="article"
   publishedTime={pubDate}
+  modifiedTime={post.updatedAt}
+  image={post.ogImageUrl}
+  jsonLd={jsonLd.length ? jsonLd : undefined}
   articleSection={articleSection}
   keywords={postTags}
   author={{ name: SITE.author, url: '/sobre', credentials: 'Autor do DEVDOIDO' }}
@@ -98,6 +127,12 @@ const pubDate = post.publishedAt ?? new Date().toISOString();
         <div class="mono-caption" style="text-align:center;margin-bottom:48px">// {post.category ?? 'artigo'}</div>
       </div>
     </section>
+
+    {post.answerBox && (
+      <section class="container-narrow">
+        <p class="answer-box">{post.answerBox}</p>
+      </section>
+    )}
 
     <!-- Article body -->
     <article style="padding-bottom:48px">
@@ -137,7 +172,7 @@ const pubDate = post.publishedAt ?? new Date().toISOString();
             <a href="/feed" class="btn btn-secondary btn-sm">Explorar feed →</a>
           </div>
         </div>
-        <div style="flex:1;min-width:280px;background:linear-gradient(135deg,var(--bg-1),var(--bg-2));border:1px solid var(--lime-500);border-radius:var(--r-lg);padding:40px;position:relative;overflow:hidden">
+        <div style="flex:1;min-width:280px;background:var(--bg-1);border:1px solid var(--lime-500);border-radius:var(--r-lg);padding:40px;position:relative;overflow:hidden">
           <div style="position:relative">
             <p class="mono-caption" style="margin-bottom:10px">// curso</p>
             <h3 style="font-size:22px;font-weight:700;letter-spacing:-0.02em;margin:0 0 8px">CrazyStack TypeScript</h3>
