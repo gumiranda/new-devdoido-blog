@@ -161,6 +161,8 @@ export const paymentProvider = pgEnum("payment_provider", ["abacatepay", "stripe
 export const paymentKind = pgEnum("payment_kind", ["topup", "subscription"]);
 export const paymentMethod = pgEnum("payment_method", ["pix", "card"]);
 export const paymentStatus = pgEnum("payment_status", ["pending", "paid", "failed", "canceled"]);
+export const transcriptStatus = pgEnum("transcript_status", ["pending", "processing", "done", "error"]);
+export const cronLogStatus = pgEnum("cron_log_status", ["ok", "partial", "error"]);
 
 /* helper: workspace FK (organization.id is TEXT) */
 const workspaceId = () =>
@@ -216,26 +218,38 @@ export const channel = pgTable("channel", {
   letter: text("letter"),
   subscribers: integer("subscribers").notNull().default(0),
   lastVideoLabel: text("last_video_label"),
+  lastSyncedAt: timestamp("last_synced_at"),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const video = pgTable("video", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  workspaceId: workspaceId(),
-  channelId: uuid("channel_id")
-    .notNull()
-    .references(() => channel.id, { onDelete: "cascade" }),
-  youtubeVideoId: text("youtube_video_id"),
-  title: text("title").notNull(),
-  durationSeconds: integer("duration_seconds"),
-  publishedAt: timestamp("published_at"),
-  wordCount: integer("word_count").notNull().default(0),
-  status: videoStatus("status").notNull().default("queued"),
-  transcript: text("transcript"),
-  thumbGrad: text("thumb_grad"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+export const video = pgTable(
+  "video",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: workspaceId(),
+    channelId: uuid("channel_id")
+      .notNull()
+      .references(() => channel.id, { onDelete: "cascade" }),
+    youtubeVideoId: text("youtube_video_id"),
+    title: text("title").notNull(),
+    durationSeconds: integer("duration_seconds"),
+    publishedAt: timestamp("published_at"),
+    wordCount: integer("word_count").notNull().default(0),
+    status: videoStatus("status").notNull().default("queued"),
+    transcript: text("transcript"),
+    transcriptStatus: transcriptStatus("transcript_status").notNull().default("pending"),
+    transcriptRetryCount: integer("transcript_retry_count").notNull().default(0),
+    transcriptNextRetryAt: timestamp("transcript_next_retry_at"),
+    transcriptError: text("transcript_error"),
+    transcriptProvider: text("transcript_provider").notNull().default("gladia"),
+    thumbGrad: text("thumb_grad"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    dedupPerWorkspace: uniqueIndex("video_ws_ytid").on(t.workspaceId, t.youtubeVideoId),
+  })
+);
 
 export const run = pgTable("run", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -275,6 +289,15 @@ export const article = pgTable(
     indexCoverage: text("index_coverage"),
     indexCrawledAt: timestamp("index_crawled_at"),
     indexCheckedAt: timestamp("index_checked_at"),
+    // SEO/AEO (r1#1)
+    metaTitle: text("meta_title"),
+    metaDescription: text("meta_description"),
+    canonicalUrl: text("canonical_url"),
+    ogImageUrl: text("og_image_url"),
+    twitterCard: text("twitter_card"),
+    schemaJson: jsonb("schema_json"),
+    faqJson: jsonb("faq_json"),
+    answerBox: text("answer_box"),
     // Moderation (embedded; mirrors latest moderation_result)
     moderationStatus: moderationStatus("moderation_status").notNull().default("not_checked"),
     moderationCheckedAt: timestamp("moderation_checked_at"),
@@ -388,4 +411,19 @@ export const payment = pgTable("payment", {
   planName: text("plan_name"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   paidAt: timestamp("paid_at"),
+});
+
+/** Execution log for scheduled runs and integration jobs (r1#9 / r2#3). */
+export const cronLog = pgTable("cron_log", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  workspaceId: workspaceId(),
+  runId: uuid("run_id").references(() => run.id, { onDelete: "set null" }),
+  startedAt: timestamp("started_at").notNull().defaultNow(),
+  finishedAt: timestamp("finished_at"),
+  status: cronLogStatus("status").notNull().default("ok"),
+  quotaRemaining: integer("quota_remaining"),
+  quotaResetAt: timestamp("quota_reset_at"),
+  message: text("message"),
+  contextJson: jsonb("context_json"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });

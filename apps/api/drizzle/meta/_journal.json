@@ -8,6 +8,13 @@
       "when": 1780141847971,
       "tag": "0000_silky_tyger_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780157180043,
+      "tag": "0001_wise_ezekiel_stane",
+      "breakpoints": true
     }
   ]
 }

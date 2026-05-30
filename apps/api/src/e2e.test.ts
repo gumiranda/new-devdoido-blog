@@ -6,9 +6,15 @@
  */
 import { expect, test, describe, beforeAll, afterAll } from "bun:test";
 import { and, eq, inArray } from "drizzle-orm";
-import { app } from "./app";
 import { db, debitCredit, creditWallet, InsufficientCreditsError } from "./db/client";
 import * as s from "./db/schema";
+
+let app: any;
+
+beforeAll(async () => {
+  const mod = await import("./app");
+  app = mod.app;
+});
 
 // ── HTTP helper ───────────────────────────────────────────────────────────
 type CallOpts = {
@@ -117,9 +123,9 @@ afterAll(async () => {
 
 // ── Root / health / CORS ──────────────────────────────────────────────────
 describe("root, health, CORS", () => {
-  test("GET / and /health", async () => {
-    expect((await call("/")).body).toEqual({ name: "beta-stack-api", version: "2.0.0" });
-    expect((await call("/health")).body).toEqual({ ok: true });
+  test("GET /api and /api/health", async () => {
+    expect((await call("/api")).body).toEqual({ name: "beta-stack-api", version: "2.0.0" });
+    expect((await call("/api/health")).body).toEqual({ ok: true });
   });
 
   test("GET with allowed Origin echoes CORS headers", async () => {

@@ -129,6 +129,14 @@ export const articles = new Elysia({ prefix: "/articles" })
           category: body.category,
           source: body.source ?? "manual",
           sourceVideoId: body.sourceVideoId,
+          metaTitle: body.metaTitle,
+          metaDescription: body.metaDescription,
+          canonicalUrl: body.canonicalUrl,
+          ogImageUrl: body.ogImageUrl,
+          twitterCard: body.twitterCard,
+          schemaJson: body.schemaJson,
+          faqJson: body.faqJson,
+          answerBox: body.answerBox,
         })
         .returning();
       return row;
@@ -144,6 +152,14 @@ export const articles = new Elysia({ prefix: "/articles" })
         category: t.Optional(t.String()),
         source: t.Optional(t.Union([t.Literal("ia"), t.Literal("manual")])),
         sourceVideoId: t.Optional(t.String()),
+        metaTitle: t.Optional(t.String()),
+        metaDescription: t.Optional(t.String()),
+        canonicalUrl: t.Optional(t.String()),
+        ogImageUrl: t.Optional(t.String()),
+        twitterCard: t.Optional(t.String()),
+        schemaJson: t.Optional(t.Any()),
+        faqJson: t.Optional(t.Any()),
+        answerBox: t.Optional(t.String()),
       }),
     }
   )
@@ -183,6 +199,14 @@ export const articles = new Elysia({ prefix: "/articles" })
           coverUrl: t.String(),
           category: t.String(),
           status: t.Union([t.Literal("draft"), t.Literal("published"), t.Literal("archived")]),
+          metaTitle: t.String(),
+          metaDescription: t.String(),
+          canonicalUrl: t.String(),
+          ogImageUrl: t.String(),
+          twitterCard: t.String(),
+          schemaJson: t.Any(),
+          faqJson: t.Any(),
+          answerBox: t.String(),
         })
       ),
     }

@@ -3,9 +3,52 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageShell from '../../components/devdoido/PageShell.astro';
 import ArticleCard from '../../components/devdoido/ArticleCard.astro';
 import AsciiRule from '../../components/devdoido/AsciiRule.astro';
-import { categories, formatDate, posts } from '../../data/devdoido';
+
+export const prerender = true;
+
+const API_BASE = import.meta.env.PUBLIC_API_URL ?? 'http://localhost:3000';
+
+interface Article {
+  id: string;
+  title: string;
+  subtitle?: string;
+  slug: string;
+  excerpt?: string;
+  coverUrl?: string;
+  category?: string;
+  publishedAt?: string;
+  views: number;
+  metaTitle?: string;
+  metaDescription?: string;
+  ogImageUrl?: string;
+  workspaceId: string;
+}
+
+let articles: Article[] = [];
+let categories: { name: string; slug: string; count: number }[] = [];
+
+try {
+  const [artsRes, catsRes] = await Promise.all([
+    fetch(`${API_BASE}/api/v1/public/articles?workspace=devdoido&perPage=50`),
+    fetch(`${API_BASE}/api/v1/public/categories?workspace=devdoido`),
+  ]);
+  articles = (await artsRes.json()) ?? [];
+  const catNames: string[] = (await catsRes.json()) ?? [];
+  const countByCat = new Map<string, number>();
+  for (const a of articles) {
+    if (a.category) countByCat.set(a.category, (countByCat.get(a.category) ?? 0) + 1);
+  }
+  categories = catNames.map((name) => ({
+    name,
+    slug: name.toLowerCase().replace(/\s+/g, '-'),
+    count: countByCat.get(name) ?? 0,
+  }));
+} catch {
+  articles = [];
+}
 
 const coverColors = ['a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f'];
+const totalArticles = articles.length;
 ---
 
 <BaseLayout
@@ -22,11 +65,11 @@ const coverColors = ['a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f']
         </div>
         <h1 class="t-display">Codigo <span style="color:var(--lime-400)">escrito</span>.<br />Nao <span style="color:var(--lime-400)">colado</span>.</h1>
         <p class="lede" style="max-width:620px">
-          <strong>412 artigos</strong> sobre Node.js, React, Next.js, IA, SaaS e carreira dev. Tutoriais tecnicos de verdade — sem clickbait, sem prompt magico, sem "revolucione sua carreira".
+          <strong>{totalArticles} artigos</strong> sobre Node.js, React, Next.js, IA, SaaS e carreira dev. Tutoriais tecnicos de verdade — sem clickbait, sem prompt magico, sem "revolucione sua carreira".
         </p>
         <div class="blog-meta">
-          <div>ARTIGOS <b class="accent">412</b></div>
-          <div>CATEGORIAS <b>8</b></div>
+          <div>ARTIGOS <b class="accent">{totalArticles}</b></div>
+          <div>CATEGORIAS <b>{categories.length}</b></div>
           <div>AUTOR <b>@devdoido</b></div>
           <div>FREQUENCIA <b>3 posts/semana</b></div>
           <div>ULTIMO UPDATE <b>2026.05.29</b></div>
@@ -65,16 +108,14 @@ const coverColors = ['a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f']
         <div>
           <AsciiRule label="// cronologia &middot; maio 2026" />
           <div class="article-grid" style="--grid-cols:2">
-            {posts.map((post, i) => (
-              <div class="blog-post-item" data-tags={[post.categorySlug, ...post.tags].join(' ')}>
+            {articles.map((post, i) => (
+              <div class="blog-post-item" data-tags={post.category ?? ''}>
                 <ArticleCard
                   href={`/blog/${post.slug}`}
-                  category={`// ${post.category} &middot; ${post.minutes} min`}
+                  category={`// ${post.category ?? 'blog'}`}
                   title={post.title}
-                  date={formatDate(post.pubDate)}
-                  reads={post.reads}
-                  display={post.display}
-                  badges={post.badges}
+                  date={post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('pt-BR', { dateStyle: 'long' }) : ''}
+                  display={post.category ?? ''}
                   coverColor={coverColors[i % coverColors.length]}
                 />
               </div>
@@ -83,14 +124,7 @@ const coverColors = ['a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f']
 
           <!-- Pagination -->
           <div class="pager">
-            <span class="pg">←</span>
             <span class="pg active">1</span>
-            <span class="pg">2</span>
-            <span class="pg">3</span>
-            <span class="pg">4</span>
-            <span class="dots">...</span>
-            <span class="pg">35</span>
-            <span class="pg">→</span>
           </div>
         </div>
 
@@ -109,12 +143,12 @@ const coverColors = ['a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f']
           <div class="side-card">
             <h3>Top da semana <span class="num">/05</span></h3>
             <div class="pop-list">
-              {posts.slice(0, 5).map((post, i) => (
+              {articles.slice(0, 5).map((post, i) => (
                 <div class="pop-item">
                   <span class="num">0{i + 1}</span>
                   <div>
                     <a href={`/blog/${post.slug}`} class="t">{post.title}</a>
-                    <span class="pop-meta">{post.category.toUpperCase()} &middot; {post.reads} views</span>
+                    <span class="pop-meta">{(post.category ?? '').toUpperCase()}</span>
                   </div>
                 </div>
               ))}
@@ -124,8 +158,8 @@ const coverColors = ['a', 'b', 'c', 'd', 'e', 'f', 'a', 'b', 'c', 'd', 'e', 'f']
           <div class="side-card">
             <h3>Stats do blog <span class="num">/live</span></h3>
             <div class="mini-stats">
-              <div class="mini-stat"><b>412</b><span>artigos</span></div>
-              <div class="mini-stat"><b>284k</b><span>views/mes</span></div>
+              <div class="mini-stat"><b>{totalArticles}</b><span>artigos</span></div>
+              <div class="mini-stat"><b>{categories.length}</b><span>categorias</span></div>
               <div class="mini-stat"><b>3.2k</b><span>assinantes</span></div>
               <div class="mini-stat"><b>7y</b><span>escrevendo</span></div>
             </div>

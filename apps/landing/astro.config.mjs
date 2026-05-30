@@ -4,6 +4,7 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://devdoido.com.br',
+  output: 'hybrid',
   integrations: [
     tailwind(),
     sitemap({

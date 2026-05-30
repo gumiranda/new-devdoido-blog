@@ -1,28 +1,69 @@
+import { fetchAutomation, updateAutomation } from '../api';
+
 export function setupAutomationView() {
   const ruleSwitch = document.getElementById('rule-switch');
   const ruleHead = document.getElementById('rule-head');
   const promptArea = document.getElementById('prompt-area') as HTMLTextAreaElement;
   const promptEditor = document.getElementById('prompt-editor');
+  const saveBtn = document.getElementById('save-automation');
+  const testBtn = document.getElementById('test-prompt-btn');
+
+  let automationData: any = null;
+
+  async function load() {
+    try {
+      automationData = (await fetchAutomation()) ?? {};
+    } catch {
+      automationData = {};
+    }
+    applyState();
+  }
+
+  function applyState() {
+    if (!automationData) return;
+
+    if (ruleSwitch) {
+      if (automationData.enabled) ruleSwitch.classList.add('on');
+      else ruleSwitch.classList.remove('on');
+    }
+    if (ruleHead) {
+      if (automationData.enabled) ruleHead.classList.add('on');
+      else ruleHead.classList.remove('on');
+      const label = ruleHead.querySelector('.rh-t b');
+      if (label) label.textContent = automationData.enabled ? 'Automação ativa' : 'Automação pausada';
+    }
+    if (promptArea && automationData.promptTemplate) {
+      promptArea.value = automationData.promptTemplate;
+      updatePromptChars();
+    }
+  }
+
+  async function save() {
+    if (!automationData) return;
+    const enabled = ruleSwitch?.classList.contains('on') ?? false;
+    const promptTemplate = promptArea?.value;
+    try {
+      await updateAutomation({ enabled, promptTemplate, generateOnTranscript: true });
+      window.showToast?.('Automação salva', '// gerar artigo quando transcrição ficar pronta');
+    } catch (err: any) {
+      window.showToast?.('Erro', '// ' + (err.message ?? 'falha ao salvar'));
+    }
+  }
 
   ruleSwitch?.addEventListener('click', () => {
     ruleSwitch.classList.toggle('on');
-    const on = ruleSwitch.classList.contains('on');
-    ruleHead?.classList.toggle('on', on);
-    const label = ruleHead?.querySelector('.rh-t b');
-    if (label) label.textContent = on ? 'Automação ativa' : 'Automação pausada';
   });
 
   function updatePromptChars() {
     if (!promptArea) return;
-    document.getElementById('prompt-chars')!.textContent =
-      promptArea.value.length.toLocaleString('pt-BR') + ' caracteres';
+    const el = document.getElementById('prompt-chars');
+    if (el) el.textContent = promptArea.value.length.toLocaleString('pt-BR') + ' caracteres';
   }
 
   if (promptArea) {
     promptArea.addEventListener('input', updatePromptChars);
     promptArea.addEventListener('focus', () => promptEditor?.classList.add('focus'));
     promptArea.addEventListener('blur', () => promptEditor?.classList.remove('focus'));
-    updatePromptChars();
   }
 
   document.querySelectorAll('.var-chip').forEach((chip) => {
@@ -51,11 +92,8 @@ export function setupAutomationView() {
     c.addEventListener('click', () => c.classList.toggle('on'));
   });
 
-  document.getElementById('save-automation')?.addEventListener('click', () => {
-    window.showToast('Automação salva', '// gerar artigo quando transcrição ficar pronta');
-  });
+  saveBtn?.addEventListener('click', save);
 
-  const testBtn = document.getElementById('test-prompt-btn');
   testBtn?.addEventListener('click', () => {
     const loading = document.getElementById('gen-loading');
     const output = document.getElementById('gen-output');
@@ -82,7 +120,9 @@ export function setupAutomationView() {
       loading?.classList.remove('show');
       output?.classList.add('show');
       testBtn.removeAttribute('disabled');
-      window.showToast('Artigo de teste gerado', '// rascunho pronto para revisão');
+      window.showToast?.('Artigo de teste gerado', '// rascunho pronto para revisão');
     }, 2900);
   });
+
+  load();
 }

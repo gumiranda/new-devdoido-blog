@@ -1,55 +1,169 @@
 /**
- * Seed — ports the frontend MOCK (`apps/landing/src/lib/mock.ts`) into the DB.
- * User is created via Better Auth (password hashing); domain rows via Drizzle.
- * Idempotent: reuses the existing user/org and wipes that workspace's domain rows.
+ * Seed + reusable bootstrap helpers.
  *
- * Run: `bun run db:seed`
+ * - `bootstrapWorkspace()` — creates user + org + member + defaults (wallet,
+ *   settings, automation, schedule). Exportable for signup hooks (M4).
+ * - `backfillArticleSeo()` — backfills metaTitle/metaDescription for articles
+ *   that lack them (safe post-migration job, M0.8).
+ *
+ * Seed commmand: `bun run db:seed`
+ * Backfill command: `bun run src/db/seed.ts backfill`
  */
 import { eq } from "drizzle-orm";
 import { auth } from "../auth/auth";
 import { db } from "./client";
 import * as s from "./schema";
+import { PLAN_CREDITS } from "../lib/plans";
 
-const EMAIL = "gustavo@faturei.io";
-const PASSWORD = "devdoido123";
-const NAME = "Gustavo Miranda";
-const ORG_SLUG = "devdoido";
+const SEED_EMAIL = "gustavo@faturei.io";
+const SEED_PASSWORD = "devdoido123";
+const SEED_NAME = "Gustavo Miranda";
+const SEED_ORG_SLUG = "devdoido";
 
 const daysAgo = (d: number) => new Date(Date.now() - d * 86_400_000);
 
-async function ensureUser(): Promise<string> {
-  try {
-    const res = await auth.api.signUpEmail({ body: { email: EMAIL, password: PASSWORD, name: NAME } });
-    return (res as { user: { id: string } }).user.id;
-  } catch {
-    const [u] = await db.select({ id: s.user.id }).from(s.user).where(eq(s.user.email, EMAIL)).limit(1);
-    if (!u) throw new Error("could not create or find seed user");
-    return u.id;
-  }
+/* ──────── Reusable bootstrap (M0.7 / M1.5 / M4.1) ──────── */
+
+export interface BootstrapInput {
+  email: string;
+  password: string;
+  name: string;
+  orgSlug: string;
+  orgName: string;
+  /** Plan name — defaults come from PLANS table. */
+  plan?: "free" | "pro" | "scale";
 }
 
-async function ensureOrg(userId: string): Promise<string> {
+export interface BootstrapResult {
+  userId: string;
+  workspaceId: string;
+}
+
+/**
+ * Create user + org + member + all default workspace rows in one shot.
+ * Idempotent: if the email already exists, reuses the existing user.
+ * If the org slug already exists, reuses the existing org.
+ * Safe to call from Better Auth `databaseHooks.user.create` (M4.1).
+ */
+export async function bootstrapWorkspace(input: BootstrapInput): Promise<BootstrapResult> {
+  const plan = input.plan ?? "free";
+
+  // 1. User
+  let userId: string;
+  try {
+    const res = await auth.api.signUpEmail({
+      body: { email: input.email, password: input.password, name: input.name },
+    });
+    userId = (res as { user: { id: string } }).user.id;
+  } catch {
+    const [u] = await db.select({ id: s.user.id }).from(s.user).where(eq(s.user.email, input.email)).limit(1);
+    if (!u) throw new Error("could not create or find user");
+    userId = u.id;
+  }
+
+  // 2. Org + membership
+  let wsId: string;
   const [existing] = await db
     .select({ id: s.organization.id })
     .from(s.organization)
-    .where(eq(s.organization.slug, ORG_SLUG))
+    .where(eq(s.organization.slug, input.orgSlug))
     .limit(1);
-  if (existing) return existing.id;
+  if (existing) {
+    wsId = existing.id;
+  } else {
+    wsId = crypto.randomUUID();
+    await db.insert(s.organization).values({ id: wsId, name: input.orgName, slug: input.orgSlug });
+    await db.insert(s.member).values({
+      id: crypto.randomUUID(),
+      organizationId: wsId,
+      userId,
+      role: "owner",
+    });
+  }
 
-  const id = crypto.randomUUID();
-  await db.insert(s.organization).values({ id, name: "DEVDOIDO", slug: ORG_SLUG });
-  await db.insert(s.member).values({ id: crypto.randomUUID(), organizationId: id, userId, role: "owner" });
-  return id;
+  // 3. Default workspace rows (upsert — safe on re-seed)
+  await db
+    .insert(s.workspaceSettings)
+    .values({ workspaceId: wsId, blogSlug: input.orgSlug })
+    .onConflictDoUpdate({ target: s.workspaceSettings.workspaceId, set: { updatedAt: new Date() } });
+
+  await db
+    .insert(s.wallet)
+    .values({ workspaceId: wsId, balance: PLAN_CREDITS[plan], plan })
+    .onConflictDoUpdate({ target: s.wallet.workspaceId, set: { updatedAt: new Date() } });
+
+  await db
+    .insert(s.automationConfig)
+    .values({
+      workspaceId: wsId,
+      enabled: false,
+      model: "claude-sonnet-4-5",
+      generateOnTranscript: true,
+      autoPublish: false,
+      promptTemplate:
+        "Você é um redator técnico especializado em SEO. Escreva um artigo de blog em português brasileiro a partir da transcrição abaixo. O artigo deve ter título H1 cativante, meta description (max 160 chars), subtítulos H2, parágrafos curtos (max 4 linhas), bullets quando couber, e uma seção de FAQ com 3 perguntas no final. Use tom informal mas profissional. Inclua uma caixa de resposta rápida (answer box) de 40-80 palavras no início resumindo o artigo.\n\nTranscrição:\n{{transcript}}",
+    })
+    .onConflictDoUpdate({ target: s.automationConfig.workspaceId, set: { updatedAt: new Date() } });
+
+  await db
+    .insert(s.scheduleConfig)
+    .values({
+      workspaceId: wsId,
+      frequency: "daily",
+      cronExpr: "0 8 * * *",
+      timezone: "America/Sao_Paulo",
+      quotaPerRun: plan === "free" ? 5 : plan === "pro" ? 100 : 500,
+    })
+    .onConflictDoUpdate({ target: s.scheduleConfig.workspaceId, set: { updatedAt: new Date() } });
+
+  return { userId, workspaceId: wsId };
 }
 
+/* ──────── Backfill (M0.8) ──────── */
+
+/**
+ * Backfill SEO fields for articles that are missing metaTitle/metaDescription.
+ * metaDescription ← excerpt || contentText.slice(0, 160)
+ * metaTitle ← title
+ * Safe to run multiple times (idempotent).
+ * Call after migration in staging → validate → run in production.
+ */
+export async function backfillArticleSeo() {
+  const rows = await db.select().from(s.article).where(eq(s.article.metaTitle, null as any));
+
+  for (const row of rows) {
+    const metaDescription = row.excerpt
+      ?? row.metaDescription
+      ?? (() => {
+          const text = row.contentHtml?.replace(/<[^>]+>/g, "") ?? "";
+          return text.slice(0, 160);
+        })();
+
+    await db
+      .update(s.article)
+      .set({
+        metaTitle: row.title,
+        metaDescription,
+        ogImageUrl: row.coverUrl,
+        twitterCard: "summary_large_image",
+        updatedAt: new Date(),
+      })
+      .where(eq(s.article.id, row.id));
+  }
+
+  console.log(`✓ Backfilled ${rows.length} articles`);
+}
+
+/* ──────── Seed main (development fixtures) ──────── */
+
 async function wipe(ws: string) {
-  // article delete cascades to article_tag_relation + moderation_result
   await db.delete(s.article).where(eq(s.article.workspaceId, ws));
   await db.delete(s.articleTag).where(eq(s.articleTag.workspaceId, ws));
   await db.delete(s.video).where(eq(s.video.workspaceId, ws));
   await db.delete(s.channel).where(eq(s.channel.workspaceId, ws));
   await db.delete(s.googleConnection).where(eq(s.googleConnection.workspaceId, ws));
   await db.delete(s.run).where(eq(s.run.workspaceId, ws));
+  await db.delete(s.cronLog).where(eq(s.cronLog.workspaceId, ws));
   await db.delete(s.creditTransaction).where(eq(s.creditTransaction.workspaceId, ws));
   await db.delete(s.payment).where(eq(s.payment.workspaceId, ws));
   await db.delete(s.wallet).where(eq(s.wallet.workspaceId, ws));
@@ -58,14 +172,24 @@ async function wipe(ws: string) {
   await db.delete(s.workspaceSettings).where(eq(s.workspaceSettings.workspaceId, ws));
 }
 
-async function main() {
-  const userId = await ensureUser();
-  const ws = await ensureOrg(userId);
+async function seed() {
+  const { userId, workspaceId: ws } = await bootstrapWorkspace({
+    email: SEED_EMAIL,
+    password: SEED_PASSWORD,
+    name: SEED_NAME,
+    orgSlug: SEED_ORG_SLUG,
+    orgName: "DEVDOIDO",
+    plan: "pro",
+  });
+
   await wipe(ws);
+
+  // Re-insert post-wipe (wallet + automation + schedule)
+  await db.insert(s.wallet).values({ workspaceId: ws, balance: 1240, plan: "pro", planRenewsAt: new Date(Date.now() + 16 * 86_400_000), cardLast4: "4242" });
 
   await db.insert(s.workspaceSettings).values({
     workspaceId: ws,
-    blogSlug: ORG_SLUG,
+    blogSlug: SEED_ORG_SLUG,
     category: "blog",
     color: "hsl(217 91% 55%)",
     description: "Blog sobre programação, IA, SaaS e carreira dev.",
@@ -90,10 +214,10 @@ async function main() {
   const chByName = Object.fromEntries(insertedChannels.map((c) => [c.name, c.id]));
 
   await db.insert(s.video).values([
-    { workspaceId: ws, channelId: chByName["Rocketseat"], title: "Next.js 16: o que muda na prática", durationSeconds: 1104, wordCount: 3412, status: "done", publishedAt: daysAgo(1) },
-    { workspaceId: ws, channelId: chByName["Filipe Deschamps"], title: "Construindo um sistema de filas do zero", durationSeconds: 2512, wordCount: 7220, status: "processing", publishedAt: daysAgo(1) },
-    { workspaceId: ws, channelId: chByName["Código Fonte TV"], title: "O que é Clean Architecture de verdade", durationSeconds: 930, wordCount: 2890, status: "done", publishedAt: daysAgo(2) },
-    { workspaceId: ws, channelId: chByName["Código Fonte TV"], title: "TypeScript avançado: generics na prática", durationSeconds: 1185, wordCount: 0, status: "queued", publishedAt: daysAgo(4) },
+    { workspaceId: ws, channelId: chByName["Rocketseat"], youtubeVideoId: "vid_r_nextjs16", title: "Next.js 16: o que muda na prática", durationSeconds: 1104, wordCount: 3412, status: "done", transcriptStatus: "done", publishedAt: daysAgo(1) },
+    { workspaceId: ws, channelId: chByName["Filipe Deschamps"], youtubeVideoId: "vid_f_filas", title: "Construindo um sistema de filas do zero", durationSeconds: 2512, wordCount: 7220, status: "processing", transcriptStatus: "processing", publishedAt: daysAgo(1) },
+    { workspaceId: ws, channelId: chByName["Código Fonte TV"], youtubeVideoId: "vid_c_clean", title: "O que é Clean Architecture de verdade", durationSeconds: 930, wordCount: 2890, status: "done", transcriptStatus: "done", publishedAt: daysAgo(2) },
+    { workspaceId: ws, channelId: chByName["Código Fonte TV"], youtubeVideoId: "vid_c_tsgen", title: "TypeScript avançado: generics na prática", durationSeconds: 1185, wordCount: 0, status: "queued", transcriptStatus: "pending", publishedAt: daysAgo(4) },
   ]);
 
   await db.insert(s.run).values([
@@ -116,9 +240,44 @@ async function main() {
   const artRows = await db
     .insert(s.article)
     .values([
-      { workspaceId: ws, authorId: userId, title: "Next.js 16 na prática: o novo cache que finalmente faz sentido", slug: "nextjs-16-cache", status: "draft", source: "ia", category: "Next.js", sourceLabel: "Rocketseat", views: 0, indexState: "na" },
-      { workspaceId: ws, authorId: userId, title: "Se o Cursor cair, você sabe codar?", slug: "cursor-cair-saber-codar", status: "published", source: "manual", category: "Carreira", views: 2400, indexState: "indexed", indexCoverage: "URL enviada e indexada", publishedAt: daysAgo(2), moderationStatus: "approved", moderationCheckedAt: daysAgo(2) },
-      { workspaceId: ws, authorId: userId, title: "Clean Architecture de verdade: o guia sem hype", slug: "clean-architecture-guia", status: "published", source: "ia", category: "Arquitetura", sourceLabel: "Código Fonte TV", views: 1820, indexState: "notindexed", indexCoverage: "Descoberta — não indexada no momento", publishedAt: daysAgo(2), moderationStatus: "approved" },
+      {
+        workspaceId: ws, authorId: userId,
+        title: "Next.js 16 na prática: o novo cache que finalmente faz sentido",
+        slug: "nextjs-16-cache", status: "draft", source: "ia", category: "Next.js",
+        sourceLabel: "Rocketseat", views: 0, indexState: "na",
+        metaTitle: "Next.js 16 na prática: o novo cache que finalmente faz sentido",
+        metaDescription: "Entenda como o novo sistema de cache do Next.js 16 muda a forma de pensar sobre SSR, ISR e edge rendering.",
+        twitterCard: "summary_large_image",
+      },
+      {
+        workspaceId: ws, authorId: userId,
+        title: "Se o Cursor cair, você sabe codar?",
+        slug: "cursor-cair-saber-codar", status: "published", source: "manual", category: "Carreira",
+        views: 2400, indexState: "indexed", indexCoverage: "URL enviada e indexada",
+        publishedAt: daysAgo(2), moderationStatus: "approved", moderationCheckedAt: daysAgo(2),
+        metaTitle: "Se o Cursor cair, você sabe codar? — DEVDOIDO",
+        metaDescription: "Ferramentas de IA caem. O mercado muda. A pergunta que separa dev junior de senior é: você consegue entregar sem autocomplete?",
+        twitterCard: "summary_large_image",
+        answerBox: "Ferramentas de IA como Cursor e Copilot são aceleradores, não substitutos. Saber codar sem elas é o que garante sua empregabilidade no longo prazo — e o que diferencia quem entrega de quem só cola.",
+        faqJson: {
+          questions: [
+            { question: "Cursor pode substituir um desenvolvedor?", answer: "Não. Cursor é um acelerador para quem já sabe o que está fazendo. Para quem não sabe, ele gera código que você não consegue debugar." },
+            { question: "O que estudar para não depender de IA?", answer: "Fundamentos: algoritmos, estrutura de dados, padrões de projeto, arquitetura de software. Saber explicar por que seu código funciona, não só que ele funciona." },
+            { question: "Vale a pena usar Cursor no dia a dia?", answer: "Sim, se você usa como par: pede em pedaços, revisa tudo, e nunca aceita código que você não entendeu." },
+          ],
+        },
+      },
+      {
+        workspaceId: ws, authorId: userId,
+        title: "Clean Architecture de verdade: o guia sem hype",
+        slug: "clean-architecture-guia", status: "published", source: "ia", category: "Arquitetura",
+        sourceLabel: "Código Fonte TV", views: 1820, indexState: "notindexed",
+        indexCoverage: "Descoberta — não indexada no momento", publishedAt: daysAgo(2),
+        moderationStatus: "approved",
+        metaTitle: "Clean Architecture de verdade: o guia sem hype — DEVDOIDO",
+        metaDescription: "Clean Architecture não é sobre pastas. É sobre dependências apontando pra dentro. Veja como aplicar sem cair no overengineering que os gurus vendem.",
+        twitterCard: "summary_large_image",
+      },
     ])
     .returning();
   const artBySlug = Object.fromEntries(artRows.map((a) => [a.slug, a.id]));
@@ -128,8 +287,6 @@ async function main() {
     { articleId: artBySlug["cursor-cair-saber-codar"], tagId: tagBySlug["carreira"] },
     { articleId: artBySlug["clean-architecture-guia"], tagId: tagBySlug["arquitetura"] },
   ]);
-
-  await db.insert(s.wallet).values({ workspaceId: ws, balance: 1240, plan: "pro", planRenewsAt: new Date(Date.now() + 16 * 86_400_000), cardLast4: "4242" });
 
   await db.insert(s.creditTransaction).values([
     { workspaceId: ws, type: "expense", action: "generate_article", category: "article", detail: 'Geração de artigo · "Next.js 16 na prática"', amount: -25 },
@@ -156,12 +313,25 @@ async function main() {
     nextRunAt: new Date(Date.now() + 14 * 3_600_000),
   });
 
-  console.log(`✓ Seeded workspace ${ws} (user ${EMAIL} / ${PASSWORD})`);
+  console.log(`✓ Seeded workspace ${ws} (user ${SEED_EMAIL} / ${SEED_PASSWORD})`);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+/* ──────── Entry ──────── */
+
+const cmd = process.argv[2];
+
+if (cmd === "backfill") {
+  backfillArticleSeo()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+} else {
+  seed()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+}

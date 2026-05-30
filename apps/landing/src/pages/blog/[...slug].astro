@@ -4,43 +4,82 @@ import PageShell from '../../components/devdoido/PageShell.astro';
 import ArticleCard from '../../components/devdoido/ArticleCard.astro';
 import AsciiRule from '../../components/devdoido/AsciiRule.astro';
 import Terminal from '../../components/devdoido/Terminal.astro';
-import { formatDate, getPost, posts, SITE } from '../../data/devdoido';
+import { SITE } from '../../data/devdoido';
 
-export function getStaticPaths() {
-  return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+export const prerender = true;
+
+const API_BASE = import.meta.env.PUBLIC_API_URL ?? 'http://localhost:3000';
+
+interface Article {
+  id: string;
+  title: string;
+  subtitle?: string;
+  slug: string;
+  excerpt?: string;
+  coverUrl?: string;
+  category?: string;
+  publishedAt?: string;
+  views: number;
+  contentHtml?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  ogImageUrl?: string;
+  twitterCard?: string;
+  answerBox?: string;
+  schemaJson?: any;
+  faqJson?: any;
+  tags?: { id: string; name: string; slug: string }[];
+  workspaceId: string;
+  moderationStatus?: string;
 }
 
-const { post } = Astro.props;
-const relatedPosts = posts
-  .filter((candidate) => candidate.slug !== post.slug && candidate.tags.some((tag) => post.tags.includes(tag)))
+let allArticles: Article[] = [];
+
+export async function getStaticPaths() {
+  try {
+    const resp = await fetch(`${API_BASE}/api/v1/public/articles?workspace=devdoido&perPage=200`);
+    const data = await resp.json();
+    allArticles = Array.isArray(data) ? data : [];
+  } catch {
+    allArticles = [];
+  }
+  return allArticles.map((a) => ({ params: { slug: a.slug }, props: { slug: a.slug } }));
+}
+
+const { slug } = Astro.params;
+const post = allArticles.find((a) => a.slug === slug);
+
+if (!post) {
+  return Astro.redirect('/404');
+}
+
+const relatedArticles = allArticles
+  .filter((a) => a.slug !== post.slug && a.category === post.category)
   .slice(0, 3);
-const fullPost = getPost(post.slug) ?? post;
+
 const coverColors = ['a', 'b', 'c'];
+const articleSection = post.category ?? 'Blog';
+const postTags = post.tags?.map((t) => t.slug) ?? [];
+const pubDate = post.publishedAt ?? new Date().toISOString();
 ---
 
 <BaseLayout
-  title={fullPost.title}
-  description={fullPost.description}
-  canonical={`/blog/${fullPost.slug}`}
+  title={post.metaTitle ?? post.title}
+  description={post.metaDescription ?? post.excerpt ?? ''}
+  canonical={`/blog/${post.slug}`}
   type="article"
-  publishedTime={new Date(`${fullPost.pubDate}T12:00:00-03:00`).toISOString()}
-  articleSection={fullPost.category}
-  keywords={fullPost.tags}
+  publishedTime={pubDate}
+  articleSection={articleSection}
+  keywords={postTags}
   author={{ name: SITE.author, url: '/sobre', credentials: 'Autor do DEVDOIDO' }}
 >
-  <PageShell active="Blog" breadcrumb={[{ label: 'blog', href: '/blog' }, { label: fullPost.slug }]}>
+  <PageShell active="Blog" breadcrumb={[{ label: 'blog', href: '/blog' }, { label: post.slug }]}>
     <!-- Article hero -->
     <section style="padding:48px 0 24px">
       <div class="container-narrow">
-        <div class="art-cat"><span class="dot"></span> {fullPost.category} {fullPost.featured && '&middot; manifesto'}</div>
-        <h1 class="art-title">
-          {fullPost.featured ? (
-            <>Pare de aprender<br />framework. Aprenda a <span style="color:var(--lime-400)">pensar.</span></>
-          ) : (
-            fullPost.title
-          )}
-        </h1>
-        <p class="art-sub">{fullPost.description}</p>
+        <div class="art-cat"><span class="dot"></span> {post.category ?? 'Blog'}</div>
+        <h1 class="art-title">{post.title}</h1>
+        <p class="art-sub">{post.excerpt ?? post.subtitle ?? ''}</p>
 
         <div class="byline">
           <div class="byline-author">
@@ -51,90 +90,27 @@ const coverColors = ['a', 'b', 'c'];
             </div>
           </div>
           <div class="byline-meta">
-            <span>{formatDate(fullPost.pubDate).toUpperCase()}</span>
-            <span class="accent">{fullPost.minutes} MIN DE LEITURA</span>
-            <span>{fullPost.reads} VIEWS</span>
+            <span>{pubDate ? new Date(pubDate).toLocaleDateString('pt-BR', { dateStyle: 'long' }).toUpperCase() : ''}</span>
           </div>
         </div>
 
         <div class="art-cover"><span class="wm">{'{ }'}</span></div>
-        <div class="mono-caption" style="text-align:center;margin-bottom:48px">// fig 1 — {fullPost.display}</div>
+        <div class="mono-caption" style="text-align:center;margin-bottom:48px">// {post.category ?? 'artigo'}</div>
       </div>
     </section>
 
     <!-- Article body -->
     <article style="padding-bottom:48px">
       <div class="prose">
-        {fullPost.featured ? (
-          <>
-            <p>
-              Toda quinta-feira aparece um curso novo prometendo te transformar em senior em 90 dias. Toda quinta-feira aparece um dev iniciante perguntando qual framework deve aprender primeiro.
-            </p>
-            <p>
-              A pergunta ta errada. Nao e qual framework. E por que voce acha que framework e o problema. Voce passou meses estudando React, migrou para Next, brigou com Server Actions, e ainda nao sabe escrever uma funcao que faz uma coisa so.
-            </p>
-            <blockquote>Framework e gramatica. Voce precisa aprender a falar.</blockquote>
-            <h2>O sintoma e o tutorial</h2>
-            <p>
-              Quando voce abre o Cursor pela milesima vez e a primeira coisa que faz e digitar como faco um botao, o problema nao e o botao. O problema e que voce terceirizou o ato de pensar pro autocomplete.
-            </p>
-            <p>
-              Nao e sobre largar IA. E sobre nao usar IA como muleta antes de tentar pensar. Cinco minutos de pensar. Voce consegue cinco minutos?
-            </p>
-            <pre><div class="pre-bar"><div class="lights"><span></span><span></span><span></span></div><span>manifesto.ts</span></div><code>{`// errado
-"escreva uma funcao que pega um array de users
-e retorna os ativos com email"
-
-// certo
-// cinco minutos depois de pensar
-"essa funcao retorna duplicados porque
-o filter roda antes do dedupe. mexe so
-no dedupe, nao inverta a ordem das ops."`}</code></pre>
-            <h2>Os 4 niveis</h2>
-            <p>Tem 4 niveis de quem usa IA pra programar. Voce precisa saber em qual voce esta:</p>
-            <ul>
-              <li><strong>Nivel 1: turista.</strong> Copia, cola, reza. Nao sabe o que ta rodando.</li>
-              <li><strong>Nivel 2: apprentice.</strong> Le o que a IA escreveu, edita duas linhas, segue.</li>
-              <li><strong>Nivel 3: operator.</strong> Sabe o que quer, pede em pedacos, valida tudo.</li>
-              <li><strong>Nivel 4: arquiteto.</strong> Usa IA pra acelerar o que ja sabia fazer sozinho.</li>
-            </ul>
-            <p>A maioria dos cursos vende nivel 4 e entrega nivel 1. Voce sai sabendo gerar landing page e nao sabe debugar uma hidratacao quebrada.</p>
-            <h2>O que fazer</h2>
-            <p>Nao vou te dar checklist. Checklist e o problema. Mas tres perguntas valem mais que qualquer curso:</p>
-            <p>
-              1. Se a IA sumir hoje, voce termina esse projeto sozinho?<br />
-              2. Voce sabe explicar por que o codigo ta assim?<br />
-              3. Voce consegue fazer a mesma feature em outra stack?
-            </p>
-            <p>Se respondeu nao para duas dessas, voce nao ta programando. Ta fazendo prompt engineering com extra steps.</p>
-          </>
-        ) : (
-          <>
-            <p>{fullPost.description}</p>
-            <p>
-              Esse texto e parte do arquivo devdoido. A tese e simples: ferramenta muda, fundamento fica. Se a sua stack depende de hype para parecer boa, o problema ja apareceu.
-            </p>
-            <blockquote>Codigo bom sobrevive a troca da ferramenta.</blockquote>
-            <h2>Onde pega</h2>
-            <p>
-              A parte dificil nunca foi instalar pacote. Foi entender escopo, custo, manutencao, debugar falha intermitente e explicar decisao para alguem que paga a conta.
-            </p>
-            <h2>Resumo bruto</h2>
-            <ul>
-              <li>Pense antes de pedir para a IA escrever.</li>
-              <li>Valide em partes pequenas.</li>
-              <li>Nao confunda velocidade de geracao com qualidade de entrega.</li>
-            </ul>
-          </>
-        )}
+        <Fragment set:html={post.contentHtml ?? `<p>${post.excerpt ?? ''}</p>`} />
       </div>
     </article>
 
     <!-- Tags -->
     <div class="container-narrow">
       <div class="art-tags">
-        {fullPost.tags.map((tag) => (
-          <a href={`/blog?tag=${encodeURIComponent(tag)}`} class="tag">#{tag}</a>
+        {post.tags?.map((tag) => (
+          <a href={`/blog?tag=${encodeURIComponent(tag.slug)}`} class="tag">#{tag.name}</a>
         ))}
       </div>
 
@@ -144,10 +120,9 @@ no dedupe, nao inverta a ordem das ops."`}</code></pre>
         <div>
           <div class="ab-name">{SITE.author}</div>
           <div class="ab-role">FOUNDER &middot; {SITE.name.toUpperCase()} &middot; @devdoido</div>
-          <p>Desenvolvedor full-stack ha 8 anos. Escrevo sobre codigo honesto e negocios indie. Stack atual: Bun + Next + Convex + Claude Code.</p>
+          <p>Desenvolvedor full-stack ha 8 anos. Escrevo sobre codigo honesto e negocios indie.</p>
           <div style="display:flex;gap:10px">
             <a href="/sobre" class="btn btn-secondary btn-sm">Ver perfil</a>
-            <a href="/sobre" class="btn btn-ghost btn-sm">Ver perfil</a>
           </div>
         </div>
       </div>
@@ -160,11 +135,9 @@ no dedupe, nao inverta a ordem das ops."`}</code></pre>
           <p style="font-size:14px;color:var(--fg-muted);margin:0 0 18px;line-height:1.5">Artigos de fintechs, devtools, e-commerces. Direto de quem constroi.</p>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <a href="/feed" class="btn btn-secondary btn-sm">Explorar feed →</a>
-            <a href="/criar-saas" class="btn btn-ghost btn-sm">Cadastrar SaaS</a>
           </div>
         </div>
         <div style="flex:1;min-width:280px;background:linear-gradient(135deg,var(--bg-1),var(--bg-2));border:1px solid var(--lime-500);border-radius:var(--r-lg);padding:40px;position:relative;overflow:hidden">
-          <div class="grid-bg" style="position:absolute;inset:0;background-size:32px 32px;opacity:.5"></div>
           <div style="position:relative">
             <p class="mono-caption" style="margin-bottom:10px">// curso</p>
             <h3 style="font-size:22px;font-weight:700;letter-spacing:-0.02em;margin:0 0 8px">CrazyStack TypeScript</h3>
@@ -176,25 +149,25 @@ no dedupe, nao inverta a ordem das ops."`}</code></pre>
     </div>
 
     <!-- Related -->
-    <section style="border-top:1px solid var(--border);padding:56px 0 80px">
-      <div class="page">
-        <AsciiRule label="// continue lendo" />
-        <h2 class="t-section" style="margin-bottom:32px">Mais nesse beco</h2>
-        <div class="article-grid">
-          {relatedPosts.map((related, i) => (
-            <ArticleCard
-              href={`/blog/${related.slug}`}
-              category={`// ${related.category} &middot; ${related.minutes} min`}
-              title={related.title}
-              date={formatDate(related.pubDate)}
-              reads={related.reads}
-              display={related.display}
-              badges={related.badges}
-              coverColor={coverColors[i % coverColors.length]}
-            />
-          ))}
+    {relatedArticles.length > 0 && (
+      <section style="border-top:1px solid var(--border);padding:56px 0 80px">
+        <div class="page">
+          <AsciiRule label="// continue lendo" />
+          <h2 class="t-section" style="margin-bottom:32px">Mais nesse beco</h2>
+          <div class="article-grid">
+            {relatedArticles.map((related, i) => (
+              <ArticleCard
+                href={`/blog/${related.slug}`}
+                category={`// ${related.category ?? 'blog'}`}
+                title={related.title}
+                date={related.publishedAt ? new Date(related.publishedAt).toLocaleDateString('pt-BR', { dateStyle: 'long' }) : ''}
+                display={related.category ?? ''}
+                coverColor={coverColors[i % coverColors.length]}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    )}
   </PageShell>
 </BaseLayout>
