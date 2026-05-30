@@ -1,5 +1,5 @@
 /** Centralized env access. Bun auto-loads `.env`. */
-function required(name: string): string {
+export function required(name: string): string {
   const v = process.env[name];
   if (!v) throw new Error(`Missing required env var: ${name}`);
   return v;

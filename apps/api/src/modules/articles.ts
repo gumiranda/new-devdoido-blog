@@ -7,12 +7,26 @@ import { slugify } from "../lib/slug";
 
 type ModStatus = "approved" | "flagged" | "needs_review" | "blocked";
 
+/** Minimal denylist screen standing in for the real OpenAI moderation call (TODO). */
+const MODERATION_DENYLIST = ["__blocked__"];
+
+function screen(text: string): ModStatus {
+  const haystack = text.toLowerCase();
+  if (MODERATION_DENYLIST.some((term) => haystack.includes(term))) return "blocked";
+  return "approved";
+}
+
 /**
  * Moderation — STUB. Real OpenAI moderation call is TODO. Records a
  * `moderation_result` row and mirrors the verdict onto `article.moderationStatus`.
  */
 async function runModeration(articleId: string): Promise<ModStatus> {
-  const verdict: ModStatus = "approved"; // TODO: call OpenAI moderation API
+  const [a] = await db
+    .select({ title: article.title, contentHtml: article.contentHtml })
+    .from(article)
+    .where(eq(article.id, articleId))
+    .limit(1);
+  const verdict = screen(`${a?.title ?? ""} ${a?.contentHtml ?? ""}`);
   await db.insert(moderationResult).values({
     articleId,
     status: verdict,
