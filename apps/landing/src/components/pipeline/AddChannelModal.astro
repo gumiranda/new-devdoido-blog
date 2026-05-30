@@ -1,0 +1,33 @@
+<div class="overlay" id="addchan-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="mh-title">Adicionar canal</span>
+      <button class="modal-x" data-close-addchan>
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="field" style="margin:0;">
+        <label>Link, @handle ou ID do canal</label>
+        <input type="text" class="input mono" id="chan-input" placeholder="@rocketseat ou youtube.com/@rocketseat" />
+        <div class="hint">Cole a URL do canal, o @handle ou o channel ID (UC...).</div>
+      </div>
+      <div class="chan-search-result" id="chan-result">
+        <div class="muted-mono" style="margin-bottom:10px;">// canal encontrado</div>
+        <div class="chan-preview">
+          <div class="cp-av" style="background:linear-gradient(135deg,#8257e6,#6420aa)">R</div>
+          <div class="cp-i">
+            <b>Rocketseat</b>
+            <div class="h">@rocketseat</div>
+            <div class="s"><span>2.1M inscritos</span><span>1.482 vídeos</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close-addchan>Cancelar</button>
+      <button class="btn btn-secondary" id="chan-search-btn">Buscar</button>
+      <button class="btn btn-primary" id="chan-add-btn" style="display:none;">Adicionar ao pipeline</button>
+    </div>
+  </div>
+</div>

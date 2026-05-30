@@ -1,0 +1,43 @@
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="dh-l">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      transcrição · salva no banco
+    </div>
+    <button class="modal-x" id="drawer-close">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body">
+    <div class="dv-thumb" id="dv-thumb" style="background:linear-gradient(135deg,#8257e6,#3b0d6b)"><span class="dur">18:24</span></div>
+    <h2 class="dv-title" id="dv-title">Next.js 16: o que muda na prática</h2>
+    <div class="dv-meta">
+      <span id="dv-chan">Rocketseat</span>
+      <span>publicado 29 mai 2026</span>
+      <span class="accent" id="dv-words">3.412 palavras</span>
+      <span>capturado hoje 08:00</span>
+    </div>
+    <div class="transcript-head">
+      <span class="th-l">// transcrição completa</span>
+      <button class="btn btn-secondary btn-sm" id="copy-transcript">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copiar
+      </button>
+    </div>
+    <div class="transcript" id="dv-transcript">
+      <p><span class="seg-time">00:00</span> Fala pessoal, beleza? Hoje a gente vai falar sobre o Next.js 16 e tudo que mudou nessa versão.</p>
+      <p><span class="seg-time">00:32</span> A primeira grande mudança é no sistema de cache. Eles repensaram completamente como o cache funciona no App Router.</p>
+      <p><span class="seg-time">01:15</span> Antes, o comportamento padrão confundia bastante gente. Agora tem um controle explícito pra cada fetch.</p>
+      <p><span class="seg-time">02:08</span> Outra coisa importante: os Server Actions ficaram estáveis e ganharam suporte melhor pra revalidação.</p>
+      <p><span class="seg-time">03:40</span> Repara que agora a gente consegue invalidar só uma tag específica do cache, sem precisar revalidar a página inteira.</p>
+      <p><span class="seg-time">05:12</span> Vamos falar também do Turbopack, que finalmente saiu de beta e virou o bundler padrão pra desenvolvimento.</p>
+    </div>
+  </div>
+  <div class="drawer-foot">
+    <a href="/admin/editor" class="btn btn-secondary btn-block">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Gerar artigo a partir desta transcrição
+    </a>
+  </div>
+</aside>

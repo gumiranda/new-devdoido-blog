@@ -1,0 +1,32 @@
+<div data-view="library" style="display:block;padding:36px 32px 80px;max-width:1180px">
+  <h1 class="page-title">Biblioteca de transcrições</h1>
+  <p class="page-desc">Todos os vídeos capturados e transcritos, salvos no banco do seu SaaS.</p>
+
+  <div class="lib-toolbar">
+    <div class="lib-filters" id="lib-filters">
+      <span class="fchip active" data-f="all">Todos</span>
+      <span class="fchip" data-f="rocketseat">Rocketseat</span>
+      <span class="fchip" data-f="filipe">Filipe Deschamps</span>
+      <span class="fchip" data-f="codigofonte">Código Fonte TV</span>
+    </div>
+    <div class="search-mini">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="buscar na transcrição..." id="lib-search" />
+    </div>
+  </div>
+
+  <div class="vid-grid" id="vid-grid"></div>
+</div>
+
+<script>
+  import { setupLibraryView } from '../../../lib/interactions/library';
+  setupLibraryView();
+
+  document.getElementById('lib-search')?.addEventListener('input', function(e) {
+    const q = (e.target as HTMLInputElement).value.toLowerCase();
+    document.querySelectorAll('.vid-card').forEach(function(card) {
+      const text = card.textContent?.toLowerCase() || '';
+      (card as HTMLElement).style.display = q ? (text.includes(q) ? '' : 'none') : '';
+    });
+  });
+</script>

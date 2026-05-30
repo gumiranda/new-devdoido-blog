@@ -1,0 +1,59 @@
+---
+import PipelineLayout from '../../../layouts/PipelineLayout.astro';
+import OverviewView from '../../../components/pipeline/views/OverviewView.astro';
+import AccountView from '../../../components/pipeline/views/AccountView.astro';
+import ChannelsView from '../../../components/pipeline/views/ChannelsView.astro';
+import ScheduleView from '../../../components/pipeline/views/ScheduleView.astro';
+import RunsView from '../../../components/pipeline/views/RunsView.astro';
+import LibraryView from '../../../components/pipeline/views/LibraryView.astro';
+import AutomationView from '../../../components/pipeline/views/AutomationView.astro';
+import MySaaSView from '../../../components/pipeline/views/MySaaSView.astro';
+import SettingsView from '../../../components/pipeline/views/SettingsView.astro';
+import CreditsView from '../../../components/pipeline/views/CreditsView.astro';
+import PlanosView from '../../../components/pipeline/views/PlanosView.astro';
+
+export function getStaticPaths() {
+  return [
+    'overview', 'account', 'channels', 'schedule', 'runs',
+    'library', 'automation', 'mysaas', 'settings', 'credits', 'planos',
+  ].map((s) => ({ params: { section: s } }));
+}
+
+const { section } = Astro.params;
+
+const views: Record<string, typeof OverviewView> = {
+  overview: OverviewView,
+  account: AccountView,
+  channels: ChannelsView,
+  schedule: ScheduleView,
+  runs: RunsView,
+  library: LibraryView,
+  automation: AutomationView,
+  mysaas: MySaaSView,
+  settings: SettingsView,
+  credits: CreditsView,
+  planos: PlanosView,
+};
+
+const ViewComponent = views[section];
+
+const breadcrumbMap: Record<string, string> = {
+  overview: 'visão geral',
+  account: 'conta google',
+  channels: 'canais monitorados',
+  schedule: 'agendamento',
+  runs: 'execuções',
+  library: 'biblioteca',
+  automation: 'geração automática',
+  mysaas: 'meu saas',
+  settings: 'configurações',
+  credits: 'créditos & cobrança',
+  planos: 'planos',
+};
+
+const pageTitle = breadcrumbMap[section] ?? section;
+---
+
+<PipelineLayout currentPage={section} pageTitle={pageTitle}>
+  <ViewComponent />
+</PipelineLayout>

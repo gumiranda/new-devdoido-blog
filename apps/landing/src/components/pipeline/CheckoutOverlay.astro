@@ -1,0 +1,92 @@
+<div class="overlay" id="checkout-overlay">
+  <div class="modal checkout">
+    <div class="modal-head">
+      <span class="mh-title" id="co-title">Comprar créditos</span>
+      <button class="modal-x" data-close-checkout>
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="step active" data-co-step="pay">
+      <div class="checkout-grid">
+        <div class="co-main">
+          <div class="section-label" style="margin-bottom:14px;">// forma de pagamento</div>
+          <div class="pay-methods" id="pay-methods">
+            <div class="pay-method on" data-method="pix">
+              <span class="radio"></span>
+              <span class="pm-logo pix">PIX</span>
+              <div class="pm-t"><b>Pix</b><span>aprovação na hora</span></div>
+              <span class="pm-badge">Abacate Pay</span>
+            </div>
+            <div class="pay-method" data-method="card">
+              <span class="radio"></span>
+              <span class="pm-logo card">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              </span>
+              <div class="pm-t"><b>Cartão de crédito</b><span>Visa, Master, Elo</span></div>
+              <span class="pm-badge">Stripe</span>
+            </div>
+          </div>
+
+          <div class="pay-panel active" data-panel="pix">
+            <div class="pix-box">
+              <div class="pix-qr"><svg viewBox="0 0 100 100" id="pix-qr-svg"></svg></div>
+              <div class="pix-status" id="pix-status"><span class="dot"></span> aguardando pagamento...</div>
+              <div class="pix-copy">
+                <input type="text" readonly value="00020126580014br.gov.bcb.pix0136abacate-pay-5000cr52040000..." id="pix-code" />
+                <button id="pix-copy-btn">copiar</button>
+              </div>
+              <div class="pix-note">// código pix expira em 30 min · gerado por Abacate Pay</div>
+            </div>
+            <div class="abacate-badge">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>
+              pagamento processado por Abacate Pay
+            </div>
+          </div>
+
+          <div class="pay-panel" data-panel="card">
+            <div class="card-form">
+              <div class="cf-field"><label>Número do cartão</label><div class="card-input-wrap"><input class="card-input" placeholder="4242 4242 4242 4242" /><span class="brand">VISA</span></div></div>
+              <div class="cf-field"><label>Nome no cartão</label><input class="card-input" placeholder="GUSTAVO MIRANDA" /></div>
+              <div class="card-row2">
+                <div class="cf-field"><label>Validade</label><input class="card-input" placeholder="MM/AA" /></div>
+                <div class="cf-field"><label>CVC</label><input class="card-input" placeholder="123" /></div>
+              </div>
+            </div>
+            <div class="stripe-badge">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              pagamento seguro processado por Stripe
+            </div>
+          </div>
+        </div>
+
+        <div class="co-summary">
+          <div class="cs-h">// resumo</div>
+          <div class="co-credits-chip">
+            <span class="ic"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h3.5a2 2 0 0 1 0 4H9.5"/></svg></span>
+            <div><b id="co-credits">5.000 cr</b><span id="co-credits-sub">recarga avulsa</span></div>
+          </div>
+          <div class="co-line"><span id="co-item-label">Pacote 5.000 créditos</span><b id="co-item-price">R$ 79,00</b></div>
+          <div class="co-line"><span>Desconto Pix</span><b id="co-discount" style="color:var(--lime-400);">−R$ 0,00</b></div>
+          <div class="co-line total"><span>Total</span><b id="co-total">R$ 79,00</b></div>
+          <button class="btn btn-primary btn-block" id="co-pay-btn" style="margin-top:20px;">Pagar com Pix</button>
+          <div class="muted-mono" style="text-align:center; margin-top:12px;">// pagamento 100% seguro</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step" data-co-step="success">
+      <div class="modal-body">
+        <div class="co-success">
+          <div class="sc-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <h3>Pagamento confirmado!</h3>
+          <p id="co-success-msg">Seus créditos já estão disponíveis no saldo da plataforma.</p>
+          <div class="credits-added" id="co-success-credits">+5.000 créditos</div>
+        </div>
+      </div>
+      <div class="modal-foot" style="justify-content:center;">
+        <button class="btn btn-primary" data-close-checkout id="co-done">Voltar aos créditos</button>
+      </div>
+    </div>
+  </div>
+</div>

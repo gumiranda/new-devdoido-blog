@@ -1,0 +1,58 @@
+---
+interface Props {
+  pageTitle: string;
+}
+
+const { pageTitle } = Astro.props;
+---
+
+<div class="topbar">
+  <div class="tb-left">
+    <div class="tb-crumb">
+      <a href="/admin/pipeline" style="color:var(--fg-muted)">admin</a>
+      <span class="sep">/</span>
+      <span>pipeline youtube</span>
+      <span class="sep">/</span>
+      <span class="here">{pageTitle}</span>
+    </div>
+  </div>
+  <div class="tb-right">
+    <a href="/admin/pipeline/credits" class="credit-pill" id="credit-pill">
+      <span class="cp-ic">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h3.5a2 2 0 0 1 0 4H9.5"/></svg>
+      </span>
+      <b id="cp-balance">1.240</b>
+      <span class="cp-lbl">créditos</span>
+      <span class="cp-mini"><span class="f" id="cp-fill" style="width:41%"></span></span>
+    </a>
+    <div class="tb-status" id="conn-status">
+      <span class="dot off" id="conn-dot"></span>
+      <span id="conn-text">Conta Google não conectada</span>
+    </div>
+    <button class="btn btn-secondary btn-sm" id="run-now-btn" style="display:none;">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Executar agora
+    </button>
+    <a href="/admin/editor" class="btn btn-ghost btn-sm">Editor</a>
+    <a href="/" class="btn btn-secondary btn-sm">← Site</a>
+  </div>
+</div>
+
+<script>
+  function updateConnectionUI() {
+    const connected = localStorage.getItem('pipeline-connected') === 'true';
+    const connDot = document.getElementById('conn-dot');
+    const connText = document.getElementById('conn-text');
+    const runBtn = document.getElementById('run-now-btn');
+    if (connDot) connDot.className = 'dot ' + (connected ? 'ok' : 'off');
+    if (connText) connText.textContent = connected ? 'devdoido.bot@gmail.com' : 'Conta Google não conectada';
+    if (runBtn) runBtn.style.display = connected ? 'inline-flex' : 'none';
+  }
+
+  updateConnectionUI();
+  window.addEventListener('pipeline-connection-changed', updateConnectionUI);
+
+  document.getElementById('run-now-btn')?.addEventListener('click', () => {
+    window.showToast('Execução iniciada', '// consultando uploads recentes...');
+  });
+</script>

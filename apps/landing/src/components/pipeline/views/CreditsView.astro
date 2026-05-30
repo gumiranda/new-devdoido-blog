@@ -1,0 +1,132 @@
+<div data-view="credits" style="display:block;padding:36px 32px 80px;max-width:1180px">
+  <div class="list-head">
+    <div>
+      <h1 class="page-title" style="margin-bottom:6px;">Créditos &amp; cobrança</h1>
+      <p class="page-desc" style="margin:0;">Um saldo único de créditos alimenta todas as ações da plataforma — transcrição, geração de artigos e verificação de indexação.</p>
+    </div>
+    <button class="btn btn-primary" id="buy-credits-btn">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Comprar créditos
+    </button>
+  </div>
+
+  <div class="credit-hero">
+    <div class="credit-balance">
+      <div class="cb-lbl">// saldo disponível</div>
+      <div class="cb-num"><span id="cb-balance">1.240</span> <span class="of">/ 3.000</span></div>
+      <div class="cb-sub">renova em 16 dias · 14 jun 2026</div>
+      <div class="cb-bar"><div class="f" id="cb-fill" style="width:41%"></div></div>
+      <div class="cb-actions">
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('buy-credits-btn')?.click()">Comprar mais</button>
+        <a href="/admin/pipeline/planos" class="btn btn-secondary btn-sm">Fazer upgrade</a>
+      </div>
+    </div>
+    <div class="credit-side">
+      <div class="cs-plan"><div class="pn">Pro <span class="badge-plan">ATIVO</span></div></div>
+      <div class="cs-meta">
+        <div>franquia mensal · <span class="accent">3.000 créditos</span></div>
+        <div>consumido este mês · 1.760</div>
+        <div>cobrança · R$ 49/mês · cartão •• 4242</div>
+        <div>próxima fatura · 14 jun 2026</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" style="align-self:flex-start;">Gerenciar assinatura</button>
+    </div>
+  </div>
+
+  <div class="callout callout-warn" id="low-credit-warn" style="margin-bottom:18px; display:none;">
+    <svg class="ci" fill="none" stroke="hsl(38 92% 70%)" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <div><b>Créditos acabando</b><p>Quando o saldo zera, as ações automáticas pausam até a renovação ou recarga.</p></div>
+  </div>
+
+  <div class="grid-2" style="align-items:start; margin-bottom: 24px;">
+    <div class="card card-pad">
+      <div class="section-label">// consumo este mês · por ação</div>
+      <div class="consume-list">
+        <div class="consume-row">
+          <div class="crl">
+            <div class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <div><b>Geração de artigos</b><span>28 × 25 cr</span></div>
+          </div>
+          <div class="crv">700 cr</div>
+          <div class="consume-bar"><div class="f" style="width:40%; background:var(--lime-500);"></div></div>
+        </div>
+        <div class="consume-row">
+          <div class="crl">
+            <div class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+            <div><b>Transcrição de vídeos</b><span>96 × 10 cr</span></div>
+          </div>
+          <div class="crv">960 cr</div>
+          <div class="consume-bar"><div class="f" style="width:55%; background:hsl(0 90% 60%);"></div></div>
+        </div>
+        <div class="consume-row">
+          <div class="crl">
+            <div class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+            <div><b>Verificação de indexação</b><span>100 × 1 cr</span></div>
+          </div>
+          <div class="crv">100 cr</div>
+          <div class="consume-bar"><div class="f" style="width:6%; background:hsl(217 85% 60%);"></div></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex; justify-content:space-between; font-family:var(--f-mono); font-size:13px;">
+        <span style="color:var(--fg-muted);">total consumido</span><b>1.760 cr</b>
+      </div>
+    </div>
+
+    <div class="card card-pad">
+      <div class="section-label">// recarga avulsa · não expira</div>
+      <div class="pack-grid">
+        <div class="pack" data-pack="1000" data-price="19">
+          <div class="pk-cr">1.000 <span class="u">cr</span></div>
+          <div class="pk-price">R$ 19</div>
+          <div class="pk-rate">R$ 0,019/cr</div>
+        </div>
+        <div class="pack best" data-pack="5000" data-price="79">
+          <div class="pk-cr">5.000 <span class="u">cr</span></div>
+          <div class="pk-price">R$ 79</div>
+          <div class="pk-rate">R$ 0,016/cr</div>
+        </div>
+        <div class="pack" data-pack="15000" data-price="199">
+          <div class="pk-cr">15.000 <span class="u">cr</span></div>
+          <div class="pk-price">R$ 199</div>
+          <div class="pk-rate">R$ 0,013/cr</div>
+        </div>
+      </div>
+      <div class="callout callout-lime" style="margin-top:16px;">
+        <svg class="ci" fill="none" stroke="var(--lime-400)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <div><b>Créditos avulsos não expiram</b><p>São consumidos só depois da franquia mensal do plano acabar.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">// histórico</div>
+  <div class="card">
+    <div style="padding: 6px 0;">
+      <div class="hist-row">
+        <div class="ht"><b>Geração de artigo · "Next.js 16 na prática"</b><span>automação · de vídeo Rocketseat</span></div>
+        <div class="hd">hoje 08:02</div>
+        <div class="hc minus">−25 cr</div>
+      </div>
+      <div class="hist-row">
+        <div class="ht"><b>Transcrição · 6 vídeos</b><span>execução diária</span></div>
+        <div class="hd">hoje 08:00</div>
+        <div class="hc minus">−60 cr</div>
+      </div>
+      <div class="hist-row">
+        <div class="ht"><b>Recarga via Pix · Abacate Pay</b><span>pacote 5.000 créditos</span></div>
+        <div class="hd">27 mai 14:20</div>
+        <div class="hc plus">+5.000 cr</div>
+      </div>
+      <div class="hist-row">
+        <div class="ht"><b>Verificação de indexação · lote</b><span>9 URLs</span></div>
+        <div class="hd">27 mai 09:15</div>
+        <div class="hc minus">−9 cr</div>
+      </div>
+      <div class="hist-row">
+        <div class="ht"><b>Renovação mensal · plano Pro</b><span>franquia</span></div>
+        <div class="hd">14 mai 00:00</div>
+        <div class="hc plus">+3.000 cr</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,126 @@
+<div data-view="schedule" style="display:block;padding:36px 32px 80px;max-width:1180px">
+  <h1 class="page-title">Agendamento</h1>
+  <p class="page-desc">Defina quando e com que frequência o pipeline busca e transcreve novos vídeos.</p>
+
+  <div class="sched-grid">
+    <div class="card card-pad">
+      <div class="field">
+        <label>Frequência</label>
+        <div class="seg" id="freq-seg">
+          <button class="active" data-freq="daily">Diária</button>
+          <button data-freq="hours">A cada X horas</button>
+          <button data-freq="weekly">Semanal</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Horário da execução</label>
+        <div class="time-pick">
+          <div class="time-display" id="time-display">08:00<span class="ampm">BRT</span></div>
+          <input type="time" class="input mono" id="time-input" value="08:00" style="max-width: 160px;" />
+        </div>
+        <div class="hint">A cron diária roda neste horário, no fuso configurado abaixo.</div>
+      </div>
+
+      <div class="field">
+        <label>Fuso horário</label>
+        <select class="input mono" id="tz-select">
+          <option selected>America/Sao_Paulo (BRT, UTC-3)</option>
+          <option>America/New_York (EST, UTC-5)</option>
+          <option>Europe/Lisbon (WET, UTC+0)</option>
+          <option>UTC</option>
+        </select>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <label>O que fazer em cada execução</label>
+        <div class="check-opt on" data-check>
+          <div class="check-box"><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="co-text"><b>Buscar vídeos recentes</b><span>Consulta os uploads mais novos de cada canal ativo via YouTube Data API.</span></div>
+        </div>
+        <div class="check-opt on" data-check>
+          <div class="check-box"><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="co-text"><b>Transcrever áudio em texto</b><span>Gera a transcrição completa de cada novo vídeo encontrado.</span></div>
+        </div>
+        <div class="check-opt on" data-check>
+          <div class="check-box"><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="co-text"><b>Salvar no banco de dados</b><span>Persiste metadados + transcrição na tabela do seu SaaS.</span></div>
+        </div>
+        <div class="check-opt" data-check>
+          <div class="check-box"><svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="co-text"><b>Me notificar ao concluir</b><span>Envia um resumo por e-mail com os vídeos capturados.</span></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="grid-2">
+        <div class="field" style="margin:0;">
+          <label>Vídeos por canal (máx.)</label>
+          <select class="input mono"><option>Últimos 3</option><option selected>Últimos 5</option><option>Últimos 10</option></select>
+        </div>
+        <div class="field" style="margin:0;">
+          <label>Janela de publicação</label>
+          <select class="input mono"><option>Últimas 24h</option><option>Últimas 48h</option><option>Última semana</option></select>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top: 28px;">
+        <button class="btn btn-primary" id="save-sched">Salvar agendamento</button>
+        <button class="btn btn-secondary">Cancelar</button>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap: 18px;">
+      <div class="next-run">
+        <div class="nr-lbl">// próxima execução</div>
+        <div class="nr-time" id="sched-next-time">Amanhã, 08:00</div>
+        <div class="nr-rel">em 14h 32min · diariamente</div>
+      </div>
+      <div class="card card-pad">
+        <div class="section-label">// resumo do cron</div>
+        <div style="font-family: var(--f-mono); font-size: 13px; color: var(--fg-muted); line-height: 1.8;">
+          <div style="color:var(--lime-400);" id="cron-expr">0 8 * * *</div>
+          <div style="margin-top:8px;">todos os dias às 08:00</div>
+          <div>fuso America/Sao_Paulo</div>
+          <div>3 canais ativos · ~412 un. de quota</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    document.querySelectorAll('#freq-seg button').forEach(function(b) {
+      b.addEventListener('click', function() {
+        document.querySelectorAll('#freq-seg button').forEach(function(x) { x.classList.remove('active'); });
+        b.classList.add('active');
+        var f = b.getAttribute('data-freq');
+        var cron = document.getElementById('cron-expr');
+        if (f === 'daily') cron.textContent = '0 8 * * *';
+        else if (f === 'hours') cron.textContent = '0 */6 * * *';
+        else cron.textContent = '0 8 * * 1';
+      });
+    });
+
+    var timeInput = document.getElementById('time-input') as HTMLInputElement;
+    timeInput.addEventListener('input', function() {
+      var v = timeInput.value || '08:00';
+      document.getElementById('time-display')!.innerHTML = v + '<span class="ampm">BRT</span>';
+      document.getElementById('sched-next-time')!.textContent = 'Amanhã, ' + v;
+      var hh = v.split(':')[0];
+      document.getElementById('cron-expr')!.textContent = '0 ' + parseInt(hh, 10) + ' * * *';
+    });
+
+    document.querySelectorAll('[data-check]').forEach(function(c) {
+      c.addEventListener('click', function() { c.classList.toggle('on'); });
+    });
+
+    document.getElementById('save-sched')?.addEventListener('click', function() {
+      window.showToast('Agendamento salvo', '// cron atualizado · próxima: amanhã ' + (timeInput.value || '08:00'));
+    });
+  })();
+</script>

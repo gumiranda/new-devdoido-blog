@@ -1,0 +1,116 @@
+<div class="view active" data-view="overview" style="display:block;padding:36px 32px 80px;max-width:1180px">
+  <div id="ov-disconnected">
+    <h1 class="page-title">Pipeline de <em>YouTube</em></h1>
+    <p class="page-desc">Monitore canais do YouTube, busque os vídeos mais recentes automaticamente e transcreva tudo em texto — direto no banco do seu SaaS.</p>
+
+    <div class="connect-hero">
+      <div class="ch-icons">
+        <div class="ch-icon cs"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+        <span class="ch-conn">&lt;—&gt;</span>
+        <div class="ch-icon yt"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.5 15.5v-7l6.5 3.5z"/></svg></div>
+      </div>
+      <h2>Conecte uma conta Google para começar</h2>
+      <p>Para consultar a YouTube Data API precisamos de uma conta Google autorizada. <strong>Não é o seu canal</strong> — essa conta serve apenas como credencial para as chamadas de leitura à API.</p>
+      <button class="btn btn-primary btn-lg" id="open-oauth">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        Conectar conta Google
+      </button>
+
+      <div class="perm-list">
+        <div class="perm-col do">
+          <div class="ph"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> O que o CrazyStack faz</div>
+          <ul>
+            <li><span class="mk">[✓]</span> Lê metadados de vídeos públicos via API</li>
+            <li><span class="mk">[✓]</span> Consulta os uploads mais recentes dos canais que você definir</li>
+            <li><span class="mk">[✓]</span> Usa a quota da API em nome desta conta</li>
+          </ul>
+        </div>
+        <div class="perm-col dont">
+          <div class="ph"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> O que NÃO fazemos</div>
+          <ul>
+            <li><span class="mk">[✗]</span> Acessar ou conectar o seu canal</li>
+            <li><span class="mk">[✗]</span> Publicar, comentar ou curtir nada</li>
+            <li><span class="mk">[✗]</span> Ler dados privados ou analytics da conta</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ov-connected" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 28px;">
+      <div>
+        <h1 class="page-title">Visão geral</h1>
+        <p class="page-desc" style="margin:0;">Pipeline ativo. Próxima execução automática agendada.</p>
+      </div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom: 18px;">
+      <div class="stat-tile">
+        <div class="st-top"><div class="st-ic yt"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg></div></div>
+        <b id="ov-chan">3</b><span>canais monitorados</span>
+      </div>
+      <div class="stat-tile">
+        <div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div><span class="st-delta">+6 hoje</span></div>
+        <b id="ov-vids">128</b><span>vídeos transcritos</span>
+      </div>
+      <div class="stat-tile">
+        <div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div></div>
+        <b>42</b><span>execuções totais</span>
+      </div>
+      <div class="stat-tile">
+        <div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div></div>
+        <b>32%</b><span>quota usada hoje</span>
+      </div>
+    </div>
+
+    <div class="grid-2" style="grid-template-columns: 1fr 1fr; align-items:start;">
+      <div class="next-run">
+        <div class="nr-lbl">// próxima execução automática</div>
+        <div class="nr-time">Amanhã, 08:00</div>
+        <div class="nr-rel">em 14h 32min · America/Sao_Paulo · diariamente</div>
+        <div class="nr-steps">
+          <div class="nr-step"><span class="n">01</span> Consultar uploads recentes de 3 canais</div>
+          <div class="nr-step"><span class="n">02</span> Filtrar vídeos das últimas 24h</div>
+          <div class="nr-step"><span class="n">03</span> Transcrever áudio em texto</div>
+          <div class="nr-step"><span class="n">04</span> Salvar transcrições no banco</div>
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        <div class="section-label" style="margin-bottom: 6px;">// atividade recente</div>
+        <div class="activity-list">
+          <div class="act-item">
+            <div class="act-ic lime"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="at"><b>Execução concluída · <span>6 novos vídeos</span> transcritos</b><div class="when">hoje, 08:00 · 2min 14s · 412 unidades de quota</div></div>
+          </div>
+          <div class="act-item">
+            <div class="act-ic yt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+            <div class="at"><b>Rocketseat publicou "Next.js 16: o que muda"</b><div class="when">hoje, 07:42 · capturado às 08:00</div></div>
+          </div>
+          <div class="act-item">
+            <div class="act-ic info"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg></div>
+            <div class="at"><b>Canal adicionado: <span>Filipe Deschamps</span></b><div class="when">ontem, 16:20</div></div>
+          </div>
+          <div class="act-item">
+            <div class="act-ic lime"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="at"><b>Execução concluída · <span>4 novos vídeos</span></b><div class="when">ontem, 08:00 · 1min 52s</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    function update() {
+      const connected = localStorage.getItem('pipeline-connected') === 'true';
+      document.getElementById('ov-disconnected')!.style.display = connected ? 'none' : 'block';
+      document.getElementById('ov-connected')!.style.display = connected ? 'block' : 'none';
+    }
+    update();
+    window.addEventListener('pipeline-connection-changed', update);
+    document.getElementById('open-oauth')?.addEventListener('click', () => window.openOauth());
+  })();
+</script>

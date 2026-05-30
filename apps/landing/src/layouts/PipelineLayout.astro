@@ -1,0 +1,62 @@
+---
+import Sidebar from '../components/pipeline/Sidebar.astro';
+import Topbar from '../components/pipeline/Topbar.astro';
+import Toast from '../components/pipeline/Toast.astro';
+import OAuthModal from '../components/pipeline/OAuthModal.astro';
+import AddChannelModal from '../components/pipeline/AddChannelModal.astro';
+import CheckoutOverlay from '../components/pipeline/CheckoutOverlay.astro';
+import TranscriptDrawer from '../components/pipeline/TranscriptDrawer.astro';
+import '../styles/pipeline.css';
+
+interface Props {
+  currentPage: string;
+  pageTitle: string;
+}
+
+const { currentPage, pageTitle } = Astro.props;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>{pageTitle} | Pipeline YouTube | DEVDOIDO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=Geist:wght@300;400;500;600;700;800;900&family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body>
+<div class="app">
+  <Sidebar currentPage={currentPage} />
+  <div class="main">
+    <Topbar pageTitle={pageTitle} />
+    <div class="view-scroll">
+      <slot />
+    </div>
+  </div>
+</div>
+
+<Toast />
+<OAuthModal />
+<AddChannelModal />
+<CheckoutOverlay />
+<TranscriptDrawer />
+</body>
+</html>
+
+<script>
+  import { setupToast, setupOAuthFlow, setupAddChannelFlow, setupCheckoutFlow, setupDrawer, setupKeyboardShortcuts } from '../lib/state-machines';
+
+  setupToast();
+  setupOAuthFlow();
+  setupAddChannelFlow();
+  setupCheckoutFlow();
+  setupDrawer();
+  setupKeyboardShortcuts();
+
+  document.getElementById('tenant-switch')?.addEventListener('click', () => {
+    window.showToast('Workspace', '// DEVDOIDO · blog');
+  });
+</script>

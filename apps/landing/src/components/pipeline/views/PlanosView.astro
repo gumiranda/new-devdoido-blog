@@ -1,0 +1,120 @@
+<div data-view="planos" style="display:block;padding:36px 32px 80px;max-width:1180px">
+  <h1 class="page-title">Planos &amp; <em>créditos</em></h1>
+  <p class="page-desc">Comece de graça. Faça upgrade quando precisar de mais créditos e recursos. Um saldo só, que limita todas as ações em conjunto.</p>
+
+  <div class="plan-toggle-row">
+    <div class="seg" id="bill-cycle">
+      <button class="active" data-cycle="month">Mensal</button>
+      <button data-cycle="year">Anual</button>
+    </div>
+    <span class="save-tag">2 meses grátis no anual</span>
+  </div>
+
+  <div class="plans-grid">
+    <div class="plan-tier">
+      <div class="pt-name">Free</div>
+      <div class="pt-price"><span class="cur">R$</span><span class="amt">0</span><span class="per">/mês</span></div>
+      <div class="pt-credits"><span class="ic"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h3.5a2 2 0 0 1 0 4H9.5"/></svg></span><div><b>200</b> <span>créditos/mês</span></div></div>
+      <ul>
+        <li><span class="mk">✓</span> <b>1</b> SaaS / blog</li>
+        <li><span class="mk">✓</span> <b>1</b> canal monitorado</li>
+        <li><span class="mk">✓</span> Transcrição + geração manual</li>
+        <li class="off"><span class="mk">✗</span> Geração automática</li>
+        <li class="off"><span class="mk">✗</span> Verificação de indexação</li>
+        <li class="off"><span class="mk">✗</span> Marca CrazyStack no rodapé</li>
+      </ul>
+      <div class="pt-current">seu plano anterior</div>
+    </div>
+
+    <div class="plan-tier featured">
+      <div class="pt-name">Pro</div>
+      <div class="pt-price"><span class="cur">R$</span><span class="amt" data-price-month="49" data-price-year="490">49</span><span class="per" id="pro-per">/mês</span></div>
+      <div class="pt-credits"><span class="ic"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h3.5a2 2 0 0 1 0 4H9.5"/></svg></span><div><b>3.000</b> <span>créditos/mês</span></div></div>
+      <ul>
+        <li><span class="mk">✓</span> <b>3</b> SaaS / blogs</li>
+        <li><span class="mk">✓</span> <b>10</b> canais monitorados</li>
+        <li><span class="mk">✓</span> <b>Geração automática</b> de artigos</li>
+        <li><span class="mk">✓</span> Verificação de indexação (GSC)</li>
+        <li><span class="mk">✓</span> Sem marca CrazyStack</li>
+        <li><span class="mk">✓</span> Recarga avulsa de créditos</li>
+      </ul>
+      <button class="btn btn-primary btn-block" data-plan="Pro" data-amount="49">Plano atual</button>
+    </div>
+
+    <div class="plan-tier">
+      <div class="pt-name">Scale</div>
+      <div class="pt-price"><span class="cur">R$</span><span class="amt" data-price-month="149" data-price-year="1490">149</span><span class="per">/mês</span></div>
+      <div class="pt-credits"><span class="ic"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h3.5a2 2 0 0 1 0 4H9.5"/></svg></span><div><b>12.000</b> <span>créditos/mês</span></div></div>
+      <ul>
+        <li><span class="mk">✓</span> SaaS / blogs <b>ilimitados</b></li>
+        <li><span class="mk">✓</span> Canais <b>ilimitados</b></li>
+        <li><span class="mk">✓</span> Tudo do Pro +</li>
+        <li><span class="mk">✓</span> Fila de processamento prioritária</li>
+        <li><span class="mk">✓</span> Acesso à API + webhooks</li>
+        <li><span class="mk">✓</span> Suporte dedicado</li>
+      </ul>
+      <button class="btn btn-secondary btn-block" data-plan="Scale" data-amount="149">Fazer upgrade</button>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top: 40px;">// quanto cada ação custa · saldo compartilhado</div>
+  <div class="cost-table">
+    <div class="cost-row head"><span>ação</span><span style="text-align:right;">custo</span></div>
+    <div class="cost-row">
+      <div class="ca">
+        <div class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+        <div><b>Transcrever vídeo</b><span>por vídeo capturado e transcrito</span></div>
+      </div>
+      <div class="cc">10 <span>cr</span></div>
+    </div>
+    <div class="cost-row">
+      <div class="ca">
+        <div class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        <div><b>Gerar artigo com IA</b><span>a partir de uma transcrição</span></div>
+      </div>
+      <div class="cc">25 <span>cr</span></div>
+    </div>
+    <div class="cost-row">
+      <div class="ca">
+        <div class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>
+        <div><b>Regenerar / reescrever</b><span>nova versão de um artigo</span></div>
+      </div>
+      <div class="cc">15 <span>cr</span></div>
+    </div>
+    <div class="cost-row">
+      <div class="ca">
+        <div class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <div><b>Verificar indexação</b><span>inspeção de URL no Search Console</span></div>
+      </div>
+      <div class="cc">1 <span>cr</span></div>
+    </div>
+    <div class="cost-row">
+      <div class="ca">
+        <div class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <div><b>Publicar artigo</b><span>publicação manual ou automática</span></div>
+      </div>
+      <div class="cc free">grátis</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    var billCycle = document.getElementById('bill-cycle');
+    billCycle?.addEventListener('click', function(e) {
+      var b = (e.target as HTMLElement).closest('button');
+      if (!b) return;
+      billCycle.querySelectorAll('button').forEach(function(x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      var yearly = b.getAttribute('data-cycle') === 'year';
+      document.querySelectorAll('.plan-tier .amt[data-price-month]').forEach(function(el) {
+        var m = el.getAttribute('data-price-month');
+        var y = el.getAttribute('data-price-year');
+        el.textContent = yearly ? String(Math.round(Number(y) / 12)) : m;
+      });
+      document.querySelectorAll('.plan-tier .per').forEach(function(el) {
+        el.textContent = yearly ? '/mês · anual' : '/mês';
+      });
+    });
+  })();
+</script>

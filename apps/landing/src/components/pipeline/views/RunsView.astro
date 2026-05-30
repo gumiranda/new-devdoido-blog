@@ -1,0 +1,70 @@
+<div data-view="runs" style="display:block;padding:36px 32px 80px;max-width:1180px">
+  <div class="list-head">
+    <div>
+      <h1 class="page-title" style="margin-bottom:6px;">Execuções</h1>
+      <p class="page-desc" style="margin:0;">Histórico de cada rodada do pipeline.</p>
+    </div>
+    <button class="btn btn-secondary" onclick="location.reload()">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Atualizar
+    </button>
+  </div>
+
+  <div class="run-row head">
+    <span>quando</span><span>status</span><span>canais</span><span>vídeos novos</span><span>transcritos</span><span>duração</span><span></span>
+  </div>
+
+  <div class="run-row" data-run>
+    <div class="run-when"><b>hoje 08:00</b><span>29 mai 2026</span></div>
+    <span class="run-status ok"><span class="dot"></span> sucesso</span>
+    <div class="run-metric">3 <span>canais</span></div>
+    <div class="run-metric">6 <span>novos</span></div>
+    <div class="run-metric">6 <span>ok</span></div>
+    <div class="run-metric">2:14</div>
+    <span class="chev"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+  </div>
+  <div class="run-row" data-run>
+    <div class="run-when"><b>ontem 08:00</b><span>28 mai 2026</span></div>
+    <span class="run-status ok"><span class="dot"></span> sucesso</span>
+    <div class="run-metric">3 <span>canais</span></div>
+    <div class="run-metric">4 <span>novos</span></div>
+    <div class="run-metric">4 <span>ok</span></div>
+    <div class="run-metric">1:52</div>
+    <span class="chev"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+  </div>
+  <div class="run-row" data-run>
+    <div class="run-when"><b>27 mai 08:00</b><span>27 mai 2026</span></div>
+    <span class="run-status err"><span class="dot"></span> erro parcial</span>
+    <div class="run-metric">3 <span>canais</span></div>
+    <div class="run-metric">5 <span>novos</span></div>
+    <div class="run-metric">3 <span>ok</span></div>
+    <div class="run-metric">3:40</div>
+    <span class="chev"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+  </div>
+  <div class="run-row" data-run>
+    <div class="run-when"><b>26 mai 08:00</b><span>26 mai 2026</span></div>
+    <span class="run-status ok"><span class="dot"></span> sucesso</span>
+    <div class="run-metric">3 <span>canais</span></div>
+    <div class="run-metric">2 <span>novos</span></div>
+    <div class="run-metric">2 <span>ok</span></div>
+    <div class="run-metric">1:08</div>
+    <span class="chev"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+  </div>
+  <div class="run-row" data-run>
+    <div class="run-when"><b>25 mai 08:00</b><span>25 mai 2026</span></div>
+    <span class="run-status ok"><span class="dot"></span> sucesso</span>
+    <div class="run-metric">3 <span>canais</span></div>
+    <div class="run-metric">3 <span>novos</span></div>
+    <div class="run-metric">3 <span>ok</span></div>
+    <div class="run-metric">1:36</div>
+    <span class="chev"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('[data-run]').forEach(function(r) {
+    r.addEventListener('click', function() {
+      window.location.href = '/admin/pipeline/library';
+    });
+  });
+</script>

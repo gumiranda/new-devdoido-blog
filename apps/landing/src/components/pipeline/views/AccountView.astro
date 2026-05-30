@@ -1,0 +1,86 @@
+<div data-view="account" style="display:block;padding:36px 32px 80px;max-width:1180px">
+  <h1 class="page-title">Conta Google</h1>
+  <p class="page-desc">A credencial usada para autenticar as chamadas à YouTube Data API.</p>
+
+  <div id="acct-disconnected">
+    <div class="callout callout-warn" style="margin-bottom: 20px;">
+      <svg class="ci" fill="none" stroke="hsl(38 92% 70%)" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div><b>Nenhuma conta conectada</b><p>O pipeline não pode executar sem uma conta Google autorizada para a API.</p></div>
+    </div>
+    <button class="btn btn-primary btn-lg" id="acct-connect-btn">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      Conectar conta Google
+    </button>
+  </div>
+
+  <div id="acct-connected" style="display:none;">
+    <div class="card" style="margin-bottom: 18px;">
+      <div class="acct-card">
+        <div class="gava">D</div>
+        <div class="ai">
+          <b>API Bot DEVDOIDO <span class="pill-ok"><span class="dot"></span> conectado</span></b>
+          <div class="gmail" id="acct-email">devdoido.bot@gmail.com</div>
+          <div class="since">autorizado em 14 abr 2026 · token renovado há 2h</div>
+        </div>
+        <div style="display:flex; gap: 10px;">
+          <button class="btn btn-secondary btn-sm" id="reauthorize-btn">Reautorizar</button>
+          <button class="btn btn-danger btn-sm" id="disconnect-btn">Desconectar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-bottom: 24px;">
+      <svg class="ci" fill="none" stroke="hsl(217 85% 75%)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div><b>Esta conta não é um canal monitorado</b><p>Ela serve apenas como identidade para as chamadas à API. Não acessamos, modificamos nem publicamos em nenhum canal associado a ela. Os canais que você acompanha são definidos em "Canais monitorados".</p></div>
+    </div>
+
+    <div class="grid-2" style="align-items:start;">
+      <div class="card card-pad">
+        <div class="section-label">// permissões concedidas (escopos OAuth)</div>
+        <div class="scope-row">
+          <span class="scope"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> youtube.readonly</span>
+          <span class="scope"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg> userinfo.email</span>
+        </div>
+        <div class="divider"></div>
+        <div class="muted-mono" style="line-height:1.6;">// somente leitura. O CrazyStack nunca recebe escopos de escrita.</div>
+      </div>
+
+      <div class="card card-pad">
+        <div class="section-label">// quota da YouTube Data API</div>
+        <div class="quota">
+          <div class="quota-top"><span class="ql">unidades usadas hoje</span><span class="qv"><b>3.180</b> / 10.000</span></div>
+          <div class="quota-bar"><div class="qfill" style="width:32%"></div></div>
+          <div class="quota-legend"><span>● reset em 6h 12min (00:00 PT)</span></div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex; justify-content:space-between; font-family: var(--f-mono); font-size: 12px; color: var(--fg-muted);">
+          <span>custo médio / execução</span><span style="color:var(--fg);">~412 unidades</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    function update() {
+      const connected = localStorage.getItem('pipeline-connected') === 'true';
+      document.getElementById('acct-disconnected')!.style.display = connected ? 'none' : 'block';
+      document.getElementById('acct-connected')!.style.display = connected ? 'block' : 'none';
+    }
+    update();
+    window.addEventListener('pipeline-connection-changed', update);
+
+    document.getElementById('acct-connect-btn')?.addEventListener('click', () => window.openOauth());
+    document.getElementById('reauthorize-btn')?.addEventListener('click', () => window.openOauth());
+
+    document.getElementById('disconnect-btn')?.addEventListener('click', () => {
+      if (confirm('Desconectar a conta Google? O pipeline deixará de executar até reconectar.')) {
+        localStorage.removeItem('pipeline-connected');
+        window.dispatchEvent(new CustomEvent('pipeline-connection-changed', { detail: { connected: false } }));
+        window.showToast('Conta desconectada', '// pipeline pausado');
+        update();
+      }
+    });
+  })();
+</script>

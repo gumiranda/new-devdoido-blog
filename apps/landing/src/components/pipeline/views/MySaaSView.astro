@@ -1,0 +1,87 @@
+<div data-view="mysaas" style="display:block;padding:36px 32px 80px;max-width:1180px">
+  <h1 class="page-title">Meu SaaS</h1>
+  <p class="page-desc">A identidade pública do seu SaaS — aparece no blog, nos artigos e no feed da comunidade.</p>
+
+  <div class="card card-pad" style="margin-bottom:18px;">
+    <div class="section-label">// marca</div>
+    <div class="field">
+      <label>Foto de capa</label>
+      <label class="upload upload-cover" id="ms-cover-drop">
+        <input type="file" accept="image/*" id="ms-cover" />
+        <div class="ph"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg><b>Banner do blog</b><span>1200×400 · jpg/png</span></div>
+      </label>
+    </div>
+    <div class="saas-brand-row">
+      <label class="upload upload-logo" id="ms-logo-drop">
+        <input type="file" accept="image/*" id="ms-logo" />
+        <div class="ph"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg><b>logo</b></div>
+      </label>
+      <div class="sbr-side">
+        <div class="field" style="margin-bottom:14px;">
+          <label>Nome do SaaS</label>
+          <input class="input" value="DEVDOIDO" />
+        </div>
+        <div class="grid-2">
+          <div class="field" style="margin:0;">
+            <label>Categoria / nicho</label>
+            <select class="input mono"><option selected>Blog / Conteúdo</option><option>Fintech</option><option>E-commerce</option><option>IA &amp; LLMs</option><option>Dev Tools</option></select>
+          </div>
+          <div class="field" style="margin:0;">
+            <label>Cor de destaque</label>
+            <div class="color-row" id="ms-colors">
+              <div class="color-opt on" style="background:hsl(217 91% 55%)" data-color></div>
+              <div class="color-opt" style="background:hsl(83 81% 44%)" data-color></div>
+              <div class="color-opt" style="background:hsl(280 70% 55%)" data-color></div>
+              <div class="color-opt" style="background:hsl(0 72% 51%)" data-color></div>
+              <div class="color-opt" style="background:hsl(38 92% 50%)" data-color></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:22px; margin-bottom:0;">
+      <label>Descrição</label>
+      <textarea class="input" rows="3" style="resize:vertical;">Blog sobre programação, IA, SaaS e carreira dev. Conteúdo bruto sem hype.</textarea>
+    </div>
+  </div>
+
+  <div class="card card-pad" style="margin-bottom:18px;">
+    <div class="section-label">// blog & links</div>
+    <div class="field">
+      <label>Endereço do blog</label>
+      <div class="public-url">
+        <span class="pu-px">devdoido.com.br/</span>
+        <input value="blog" />
+        <span class="pu-sx">/blog</span>
+      </div>
+      <div class="hint">Este é o endereço público onde seus artigos ficam disponíveis.</div>
+    </div>
+    <div class="grid-2">
+      <div class="field" style="margin:0;">
+        <label>Website</label>
+        <input class="input mono" value="https://devdoido.com.br" />
+      </div>
+      <div class="field" style="margin:0;">
+        <label>Instagram</label>
+        <input class="input mono" value="@devdoido" />
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-4">
+    <div class="stat-tile"><div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div></div><b>42</b><span>artigos publicados</span></div>
+    <div class="stat-tile"><div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div></div><b>18.4k</b><span>views no blog</span></div>
+    <div class="stat-tile"><div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div><b>312</b><span>seguidores</span></div>
+    <div class="stat-tile"><div class="st-top"><div class="st-ic"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div></div><b>28</b><span>gerados por IA</span></div>
+  </div>
+
+  <div class="sticky-save">
+    <button class="btn btn-primary" id="save-mysaas">Salvar alterações</button>
+    <a href="/blog" class="btn btn-secondary">Ver blog público →</a>
+  </div>
+</div>
+
+<script>
+  import { setupMySaaSView } from '../../../lib/interactions/mysaas';
+  setupMySaaSView();
+</script>

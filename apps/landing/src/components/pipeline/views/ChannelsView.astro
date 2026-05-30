@@ -1,0 +1,55 @@
+<div data-view="channels" style="display:block;padding:36px 32px 80px;max-width:1180px">
+  <div class="list-head">
+    <div>
+      <h1 class="page-title" style="margin-bottom:6px;">Canais monitorados</h1>
+      <p class="page-desc" style="margin:0;">Os canais cujos uploads mais recentes serão consultados a cada execução.</p>
+    </div>
+    <button class="btn btn-primary" id="open-add-channel">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Adicionar canal
+    </button>
+  </div>
+
+  <div id="channels-list">
+    <div class="chan-row" data-chan>
+      <div class="chan-av" style="background:linear-gradient(135deg,#8257e6,#6420aa)">R</div>
+      <div class="chan-meta">
+        <b>Rocketseat</b>
+        <div class="handle">@rocketseat · UCSfwM5u0Kf33Bnzwd9 rocketseat</div>
+      </div>
+      <div class="chan-stat"><b>2.1M</b><span>inscritos</span></div>
+      <div class="chan-last">último vídeo<br /><span class="ok">capturado hoje 08:00</span></div>
+      <div class="switch on" data-switch></div>
+    </div>
+    <div class="chan-row" data-chan>
+      <div class="chan-av" style="background:linear-gradient(135deg,#06b6d4,#0e7490)">F</div>
+      <div class="chan-meta">
+        <b>Filipe Deschamps</b>
+        <div class="handle">@FilipeDeschamps · UCRWqwD1...</div>
+      </div>
+      <div class="chan-stat"><b>1.6M</b><span>inscritos</span></div>
+      <div class="chan-last">último vídeo<br /><span class="ok">capturado hoje 08:00</span></div>
+      <div class="switch on" data-switch></div>
+    </div>
+    <div class="chan-row" data-chan>
+      <div class="chan-av" style="background:linear-gradient(135deg,#f59e0b,#b45309)">C</div>
+      <div class="chan-meta">
+        <b>Código Fonte TV</b>
+        <div class="handle">@codigofontetv · UClbYj...</div>
+      </div>
+      <div class="chan-stat"><b>1.2M</b><span>inscritos</span></div>
+      <div class="chan-last">último vídeo<br /><span>capturado ontem</span></div>
+      <div class="switch" data-switch></div>
+    </div>
+  </div>
+
+  <div class="callout callout-lime" style="margin-top: 20px;">
+    <svg class="ci" fill="none" stroke="var(--lime-400)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <div><b>Quota cresce com o número de canais</b><p>Cada canal ativo consome ~100 unidades por execução. Com 10.000 unidades/dia, você pode monitorar dezenas de canais com folga.</p></div>
+  </div>
+</div>
+
+<script>
+  import { setupChannelsView } from '../../../lib/interactions/channels';
+  setupChannelsView();
+</script>

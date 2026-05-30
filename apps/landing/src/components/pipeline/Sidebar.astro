@@ -1,0 +1,75 @@
+---
+const LINKS = [
+  { group: 'Conteúdo', items: [
+    { id: 'artigos', label: 'Artigos', href: '/blog' },
+  ]},
+  { group: 'Pipeline YouTube', items: [
+    { id: 'overview', label: 'Visão geral', href: '/admin/pipeline/overview' },
+    { id: 'account', label: 'Conta Google', href: '/admin/pipeline/account' },
+    { id: 'channels', label: 'Canais monitorados', href: '/admin/pipeline/channels' },
+    { id: 'schedule', label: 'Agendamento', href: '/admin/pipeline/schedule' },
+    { id: 'runs', label: 'Execuções', href: '/admin/pipeline/runs' },
+    { id: 'library', label: 'Biblioteca', href: '/admin/pipeline/library' },
+    { id: 'automation', label: 'Geração automática', href: '/admin/pipeline/automation' },
+  ]},
+  { group: 'Sistema', items: [
+    { id: 'credits', label: 'Créditos & cobrança', href: '/admin/pipeline/credits' },
+    { id: 'planos', label: 'Planos', href: '/admin/pipeline/planos' },
+    { id: 'settings', label: 'Configurações', href: '/admin/pipeline/settings' },
+  ]},
+];
+
+interface Props {
+  currentPage: string;
+}
+
+const { currentPage } = Astro.props;
+
+const ICONS: Record<string, string> = {
+  artigos: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  overview: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+  account: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  channels: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>',
+  schedule: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  runs: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
+  library: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  automation: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+  credits: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h3.5a2 2 0 0 1 0 4H9.5"/></svg>',
+  planos: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
+  settings: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+};
+---
+
+<aside class="sidebar">
+  <div class="sb-brand"><span class="mark">&gt;_</span> devdoido<span class="caret"></span></div>
+
+  <div class="sb-tenant" id="tenant-switch">
+    <div class="tlogo">DD</div>
+    <div class="tinfo"><b>DEVDOIDO</b><span>workspace · blog</span></div>
+    <span class="chev"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></span>
+  </div>
+
+  <nav class="sb-nav">
+    {LINKS.map((group) => (
+      <div class="sb-group">
+        <div class="glabel">{group.group}</div>
+        {group.items.map((item) => (
+          <a
+            href={item.href}
+            class:list={['sb-item', currentPage === item.id ? 'active' : '']}
+          >
+            <Fragment set:html={ICONS[item.id] ?? ''} />
+            {item.label}
+          </a>
+        ))}
+      </div>
+    ))}
+  </nav>
+
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="av">GM</div>
+      <div class="ui"><b>Gustavo Miranda</b><span>founder · devdoido</span></div>
+    </div>
+  </div>
+</aside>
