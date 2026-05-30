@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1440" />
+<title>CrazyStack — Programa de Parceiros</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:hsl(0 0% 3.9%); --bg-1:hsl(0 0% 6%); --bg-2:hsl(0 0% 9%); --bg-3:hsl(0 0% 12%);
+  --fg:hsl(0 0% 98%); --fg-muted:hsl(0 0% 63.9%); --fg-dim:hsl(0 0% 44%); --border:hsl(0 0% 15%);
+  --lime-400:hsl(82 78% 55%); --lime-500:hsl(83 81% 44%); --lime-600:hsl(85 85% 35%);
+  --green:hsl(142 71% 45%); --warn:hsl(38 92% 50%); --info:hsl(217 91% 60%); --pix:hsl(168 76% 42%);
+  --r-sm:4px; --r-md:8px; --r-lg:12px; --r-full:9999px;
+  --f-sans:'Geist',ui-sans-serif,system-ui,sans-serif; --f-mono:'Geist Mono',ui-monospace,monospace;
+  --glow:0 0 24px hsl(83 81% 44% / .35);
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; background:var(--bg); color:var(--fg); font-family:var(--f-sans); -webkit-font-smoothing:antialiased; }
+a{ color:inherit; text-decoration:none; }
+.app{ display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+
+/* sidebar */
+.sb{ border-right:1px solid var(--border); background:var(--bg-1); padding:18px 14px; position:sticky; top:0; height:100vh; }
+.sb .brand{ display:flex; align-items:center; gap:9px; font-weight:800; font-size:17px; letter-spacing:-0.02em; padding:6px 10px 20px; }
+.sb .brand .mk{ color:var(--lime-500); font-family:var(--f-mono); font-weight:500; }
+.sb .grp{ font-family:var(--f-mono); font-size:9px; color:var(--fg-dim); text-transform:uppercase; letter-spacing:.12em; padding:14px 10px 6px; }
+.sb .it{ display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:var(--r-sm); font-size:13px; color:var(--fg-muted); margin-bottom:2px; cursor:pointer; }
+.sb .it svg{ width:15px; height:15px; }
+.sb .it:hover{ color:var(--fg); background:var(--bg-2); }
+.sb .it.on{ color:var(--lime-400); background:hsl(83 81% 44% / .1); }
+.sb .it .tag{ margin-left:auto; font-family:var(--f-mono); font-size:9px; padding:2px 6px; border-radius:var(--r-full); background:var(--lime-500); color:#0a0a0a; }
+
+/* main */
+.main{ display:flex; flex-direction:column; min-width:0; }
+.tbar{ display:flex; align-items:center; justify-content:space-between; padding:14px 32px; border-bottom:1px solid var(--border); background:rgba(10,10,10,.7); backdrop-filter:blur(10px); position:sticky; top:0; z-index:10; }
+.tbar .crumb{ font-family:var(--f-mono); font-size:12px; color:var(--fg-dim); }
+.tbar .crumb b{ color:var(--fg); }
+.tbar .r{ display:flex; align-items:center; gap:12px; }
+.pill{ display:inline-flex; align-items:center; gap:8px; padding:7px 13px; border:1px solid var(--border); border-radius:var(--r-md); background:var(--bg-1); font-family:var(--f-mono); font-size:12px; }
+.pill .d{ width:7px; height:7px; border-radius:50%; background:var(--lime-400); box-shadow:0 0 8px var(--lime-400); }
+.av{ width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--lime-500),var(--lime-600)); color:#0a0a0a; display:flex; align-items:center; justify-content:center; font-family:var(--f-mono); font-weight:700; font-size:12px; }
+
+.body{ padding:32px; max-width:1180px; width:100%; margin:0 auto; }
+.btn{ display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:14px; padding:10px 18px; border-radius:var(--r-md); transition:all .2s; border:1px solid transparent; cursor:pointer; }
+.btn svg{ width:15px; height:15px; }
+.btn-primary{ background:var(--lime-500); color:#0a0a0a; } .btn-primary:hover{ background:var(--lime-400); box-shadow:var(--glow); }
+.btn-secondary{ background:var(--bg-3); color:var(--fg); border-color:var(--border); } .btn-secondary:hover{ border-color:var(--lime-500); }
+.btn-sm{ padding:7px 13px; font-size:13px; }
+.lbl{ font-family:var(--f-mono); font-size:11px; color:var(--fg-dim); text-transform:uppercase; letter-spacing:.1em; }
+
+/* page intro */
+.intro{ margin-bottom:26px; }
+.intro h1{ font-size:34px; font-weight:800; letter-spacing:-0.03em; margin:6px 0 8px; }
+.intro h1 em{ font-style:normal; color:var(--lime-400); }
+.intro p{ font-size:15px; color:var(--fg-muted); line-height:1.6; max-width:680px; margin:0; }
+
+/* aha callout */
+.aha{ position:relative; overflow:hidden; border:1px solid hsl(83 81% 44% / .3); border-radius:var(--r-lg); background:linear-gradient(135deg,var(--bg-1),var(--bg-2)); padding:24px 26px; margin-bottom:24px; display:flex; gap:18px; align-items:flex-start; }
+.aha::before{ content:""; position:absolute; inset:0; background-image:linear-gradient(hsl(83 81% 44% / .05) 1px,transparent 1px),linear-gradient(90deg,hsl(83 81% 44% / .05) 1px,transparent 1px); background-size:28px 28px; mask-image:radial-gradient(ellipse 60% 100% at 0% 0%,#000,transparent 70%); }
+.aha > *{ position:relative; }
+.aha .ic{ width:44px; height:44px; border-radius:var(--r-md); background:hsl(83 81% 44% / .12); border:1px solid hsl(83 81% 44% / .35); color:var(--lime-400); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.aha .ic svg{ width:22px; height:22px; }
+.aha h3{ margin:0 0 6px; font-size:17px; font-weight:700; }
+.aha p{ margin:0; font-size:13.5px; color:var(--fg-muted); line-height:1.6; max-width:760px; }
+.aha p b{ color:var(--fg); }
+
+/* stat cards */
+.stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+.stat{ background:var(--bg-1); border:1px solid var(--border); border-radius:var(--r-lg); padding:20px; }
+.stat .sl{ font-family:var(--f-mono); font-size:10px; color:var(--fg-dim); text-transform:uppercase; letter-spacing:.08em; display:flex; align-items:center; gap:7px; }
+.stat .sl svg{ width:13px; height:13px; color:var(--lime-400); }
+.stat .sv{ font-size:30px; font-weight:800; letter-spacing:-0.02em; margin-top:12px; }
+.stat .sv .u{ font-size:15px; color:var(--fg-muted); font-weight:600; }
+.stat .sd{ font-family:var(--f-mono); font-size:11px; margin-top:6px; color:var(--green); }
+.stat .sd.flat{ color:var(--fg-dim); }
+
+/* layout columns */
+.cols{ display:grid; grid-template-columns:1.5fr 1fr; gap:20px; align-items:start; }
+.card{ background:var(--bg-1); border:1px solid var(--border); border-radius:var(--r-lg); }
+.card-pad{ padding:24px; }
+.card h2{ font-size:16px; font-weight:700; margin:0 0 4px; }
+.card .sub{ font-family:var(--f-mono); font-size:11px; color:var(--fg-dim); text-transform:uppercase; letter-spacing:.08em; margin-bottom:18px; }
+.divider{ height:1px; background:var(--border); margin:20px 0; }
+
+/* referral link */
+.link-box{ display:flex; align-items:stretch; background:var(--bg-2); border:1px solid var(--border); border-radius:var(--r-md); overflow:hidden; margin-bottom:14px; }
+.link-box .pre{ display:flex; align-items:center; padding:0 14px; font-family:var(--f-mono); font-size:13px; color:var(--lime-400); border-right:1px solid var(--border); }
+.link-box input{ flex:1; background:none; border:none; outline:none; color:var(--fg); font-family:var(--f-mono); font-size:13px; padding:13px; }
+.link-box button{ padding:0 18px; background:var(--lime-500); color:#0a0a0a; font-weight:600; font-size:13px; border:none; cursor:pointer; }
+.link-box button:hover{ background:var(--lime-400); }
+.share-row{ display:flex; gap:10px; flex-wrap:wrap; }
+.share{ display:inline-flex; align-items:center; gap:8px; padding:9px 14px; border:1px solid var(--border); border-radius:var(--r-md); font-size:13px; color:var(--fg-muted); cursor:pointer; background:var(--bg-2); }
+.share:hover{ border-color:var(--lime-500); color:var(--fg); }
+.share svg{ width:15px; height:15px; }
+
+/* commission tracks */
+.track{ display:flex; gap:16px; align-items:center; padding:18px; border:1px solid var(--border); border-radius:var(--r-md); background:var(--bg-2); margin-bottom:12px; }
+.track .ti{ width:46px; height:46px; border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.track.course .ti{ background:hsl(83 81% 44% / .1); border:1px solid hsl(83 81% 44% / .3); color:var(--lime-400); }
+.track.platform .ti{ background:hsl(217 91% 60% / .1); border:1px solid hsl(217 91% 60% / .3); color:var(--info); }
+.track .ti svg{ width:22px; height:22px; }
+.track .tt{ flex:1; }
+.track .tt b{ display:block; font-size:14px; font-weight:600; }
+.track .tt span{ font-size:12.5px; color:var(--fg-muted); }
+.track .rate{ text-align:right; flex-shrink:0; }
+.track .rate .n{ font-size:26px; font-weight:800; letter-spacing:-0.02em; color:var(--lime-400); }
+.track .rate .t{ font-family:var(--f-mono); font-size:10px; color:var(--fg-dim); text-transform:uppercase; letter-spacing:.08em; }
+
+/* calculator */
+.calc-val{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; }
+.calc-val .n{ font-family:var(--f-mono); font-size:14px; color:var(--lime-400); }
+input[type=range]{ -webkit-appearance:none; width:100%; height:6px; border-radius:var(--r-full); background:var(--bg-3); outline:none; margin:10px 0 22px; }
+input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--lime-500); cursor:pointer; box-shadow:0 0 0 4px hsl(83 81% 44% / .2); }
+.calc-out{ background:var(--bg-2); border:1px solid var(--border); border-radius:var(--r-md); padding:20px; text-align:center; }
+.calc-out .lbl{ margin-bottom:8px; }
+.calc-out .big{ font-size:40px; font-weight:800; letter-spacing:-0.03em; line-height:1; }
+.calc-out .big .cur{ font-size:20px; color:var(--fg-muted); }
+.calc-out .yr{ font-family:var(--f-mono); font-size:12px; color:var(--fg-muted); margin-top:8px; }
+.calc-out .yr b{ color:var(--lime-400); }
+
+/* tier ladder */
+.tier{ display:flex; align-items:center; gap:14px; padding:13px 0; border-bottom:1px dashed var(--border); }
+.tier:last-child{ border:none; }
+.tier .tn{ width:30px; height:30px; border-radius:var(--r-sm); background:var(--bg-3); display:flex; align-items:center; justify-content:center; font-family:var(--f-mono); font-size:12px; color:var(--fg-muted); flex-shrink:0; }
+.tier.active .tn{ background:var(--lime-500); color:#0a0a0a; font-weight:700; }
+.tier .td{ flex:1; } .tier .td b{ display:block; font-size:13.5px; } .tier .td span{ font-family:var(--f-mono); font-size:11px; color:var(--fg-dim); }
+.tier .tc{ font-family:var(--f-mono); font-size:13px; color:var(--lime-400); font-weight:500; }
+.tier.active .tc::after{ content:" ◄"; color:var(--fg-dim); }
+
+/* table */
+.tbl{ width:100%; }
+.tbl .h{ display:grid; grid-template-columns:1.4fr 1fr 1fr 90px; gap:14px; padding:0 0 12px; border-bottom:1px solid var(--border); }
+.tbl .h span{ font-family:var(--f-mono); font-size:10px; color:var(--fg-dim); text-transform:uppercase; letter-spacing:.08em; }
+.tbl .r{ display:grid; grid-template-columns:1.4fr 1fr 1fr 90px; gap:14px; align-items:center; padding:13px 0; border-bottom:1px dashed var(--border); }
+.tbl .r:last-child{ border:none; }
+.tbl .who{ display:flex; align-items:center; gap:10px; }
+.tbl .who .a{ width:28px; height:28px; border-radius:50%; background:var(--bg-3); display:flex; align-items:center; justify-content:center; font-family:var(--f-mono); font-size:11px; color:var(--fg-muted); flex-shrink:0; }
+.tbl .who b{ font-size:13px; font-weight:500; }
+.tbl .prod{ font-family:var(--f-mono); font-size:11px; }
+.tbl .prod.course{ color:var(--lime-400); } .tbl .prod.platform{ color:var(--info); }
+.tbl .dt{ font-family:var(--f-mono); font-size:11px; color:var(--fg-muted); }
+.tbl .amt{ font-family:var(--f-mono); font-size:13px; color:var(--green); text-align:right; }
+.badge{ display:inline-flex; align-items:center; gap:5px; font-family:var(--f-mono); font-size:10px; padding:3px 8px; border-radius:var(--r-sm); }
+.badge.pend{ background:hsl(38 92% 50% / .12); color:hsl(38 92% 68%); }
+.badge.ok{ background:hsl(83 81% 44% / .12); color:var(--lime-400); }
+
+/* payout */
+.payout{ display:flex; align-items:center; gap:16px; padding:18px; border:1px solid var(--border); border-radius:var(--r-md); background:var(--bg-2); }
+.payout .pix{ width:44px; height:30px; border-radius:5px; background:hsl(168 76% 42% / .15); color:var(--pix); display:flex; align-items:center; justify-content:center; font-family:var(--f-mono); font-weight:700; font-size:11px; flex-shrink:0; }
+.payout .pt{ flex:1; } .payout .pt b{ display:block; font-size:14px; } .payout .pt span{ font-family:var(--f-mono); font-size:11px; color:var(--fg-dim); }
+
+.toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--bg-2); border:1px solid var(--lime-500); border-radius:var(--r-md); padding:12px 18px; font-size:13px; box-shadow:var(--glow); opacity:0; transition:all .3s; z-index:50; pointer-events:none; }
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.toast b{ color:var(--lime-400); }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sb">
+    <div class="brand"><span class="mk">&gt;_</span> crazystack</div>
+    <div class="grp">Plataforma</div>
+    <div class="it"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Visão geral</div>
+    <div class="it"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22.5 6.4a2.8 2.8 0 0 0-1.9-2C18.9 4 12 4 12 4s-6.9 0-8.6.5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 1 12a29 29 0 0 0 .5 5.6 2.8 2.8 0 0 0 1.9 2c1.7.4 8.6.4 8.6.4s6.9 0 8.6-.5a2.8 2.8 0 0 0 1.9-2A29 29 0 0 0 23 12a29 29 0 0 0-.5-5.6z"/><polygon points="9.8 15 15.5 12 9.8 8.5"/></svg> Canais</div>
+    <div class="it"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg> Geração</div>
+    <div class="it"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Artigos</div>
+    <div class="grp">Receita</div>
+    <div class="it"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h3.5a2 2 0 0 1 0 4H9.5"/></svg> Créditos</div>
+    <div class="it"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Planos</div>
+    <div class="it on"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Parceiros <span class="tag">NOVO</span></div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="tbar">
+      <div class="crumb">faturei / <b>programa de parceiros</b></div>
+      <div class="r">
+        <div class="pill"><span class="d"></span> R$ 1.847 a receber</div>
+        <div class="av">GM</div>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="intro">
+        <div class="lbl">// nova fonte de receita</div>
+        <h1>Programa de <em>Parceiros</em></h1>
+        <p>Indique o curso e a plataforma e ganhe comissão recorrente. Cada aluno e cada dono de SaaS vira um canal de distribuição — e cada blog gerado pela plataforma vira uma vitrine de afiliados.</p>
+      </div>
+
+      <!-- the aha -->
+      <div class="aha">
+        <div class="ic"><svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg></div>
+        <div>
+          <h3>A oportunidade que estava na sua frente</h3>
+          <p>Você tem <b>8.240 alunos</b> e <b>312 SaaS</b> publicando — gente com audiência, código e blogs ranqueando no Google. Até agora isso não gerava receita nenhuma de indicação. Com o programa, <b>cada parceiro ganha 30% recorrente</b> e faz seu marketing por você; e os artigos gerados podem carregar <b>links de afiliado automáticos</b>, monetizando o tráfego que o conteúdo já atrai. Crescimento + receita, sem CAC.</p>
+        </div>
+      </div>
+
+      <!-- stats -->
+      <div class="stats">
+        <div class="stat">
+          <div class="sl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Ganho total</div>
+          <div class="sv"><span class="u">R$</span> 6.420</div>
+          <div class="sd">+R$ 1.240 este mês</div>
+        </div>
+        <div class="stat">
+          <div class="sl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><polyline points="22 4 12 14 9 11"/></svg> Conversões</div>
+          <div class="sv">38</div>
+          <div class="sd">+6 nos últimos 30d</div>
+        </div>
+        <div class="stat">
+          <div class="sl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 0 10h-2M8 12h8"/></svg> Cliques no link</div>
+          <div class="sv">1.284</div>
+          <div class="sd flat">CTR de conversão · 3,0%</div>
+        </div>
+        <div class="stat">
+          <div class="sl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7h-9M14 17H5M17 17a3 3 0 1 0 0 .01M7 7a3 3 0 1 0 0 .01"/></svg> MRR de comissão</div>
+          <div class="sv"><span class="u">R$</span> 612</div>
+          <div class="sd">recorrente · cresce a cada mês</div>
+        </div>
+      </div>
+
+      <div class="cols">
+        <!-- LEFT -->
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <!-- link + share -->
+          <div class="card card-pad">
+            <h2>Seu link de indicação</h2>
+            <div class="sub">// rastreia clique → cadastro → compra</div>
+            <div class="link-box">
+              <span class="pre">crazystack.com.br/r/</span>
+              <input type="text" id="reflink" value="gustavo-devdoido" readonly />
+              <button id="copybtn">copiar</button>
+            </div>
+            <div class="share-row">
+              <div class="share" data-share="WhatsApp"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.7 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.8.7.7-2.7-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1l-.7.9c-.2.2-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2l-.1-.5-.8-1.9c-.2-.4-.4-.4-.5-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3 1 2.6 1.1 2.7s1.9 3 4.6 4.1c1.7.7 2.3.8 3.1.7.5-.1 1.4-.6 1.6-1.1s.2-1 .1-1.1z"/></svg> WhatsApp</div>
+              <div class="share" data-share="X / Twitter"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M18.2 2H21l-6.5 7.5L22 22h-6l-4.7-6.1L5.8 22H3l7-8L2 2h6.2l4.3 5.6zm-1 18h1.6L7.5 3.7H5.8z"/></svg> X / Twitter</div>
+              <div class="share" data-share="LinkedIn"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM8.3 18.3V10H5.7v8.3zM7 8.8a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm11.3 9.5v-4.6c0-2.4-1.3-3.6-3-3.6a2.6 2.6 0 0 0-2.4 1.3v-1.1h-2.6v8.3h2.6v-4.4c0-1.2.2-2.3 1.7-2.3s1.5 1.4 1.5 2.4v4.3z"/></svg> LinkedIn</div>
+              <div class="share" data-share="Banners"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg> Material de divulgação</div>
+            </div>
+          </div>
+
+          <!-- commission tracks -->
+          <div class="card card-pad">
+            <h2>O que você ganha</h2>
+            <div class="sub">// duas trilhas de comissão</div>
+            <div class="track course">
+              <div class="ti"><svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+              <div class="tt"><b>Curso · Bootcamp</b><span>comissão única sobre a venda (R$399)</span></div>
+              <div class="rate"><div class="n">40%</div><div class="t">por venda</div></div>
+            </div>
+            <div class="track platform">
+              <div class="ti"><svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+              <div class="tt"><b>Plataforma · Assinatura</b><span>recorrente enquanto o indicado pagar</span></div>
+              <div class="rate"><div class="n">30%</div><div class="t">recorrente</div></div>
+            </div>
+            <div class="divider"></div>
+            <div class="lbl" style="margin-bottom:14px;">// escada de parceiro · quanto mais indica, maior a taxa</div>
+            <div class="tier"><div class="tn">1</div><div class="td"><b>Iniciante</b><span>0–9 indicações ativas</span></div><div class="tc">30%</div></div>
+            <div class="tier active"><div class="tn">2</div><div class="td"><b>Pro Partner</b><span>10–29 indicações ativas</span></div><div class="tc">35%</div></div>
+            <div class="tier"><div class="tn">3</div><div class="td"><b>Elite Partner</b><span>30+ · + bônus em créditos</span></div><div class="tc">40%</div></div>
+          </div>
+
+          <!-- recent conversions -->
+          <div class="card card-pad">
+            <h2>Indicações recentes</h2>
+            <div class="sub">// últimas conversões rastreadas</div>
+            <div class="tbl">
+              <div class="h"><span>parceiro indicado</span><span>produto</span><span>data</span><span style="text-align:right;">comissão</span></div>
+              <div class="r"><div class="who"><div class="a">RL</div><b>Rafael Lima</b></div><div class="prod platform">Plataforma · Pro</div><div class="dt">hoje</div><div class="amt">+R$ 14,70<span class="badge ok" style="margin-left:8px;">recorrente</span></div></div>
+              <div class="r"><div class="who"><div class="a">JS</div><b>Joana Souza</b></div><div class="prod course">Curso · Bootcamp</div><div class="dt">27 mai</div><div class="amt">+R$ 159,60</div></div>
+              <div class="r"><div class="who"><div class="a">MP</div><b>Marcos Paulo</b></div><div class="prod platform">Plataforma · Scale</div><div class="dt">25 mai</div><div class="amt">+R$ 44,70<span class="badge ok" style="margin-left:8px;">recorrente</span></div></div>
+              <div class="r"><div class="who"><div class="a">AC</div><b>Ana Clara</b></div><div class="prod platform">Plataforma · Pro</div><div class="dt">22 mai</div><div class="amt">+R$ 14,70<span class="badge pend" style="margin-left:8px;">pendente</span></div></div>
+              <div class="r"><div class="who"><div class="a">TF</div><b>Thiago Ferraz</b></div><div class="prod course">Curso · Bootcamp</div><div class="dt">19 mai</div><div class="amt">+R$ 159,60</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <!-- calculator -->
+          <div class="card card-pad">
+            <h2>Simulador de ganhos</h2>
+            <div class="sub">// projete sua receita recorrente</div>
+            <div class="calc-val"><span class="lbl">Assinantes Pro indicados</span><span class="n" id="subN">15</span></div>
+            <input type="range" id="subRange" min="0" max="100" value="15" />
+            <div class="calc-val"><span class="lbl">Vendas do curso / mês</span><span class="n" id="crsN">3</span></div>
+            <input type="range" id="crsRange" min="0" max="30" value="3" />
+            <div class="calc-out">
+              <div class="lbl">ganho mensal estimado</div>
+              <div class="big"><span class="cur">R$</span> <span id="calcOut">691</span></div>
+              <div class="yr">≈ <b id="calcYr">R$ 8.292</b> por ano</div>
+            </div>
+          </div>
+
+          <!-- blog monetization -->
+          <div class="card card-pad">
+            <h2>Monetize seus blogs</h2>
+            <div class="sub">// o canal que você não usava</div>
+            <p style="font-size:13.5px; color:var(--fg-muted); line-height:1.6; margin:0 0 16px;">Ative links de afiliado automáticos nos artigos que a plataforma gera. Cada blog ranqueado vira uma vitrine — sem você escrever nada.</p>
+            <div class="track platform" style="margin:0;">
+              <div class="ti"><svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></div>
+              <div class="tt"><b>Auto-link de afiliado</b><span>inserido nos artigos gerados</span></div>
+              <label style="position:relative; display:inline-block; width:42px; height:24px;"><input type="checkbox" id="autolink" checked style="opacity:0; width:0; height:0;"><span id="alknob" style="position:absolute; inset:0; background:var(--lime-500); border-radius:var(--r-full); cursor:pointer; transition:.2s;"></span></label>
+            </div>
+          </div>
+
+          <!-- payout -->
+          <div class="card card-pad">
+            <h2>Saque</h2>
+            <div class="sub">// pagamento via Pix</div>
+            <div class="payout">
+              <div class="pix">PIX</div>
+              <div class="pt"><b>R$ 1.847,00 disponível</b><span>chave: gustavo@crazystack.com.br</span></div>
+            </div>
+            <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:14px;" id="withdraw">Sacar via Pix</button>
+            <div class="lbl" style="text-align:center; margin-top:12px;">// saque mínimo R$ 50 · cai na hora</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><b>✓ feito</b> <span id="toastmsg"></span></div>
+
+<script>
+(function(){
+  function toast(msg){ var t=document.getElementById('toast'); document.getElementById('toastmsg').textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},2200); }
+
+  document.getElementById('copybtn').addEventListener('click', function(){
+    var i=document.getElementById('reflink'); var url='crazystack.com.br/r/'+i.value;
+    if(navigator.clipboard) navigator.clipboard.writeText(url);
+    this.textContent='copiado!'; var self=this; setTimeout(function(){self.textContent='copiar';},1500);
+    toast('link copiado · '+url);
+  });
+  document.querySelectorAll('.share').forEach(function(s){ s.addEventListener('click', function(){ toast('abrindo '+this.getAttribute('data-share')+'...'); }); });
+
+  var subR=document.getElementById('subRange'), crsR=document.getElementById('crsRange');
+  function fmt(n){ return n.toLocaleString('pt-BR'); }
+  function recalc(){
+    var subs=+subR.value, crs=+crsR.value;
+    document.getElementById('subN').textContent=subs;
+    document.getElementById('crsN').textContent=crs;
+    // Pro R$49 * 35% recurring + course R$399 * 40%
+    var monthly = Math.round(subs*49*0.35 + crs*399*0.40);
+    document.getElementById('calcOut').textContent=fmt(monthly);
+    document.getElementById('calcYr').textContent='R$ '+fmt(monthly*12);
+  }
+  subR.addEventListener('input',recalc); crsR.addEventListener('input',recalc); recalc();
+
+  var al=document.getElementById('autolink'), knob=document.getElementById('alknob');
+  function paintKnob(){ knob.style.background = al.checked ? 'var(--lime-500)' : 'var(--bg-3)'; knob.innerHTML='<span style="position:absolute; top:3px; left:'+(al.checked?'21px':'3px')+'; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s;"></span>'; }
+  al.addEventListener('change', function(){ paintKnob(); toast(al.checked?'auto-link de afiliado ativado':'auto-link desativado'); }); paintKnob();
+
+  document.getElementById('withdraw').addEventListener('click', function(){ toast('saque de R$ 1.847,00 enviado via Pix'); });
+})();
+</script>
+</body>
+</html>

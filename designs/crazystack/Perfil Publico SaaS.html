@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1280" />
+<title>Faturei — Blog &amp; Perfil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:hsl(0 0% 3.9%); --bg-1:hsl(0 0% 6%); --bg-2:hsl(0 0% 9%); --bg-3:hsl(0 0% 12%);
+  --fg:hsl(0 0% 98%); --fg-muted:hsl(0 0% 63.9%); --fg-dim:hsl(0 0% 44%); --border:hsl(0 0% 15%);
+  --lime-400:hsl(82 78% 55%); --lime-500:hsl(83 81% 44%);
+  /* this SaaS brand color (Faturei = fintech blue) */
+  --brand:hsl(217 91% 55%); --brand-600:hsl(217 91% 38%); --brand-fg:#fff;
+  --r-sm:4px; --r-md:8px; --r-lg:12px; --r-full:9999px;
+  --f-sans:'Geist',ui-sans-serif,system-ui,sans-serif; --f-mono:'Geist Mono',ui-monospace,monospace;
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; background:var(--bg); color:var(--fg); font-family:var(--f-sans); -webkit-font-smoothing:antialiased; }
+a{ color:inherit; text-decoration:none; }
+.page{ max-width:1080px; margin:0 auto; padding:0 32px; }
+
+.btn{ display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:14px; padding:10px 18px; border-radius:var(--r-md); transition:all .2s; border:1px solid transparent; cursor:pointer; }
+.btn svg{ width:15px; height:15px; }
+.btn-brand{ background:var(--brand); color:var(--brand-fg); }
+.btn-brand:hover{ background:var(--brand-600); }
+.btn-ghost{ background:var(--bg-2); color:var(--fg); border-color:var(--border); }
+.btn-ghost:hover{ border-color:var(--brand); }
+.btn-sm{ padding:8px 14px; font-size:13px; }
+.lbl{ font-family:var(--f-mono); font-size:11px; color:var(--fg-dim); text-transform:uppercase; letter-spacing:.1em; }
+
+/* powered-by topbar */
+.poweredby{ display:flex; justify-content:space-between; align-items:center; padding:9px 32px; border-bottom:1px solid var(--border); background:var(--bg-1); }
+.poweredby .pb-l{ font-family:var(--f-mono); font-size:11px; color:var(--fg-dim); display:flex; align-items:center; gap:7px; }
+.poweredby .pb-l b{ color:var(--lime-400); }
+.poweredby .pb-l .mk{ color:var(--lime-500); }
+.poweredby a.pb-cta{ font-family:var(--f-mono); font-size:11px; color:var(--fg-muted); }
+.poweredby a.pb-cta:hover{ color:var(--lime-400); }
+
+/* COVER */
+.cover{ position:relative; height:280px; overflow:hidden; background:linear-gradient(135deg,var(--brand),var(--brand-600)); }
+.cover::before{ content:""; position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px); background-size:42px 42px; mask-image:radial-gradient(ellipse 70% 90% at 70% 10%,#000,transparent 75%); }
+.cover::after{ content:""; position:absolute; inset:0; background:linear-gradient(to bottom,transparent 30%,rgba(10,10,10,.5) 75%,var(--bg) 100%); }
+.cover .glyph{ position:absolute; right:40px; bottom:-40px; font-family:var(--f-mono); font-weight:700; font-size:240px; color:rgba(0,0,0,.16); line-height:1; }
+.cover .cv-edit{ position:absolute; top:16px; right:16px; z-index:3; }
+
+/* HEADER (logo + identity) */
+.head{ position:relative; margin-top:-64px; z-index:5; }
+.head-row{ display:flex; align-items:flex-end; gap:24px; }
+.logo{ width:120px; height:120px; border-radius:20px; background:var(--brand); color:var(--brand-fg); display:flex; align-items:center; justify-content:center; font-family:var(--f-mono); font-weight:700; font-size:46px; flex-shrink:0; border:4px solid var(--bg); box-shadow:0 12px 32px rgba(0,0,0,.5); }
+.head-id{ flex:1; padding-bottom:6px; min-width:0; }
+.head-id .name-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.head-id h1{ font-size:34px; font-weight:800; letter-spacing:-0.03em; margin:0; }
+.head-id .verified{ color:var(--brand); display:flex; } .head-id .verified svg{ width:20px; height:20px; }
+.head-id .cat-badge{ font-family:var(--f-mono); font-size:11px; padding:4px 11px; border-radius:var(--r-full); background:hsl(217 91% 55% / .15); color:hsl(217 91% 72%); border:1px solid hsl(217 91% 55% / .3); text-transform:uppercase; letter-spacing:.06em; }
+.head-id .tagline{ font-size:15px; color:var(--fg-muted); margin:8px 0 0; }
+.head-actions{ display:flex; gap:10px; padding-bottom:8px; flex-shrink:0; }
+
+/* meta links row */
+.meta-links{ display:flex; flex-wrap:wrap; gap:10px 22px; margin-top:22px; padding-top:20px; border-top:1px solid var(--border); font-size:13.5px; color:var(--fg-muted); }
+.meta-links a, .meta-links span{ display:inline-flex; align-items:center; gap:8px; }
+.meta-links a:hover{ color:var(--brand); }
+.meta-links svg{ width:15px; height:15px; color:var(--fg-dim); }
+.meta-links a:hover svg{ color:var(--brand); }
+
+/* stats band */
+.stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:0; border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; margin:28px 0 0; background:var(--bg-1); }
+.stats .s{ padding:20px 22px; border-right:1px solid var(--border); }
+.stats .s:last-child{ border-right:none; }
+.stats .s b{ font-size:26px; font-weight:800; letter-spacing:-0.02em; } .stats .s b .ac{ color:var(--brand); }
+.stats .s span{ display:block; font-family:var(--f-mono); font-size:10px; color:var(--fg-dim); text-transform:uppercase; letter-spacing:.08em; margin-top:6px; }
+
+/* layout */
+.grid{ display:grid; grid-template-columns:1fr 300px; gap:28px; margin:40px 0 80px; align-items:start; }
+.sec-h{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:18px; }
+.sec-h h2{ font-size:20px; font-weight:700; letter-spacing:-0.01em; margin:0; }
+.sec-h a{ font-family:var(--f-mono); font-size:12px; color:var(--brand); }
+.sec-h a:hover{ text-decoration:underline; }
+
+/* about card */
+.about{ background:var(--bg-1); border:1px solid var(--border); border-radius:var(--r-lg); padding:24px; margin-bottom:32px; }
+.about p{ font-size:14.5px; line-height:1.7; color:var(--fg-muted); margin:0 0 14px; }
+.about p:last-child{ margin:0; }
+.about p b{ color:var(--fg); }
+
+/* featured article */
+.feat{ display:grid; grid-template-columns:200px 1fr; gap:0; border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden; margin-bottom:16px; background:var(--bg-1); transition:border .2s; }
+.feat:hover{ border-color:hsl(217 91% 55% / .4); }
+.feat .fc{ position:relative; min-height:160px; display:flex; align-items:flex-end; padding:14px; }
+.feat .fc.ai{ background:linear-gradient(135deg,hsl(280 70% 55%),hsl(280 70% 24%)); }
+.feat .fc .gl{ position:absolute; right:10px; bottom:-20px; font-family:var(--f-mono); font-weight:700; font-size:90px; color:rgba(0,0,0,.22); line-height:1; }
+.feat .fc .tg{ position:relative; font-family:var(--f-mono); font-size:10px; color:#fff; background:rgba(0,0,0,.32); padding:4px 9px; border-radius:var(--r-sm); text-transform:uppercase; letter-spacing:.06em; }
+.feat .fb{ padding:22px 24px; display:flex; flex-direction:column; }
+.feat .fb .ml{ font-family:var(--f-mono); font-size:11px; color:var(--fg-dim); margin-bottom:10px; }
+.feat .fb h3{ font-size:21px; font-weight:700; letter-spacing:-0.015em; margin:0 0 8px; line-height:1.25; }
+.feat .fb p{ font-size:13.5px; color:var(--fg-muted); line-height:1.55; margin:0; }
+.feat .fb .badge-feat{ align-self:flex-start; font-family:var(--f-mono); font-size:9px; color:var(--brand); border:1px solid hsl(217 91% 55% / .35); background:hsl(217 91% 55% / .1); padding:3px 8px; border-radius:var(--r-sm); text-transform:uppercase; letter-spacing:.08em; margin-bottom:12px; }
+
+/* article list rows */
+.alist{ display:flex; flex-direction:column; }
+.arow{ display:flex; align-items:center; gap:18px; padding:18px 4px; border-bottom:1px dashed var(--border); transition:background .15s; }
+.arow:hover{ background:var(--bg-1); }
+.arow:last-child{ border:none; }
+.arow .thumb{ width:84px; height:56px; border-radius:var(--r-md); flex-shrink:0; position:relative; overflow:hidden; }
+.arow .thumb .g{ position:absolute; right:-4px; bottom:-12px; font-family:var(--f-mono); font-weight:700; font-size:46px; color:rgba(0,0,0,.22); line-height:1; }
+.arow .at{ flex:1; min-width:0; }
+.arow .at h4{ font-size:15px; font-weight:600; margin:0 0 5px; line-height:1.3; }
+.arow:hover .at h4{ color:var(--brand); }
+.arow .at .am{ font-family:var(--f-mono); font-size:11px; color:var(--fg-dim); display:flex; gap:8px; flex-wrap:wrap; }
+.arow .at .am .src{ color:var(--lime-500); }
+.arow .ar{ flex-shrink:0; display:flex; align-items:center; gap:14px; }
+.arow .views{ font-family:var(--f-mono); font-size:12px; color:var(--fg-muted); }
+.arow .go{ width:30px; height:30px; border-radius:50%; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--fg-dim); }
+.arow:hover .go{ border-color:var(--brand); color:var(--brand); }
+.arow .go svg{ width:14px; height:14px; }
+
+/* sidebar cards */
+.scard{ background:var(--bg-1); border:1px solid var(--border); border-radius:var(--r-lg); padding:20px; margin-bottom:16px; }
+.scard .sh{ font-family:var(--f-mono); font-size:11px; color:var(--fg-dim); text-transform:uppercase; letter-spacing:.1em; margin-bottom:16px; }
+.kv{ display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px dashed var(--border); font-size:13px; }
+.kv:last-child{ border:none; }
+.kv .k{ color:var(--fg-muted); } .kv .v{ font-family:var(--f-mono); color:var(--fg); }
+.kv .v.ac{ color:var(--brand); }
+
+/* categories/tags */
+.tags{ display:flex; flex-wrap:wrap; gap:8px; }
+.tag{ font-family:var(--f-mono); font-size:11px; padding:5px 11px; border-radius:var(--r-full); background:var(--bg-2); border:1px solid var(--border); color:var(--fg-muted); cursor:pointer; }
+.tag:hover{ border-color:var(--brand); color:var(--fg); }
+.tag .ct{ color:var(--fg-dim); }
+
+/* subscribe */
+.sub-box .sd{ font-size:13px; color:var(--fg-muted); line-height:1.55; margin:0 0 14px; }
+.sub-box .inp{ display:flex; gap:8px; }
+.sub-box input{ flex:1; background:var(--bg-2); border:1px solid var(--border); border-radius:var(--r-md); padding:10px 12px; color:var(--fg); font-size:13px; font-family:var(--f-sans); outline:none; }
+.sub-box input:focus{ border-color:var(--brand); }
+
+/* founder */
+.founder{ display:flex; align-items:center; gap:12px; }
+.founder .fav{ width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,var(--lime-500),hsl(85 85% 30%)); color:#0a0a0a; display:flex; align-items:center; justify-content:center; font-family:var(--f-mono); font-weight:700; font-size:14px; }
+.founder b{ display:block; font-size:14px; } .founder span{ font-size:12px; color:var(--fg-muted); }
+
+footer.foot{ border-top:1px solid var(--border); padding:28px 0; background:#050505; }
+footer.foot .in{ max-width:1080px; margin:0 auto; padding:0 32px; display:flex; justify-content:space-between; align-items:center; font-family:var(--f-mono); font-size:11px; color:var(--fg-dim); text-transform:uppercase; letter-spacing:.1em; }
+footer.foot .in .mk{ color:var(--lime-500); }
+
+.toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--bg-2); border:1px solid var(--brand); border-radius:var(--r-md); padding:12px 18px; font-size:13px; box-shadow:0 0 24px hsl(217 91% 55% / .3); opacity:0; transition:all .3s; z-index:50; pointer-events:none; }
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.toast b{ color:var(--brand); }
+</style>
+</head>
+<body>
+
+<!-- powered by CrazyStack -->
+<div class="poweredby">
+  <div class="pb-l"><span class="mk">&gt;_</span> blog publicado com <b>CrazyStack</b></div>
+  <a href="Landing Curso e SaaS.html" class="pb-cta">crie o seu →</a>
+</div>
+
+<!-- COVER -->
+<div class="cover">
+  <span class="glyph">FT</span>
+  <button class="btn btn-ghost btn-sm cv-edit" id="editbtn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> Editar perfil</button>
+</div>
+
+<div class="page">
+  <!-- HEADER -->
+  <div class="head">
+    <div class="head-row">
+      <div class="logo">FT</div>
+      <div class="head-id">
+        <div class="name-row">
+          <h1>Faturei</h1>
+          <span class="verified" title="SaaS verificado"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 1.8 3 .1 1 2.8 2.4 1.7-.9 2.9.9 2.9-2.4 1.7-1 2.8-3 .1L12 22l-2.4-1.8-3-.1-1-2.8L3.2 15l.9-2.9-.9-2.9 2.4-1.7 1-2.8 3-.1z"/><path fill="var(--bg)" d="M10.5 14.6l-2-2-1.2 1.2 3.2 3.2 5.6-5.6-1.2-1.2z"/></svg></span>
+          <span class="cat-badge">Fintech</span>
+        </div>
+        <p class="tagline">Gestão financeira sem fricção para autônomos e pequenos negócios.</p>
+      </div>
+      <div class="head-actions">
+        <button class="btn btn-ghost" id="sharebtn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg> Compartilhar</button>
+        <button class="btn btn-brand" id="followbtn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Seguir</button>
+      </div>
+    </div>
+
+    <!-- meta links -->
+    <div class="meta-links">
+      <a href="#" target="_blank"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg> faturei.com.br</a>
+      <a href="#" target="_blank"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/></svg> @faturei.app</a>
+      <span><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> no ar desde mar 2024</span>
+      <span><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> São Paulo, BR</span>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="s"><b><span class="ac">42</span></b><span>artigos publicados</span></div>
+    <div class="s"><b>128k</b><span>leituras totais</span></div>
+    <div class="s"><b>3.4k</b><span>seguidores</span></div>
+    <div class="s"><b><span class="ac">5</span>×</b><span>artigos / semana</span></div>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid">
+    <!-- MAIN -->
+    <div>
+      <!-- ABOUT -->
+      <div class="about">
+        <p><b>Faturei</b> é a plataforma de gestão financeira que descomplica boletos, notas e fluxo de caixa para quem trabalha por conta própria. Sem planilha, sem contador caro — tudo num painel só.</p>
+        <p>Aqui no blog publicamos guias práticos de finanças, impostos para autônomos, e bastidores de como construímos o produto. Boa parte do conteúdo é gerado automaticamente a partir dos melhores vídeos de finanças e tecnologia do YouTube, revisado pela nossa equipe.</p>
+      </div>
+
+      <!-- LATEST ARTICLES -->
+      <div class="sec-h">
+        <h2>Últimos artigos</h2>
+        <a href="Blog.html">ver todos os 42 →</a>
+      </div>
+
+      <!-- featured -->
+      <a href="Artigo.html" class="feat">
+        <div class="fc ai"><span class="gl">AI</span><span class="tg">⚡ gerado de vídeo</span></div>
+        <div class="fb">
+          <span class="badge-feat">★ em destaque</span>
+          <div class="ml">28 mai 2026 · 8 min · 4.2k leituras</div>
+          <h3>MEI ou Simples Nacional em 2026: qual escolher?</h3>
+          <p>Comparamos os dois regimes na prática, com simulações de quanto você paga em cada faixa de faturamento — e quando vale a pena migrar.</p>
+        </div>
+      </a>
+
+      <!-- list -->
+      <div class="alist" id="alist"></div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside>
+      <div class="scard">
+        <div class="sh">// informações</div>
+        <div class="kv"><span class="k">Categoria</span><span class="v ac">Fintech</span></div>
+        <div class="kv"><span class="k">Website</span><span class="v">faturei.com.br</span></div>
+        <div class="kv"><span class="k">Instagram</span><span class="v">@faturei.app</span></div>
+        <div class="kv"><span class="k">Fundado</span><span class="v">2024</span></div>
+        <div class="kv"><span class="k">Localização</span><span class="v">SP, Brasil</span></div>
+        <div class="kv"><span class="k">Idioma</span><span class="v">pt-BR</span></div>
+      </div>
+
+      <div class="scard">
+        <div class="sh">// fundador</div>
+        <div class="founder">
+          <div class="fav">GM</div>
+          <div><b>Gustavo Miranda</b><span>founder &amp; dev</span></div>
+        </div>
+      </div>
+
+      <div class="scard">
+        <div class="sh">// temas do blog</div>
+        <div class="tags">
+          <span class="tag">Finanças <span class="ct">18</span></span>
+          <span class="tag">Impostos <span class="ct">9</span></span>
+          <span class="tag">Autônomos <span class="ct">7</span></span>
+          <span class="tag">Produto <span class="ct">5</span></span>
+          <span class="tag">Tecnologia <span class="ct">3</span></span>
+        </div>
+      </div>
+
+      <div class="scard sub-box">
+        <div class="sh">// newsletter</div>
+        <p class="sd">Receba os novos artigos da Faturei direto no e-mail. Sem spam.</p>
+        <div class="inp">
+          <input type="email" id="subemail" placeholder="seu@email.com" />
+          <button class="btn btn-brand btn-sm" id="subbtn">Assinar</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="in">
+    <div><span class="mk">&gt;_</span> faturei · blog oficial · © 2026</div>
+    <div>publicado com crazystack</div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"><b>✓</b> <span id="toastmsg"></span></div>
+
+<script>
+(function(){
+  function toast(m){ var t=document.getElementById('toast'); document.getElementById('toastmsg').textContent=m; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},2200); }
+
+  var articles = [
+    { t:'Como emitir boleto sem CNPJ (e quando você precisa de um)', cat:'Finanças', src:false, date:'25 mai', time:'6 min', views:'3.1k', c1:'hsl(217 91% 50%)', c2:'hsl(217 91% 28%)', gl:'$' },
+    { t:'Imposto de Renda 2026 para autônomos: o guia completo', cat:'Impostos', src:true, date:'22 mai', time:'11 min', views:'5.8k', c1:'hsl(0 72% 50%)', c2:'hsl(0 72% 26%)', gl:'IR' },
+    { t:'Fluxo de caixa na prática: o modelo que usamos no Faturei', cat:'Finanças', src:false, date:'19 mai', time:'7 min', views:'2.4k', c1:'hsl(83 81% 42%)', c2:'hsl(85 85% 24%)', gl:'%' },
+    { t:'5 erros de precificação que quebram o autônomo', cat:'Finanças', src:true, date:'15 mai', time:'5 min', views:'4.0k', c1:'hsl(38 92% 48%)', c2:'hsl(38 92% 26%)', gl:'!' },
+    { t:'Pix automático chegou: o que muda pro seu negócio', cat:'Tecnologia', src:true, date:'11 mai', time:'4 min', views:'6.2k', c1:'hsl(168 76% 40%)', c2:'hsl(168 76% 22%)', gl:'$' },
+    { t:'Reserva de emergência para quem não tem salário fixo', cat:'Finanças', src:false, date:'07 mai', time:'9 min', views:'3.7k', c1:'hsl(280 70% 50%)', c2:'hsl(280 70% 26%)', gl:'+' }
+  ];
+
+  document.getElementById('alist').innerHTML = articles.map(function(a){
+    return '<a href="Artigo.html" class="arow">'
+      + '<div class="thumb" style="background:linear-gradient(135deg,'+a.c1+','+a.c2+')"><span class="g">'+a.gl+'</span></div>'
+      + '<div class="at"><h4>'+a.t+'</h4>'
+      + '<div class="am"><span>'+a.date+' 2026</span><span>·</span><span>'+a.time+'</span><span>·</span><span>'+a.cat+'</span>'
+      + (a.src?'<span>·</span><span class="src">⚡ gerado de vídeo</span>':'<span>·</span><span>✎ à mão</span>')+'</div></div>'
+      + '<div class="ar"><span class="views">'+a.views+'</span>'
+      + '<span class="go"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span></div></a>';
+  }).join('');
+
+  var following=false;
+  document.getElementById('followbtn').addEventListener('click', function(){
+    following=!following;
+    this.innerHTML = following
+      ? '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Seguindo'
+      : '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Seguir';
+    this.classList.toggle('btn-ghost', following); this.classList.toggle('btn-brand', !following);
+    toast(following?'agora você segue Faturei':'deixou de seguir');
+  });
+  document.getElementById('sharebtn').addEventListener('click', function(){ if(navigator.clipboard) navigator.clipboard.writeText('crazystack.com.br/faturei'); toast('link do perfil copiado'); });
+  document.getElementById('editbtn').addEventListener('click', function(){ window.location.href='Criar SaaS.html'; });
+  document.getElementById('subbtn').addEventListener('click', function(){ var e=document.getElementById('subemail'); if(e.value){ toast('inscrito! confirme no e-mail'); e.value=''; } else { e.focus(); } });
+})();
+</script>
+</body>
+</html>
