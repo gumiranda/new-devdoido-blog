@@ -13,7 +13,7 @@ import { eq } from "drizzle-orm";
 import { auth } from "../auth/auth";
 import { db } from "./client";
 import * as s from "./schema";
-import { PLAN_CREDITS } from "../lib/plans";
+import { bootstrapWorkspaceDefaults } from "../lib/bootstrap";
 
 const SEED_EMAIL = "gustavo@faturei.io";
 const SEED_PASSWORD = "devdoido123";
@@ -81,40 +81,8 @@ export async function bootstrapWorkspace(input: BootstrapInput): Promise<Bootstr
     });
   }
 
-  // 3. Default workspace rows (upsert — safe on re-seed)
-  await db
-    .insert(s.workspaceSettings)
-    .values({ workspaceId: wsId, blogSlug: input.orgSlug })
-    .onConflictDoUpdate({ target: s.workspaceSettings.workspaceId, set: { updatedAt: new Date() } });
-
-  await db
-    .insert(s.wallet)
-    .values({ workspaceId: wsId, balance: PLAN_CREDITS[plan], plan })
-    .onConflictDoUpdate({ target: s.wallet.workspaceId, set: { updatedAt: new Date() } });
-
-  await db
-    .insert(s.automationConfig)
-    .values({
-      workspaceId: wsId,
-      enabled: false,
-      model: "claude-sonnet-4-5",
-      generateOnTranscript: true,
-      autoPublish: false,
-      promptTemplate:
-        "Você é um redator técnico especializado em SEO. Escreva um artigo de blog em português brasileiro a partir da transcrição abaixo. O artigo deve ter título H1 cativante, meta description (max 160 chars), subtítulos H2, parágrafos curtos (max 4 linhas), bullets quando couber, e uma seção de FAQ com 3 perguntas no final. Use tom informal mas profissional. Inclua uma caixa de resposta rápida (answer box) de 40-80 palavras no início resumindo o artigo.\n\nTranscrição:\n{{transcript}}",
-    })
-    .onConflictDoUpdate({ target: s.automationConfig.workspaceId, set: { updatedAt: new Date() } });
-
-  await db
-    .insert(s.scheduleConfig)
-    .values({
-      workspaceId: wsId,
-      frequency: "daily",
-      cronExpr: "0 8 * * *",
-      timezone: "America/Sao_Paulo",
-      quotaPerRun: plan === "free" ? 5 : plan === "pro" ? 100 : 500,
-    })
-    .onConflictDoUpdate({ target: s.scheduleConfig.workspaceId, set: { updatedAt: new Date() } });
+  // 3. Default workspace rows (settings, wallet, automation, schedule)
+  await bootstrapWorkspaceDefaults(wsId, input.orgSlug, plan);
 
   return { userId, workspaceId: wsId };
 }

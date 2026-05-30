@@ -29,7 +29,38 @@ bun run dev                 # http://localhost:3000
 | `bun run db:push` | Empurra o schema direto (dev) |
 | `bun run db:seed` | Popula dados de exemplo |
 | `bun run db:studio` | Drizzle Studio |
-| `bun test` | Testes unitários |
+| `bun test` | Roda **todos** os testes (unit + e2e) com cobertura |
+
+## Testes
+
+`bun test` roda **toda** a suíte. Funciona tanto da **raiz do monorepo** quanto de `apps/api`
+(o `bunfig.toml` da raiz e do pacote dão preload no `apps/api/.env`, então `DATABASE_URL` etc.
+carregam em qualquer cwd). O timeout já vem generoso embutido (30s) — não precisa passar `--timeout`.
+
+```bash
+bun test                              # tudo (unit + e2e); rodando em apps/api inclui cobertura
+bun test src/unit.test.ts             # só os testes de unidade (puros, sem DB)
+bun test src/e2e.test.ts              # só a e2e (precisa de DATABASE_URL)
+bun test -t "billing"                 # filtra por nome do teste/describe
+```
+
+**Pré-requisito da e2e:** ela dirige o app real (`app.handle()`) contra o **banco Neon de verdade**
+(`DATABASE_URL` do `.env`) e exige que o schema esteja sincronizado — rode `bun run db:push` antes
+se o banco estiver atrás do `src/db/schema.ts`. Cada execução cria usuários/orgs isolados e os apaga
+no `afterAll`, então não suja dados existentes. As integrações externas (Google, Gladia, Stripe,
+AbacatePay, GSC, S3, Claude/OpenAI) são exercitadas com `fetch` mockado + variáveis de ambiente
+alternadas em runtime — nenhuma chamada externa real é feita.
+
+Arquivos:
+
+| Arquivo | O que cobre |
+|---------|-------------|
+| `src/unit.test.ts` | libs puras: `env`, `cors`, `encryption`, `prompts`, `logger`, `validation`, `cron`, `rate-limit` |
+| `src/e2e.test.ts`  | HTTP ponta-a-ponta de todos os módulos + guard + CORS + webhooks + pipeline + primitivas de crédito |
+| `src/index.test.ts`| smoke do app (health, sitemap, robots, feed público) |
+
+Cobertura: **100% das linhas** em todo `src/` (o número de *funções* em `db/schema.ts` é só dos
+builders de tabela do drizzle, não há lógica executável ali).
 
 ## Estrutura
 

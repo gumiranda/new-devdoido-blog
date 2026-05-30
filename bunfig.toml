@@ -1,0 +1,5 @@
+# Root test config: load apps/api/.env so `bun test` works from the repo root
+# (Bun only auto-loads .env from the cwd). The preload resolves its path from its
+# own location, so the API tests get DATABASE_URL etc. regardless of where you run.
+[test]
+preload = ["./apps/api/test-setup.ts"]

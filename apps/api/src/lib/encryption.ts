@@ -5,7 +5,9 @@
  * Ciphertext format: base64(iv + authTag + ciphertext) — 12+16+payload bytes.
  */
 
-const ALGORITHM = "AES-256-GCM";
+// WebCrypto algorithm identifier is "AES-GCM" (key length is derived from the
+// 32-byte key, giving AES-256). "AES-256-GCM" is NOT a valid WebCrypto name.
+const ALGORITHM = "AES-GCM";
 const IV_LEN = 12;
 const TAG_LEN = 16;
 
@@ -13,7 +15,7 @@ async function getKey(): Promise<CryptoKey> {
   const raw = process.env.ENCRYPTION_KEY;
   if (!raw) throw new Error("ENCRYPTION_KEY env var is not set");
   const keyBytes = Buffer.from(raw, "base64");
-  return crypto.subtle.importKey("raw", keyBytes, { name: ALGORITHM, length: 256 }, false, [
+  return crypto.subtle.importKey("raw", keyBytes, { name: ALGORITHM }, false, [
     "encrypt",
     "decrypt",
   ]);

@@ -14,7 +14,7 @@ import { scheduleConfig, cronLog } from "../db/schema";
 
 const CHECK_INTERVAL_MS = 60_000; // Check every minute
 
-async function checkAndRun() {
+export async function checkAndRun() {
   const now = new Date();
 
   const schedules = await db
@@ -56,7 +56,7 @@ async function checkAndRun() {
 }
 
 /** Simple cron expression parser — supports "min hour * * *" format. */
-function calculateNextRun(cronExpr: string, from: Date): Date {
+export function calculateNextRun(cronExpr: string, from: Date): Date {
   const parts = cronExpr.split(/\s+/);
   const minute = parseInt(parts[0] ?? "0");
   const hour = parseInt(parts[1] ?? "0");

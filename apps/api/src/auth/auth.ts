@@ -11,6 +11,7 @@ import { organization } from "better-auth/plugins";
 import { db } from "../db/client";
 import * as schema from "../db/schema";
 import { env } from "../env";
+import { bootstrapWorkspaceDefaults } from "../lib/bootstrap";
 
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
@@ -31,7 +32,16 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  plugins: [organization()],
+  plugins: [
+    organization({
+      organizationHooks: {
+        // M4.1: seed default wallet/settings/automation/schedule for each new workspace.
+        afterCreateOrganization: async ({ organization: org }) => {
+          await bootstrapWorkspaceDefaults(org.id, org.slug ?? org.id);
+        },
+      },
+    }),
+  ],
 });
 
 export type Auth = typeof auth;

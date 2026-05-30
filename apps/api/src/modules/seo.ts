@@ -107,7 +107,7 @@ export async function enhanceArticleSeo(
   const description = art.metaDescription ?? art.excerpt ?? art.title;
   const imageUrl = art.ogImageUrl ?? art.coverUrl ?? `${SITE_URL}/og-default.png`;
 
-  const faqItems = art.faqJson?.questions
+  const faqItems = (art.faqJson as { questions?: unknown[] } | null)?.questions
     ?? (Array.isArray(art.faqJson) ? art.faqJson : null);
 
   const output: SeoOutput = {

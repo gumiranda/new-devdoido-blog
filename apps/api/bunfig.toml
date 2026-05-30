@@ -1,4 +1,6 @@
 [test]
+preload = ["./test-setup.ts"]
 coverage = true
 coverageReporter = ["text"]
 coverageSkipTestFiles = true
+coveragePathIgnorePatterns = ["test-setup.ts"]

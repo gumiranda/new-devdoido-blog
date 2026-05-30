@@ -16,8 +16,21 @@ import { env } from "../env";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 const SITE_URL = "https://devdoido.com.br";
 
+type IndexState =
+  | "na" | "indexed" | "notindexed" | "excluded" | "unknown" | "checking" | "queued";
+
+/** Map GSC's freeform coverageState string onto our index_state enum. */
+function mapCoverageState(s?: string): IndexState {
+  if (!s) return "unknown";
+  const l = s.toLowerCase();
+  if (l.includes("not index") || l.includes("not currently")) return "notindexed";
+  if (l.includes("indexed")) return "indexed";
+  if (l.includes("excluded")) return "excluded";
+  return "unknown";
+}
+
 interface GscResult {
-  indexState: string;
+  indexState: IndexState;
   indexCoverage: string;
   indexCheckedAt: Date;
 }
@@ -50,7 +63,7 @@ async function inspectUrl(inspectionUrl: string, accessToken: string): Promise<G
     const result = data.inspectionResult?.indexStatusResult;
 
     return {
-      indexState: result?.coverageState ?? "unknown",
+      indexState: mapCoverageState(result?.coverageState),
       indexCoverage: [
         result?.coverageState,
         result?.crawledAs ? `crawled as ${result.crawledAs}` : "",

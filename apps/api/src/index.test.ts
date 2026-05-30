@@ -85,7 +85,7 @@ describe("app (in-process)", () => {
     expect(resp.status).toBe(200);
     const text = await resp.text();
     expect(text).toContain('<?xml');
-    expect(text).toContain('<urlset');
+    expect(text).toContain('<sitemapindex');
   });
 
   test("robots.txt endpoint returns text", async () => {

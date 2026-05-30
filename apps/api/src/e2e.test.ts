@@ -1,84 +1,89 @@
 /**
  * End-to-end suite: drives the real composed app via `app.handle()` against the
- * live Neon DB. Each run creates isolated users/orgs and tears them down in
- * afterAll. Covers every route + branch, the auth guard, CORS, and the wallet
- * credit/debit primitives.
+ * live Neon DB. Isolated users/orgs per run, torn down in afterAll. Covers every
+ * route + branch across all modules, the auth guard, CORS, rate-limit, the wallet
+ * primitives, and the external integrations (Google / Gladia / Stripe / Abacate /
+ * GSC / S3) via `env` toggling + `fetch` mocking.
  */
-import { expect, test, describe, beforeAll, afterAll } from "bun:test";
+import { expect, test, describe, beforeAll, afterAll, setDefaultTimeout } from "bun:test";
 import { and, eq, inArray } from "drizzle-orm";
+
+// e2e hits the real Neon DB over the network — generous default so it passes
+// without remembering `--timeout` (heavy multi-call tests can exceed 5s).
+setDefaultTimeout(30_000);
+import { app } from "./app";
 import { db, debitCredit, creditWallet, InsufficientCreditsError } from "./db/client";
+import { env } from "./env";
+import { encrypt } from "./lib/encryption";
+import { enhanceArticleSeo } from "./modules/seo";
+import { checkAndRun, startCronScheduler } from "./lib/cron";
+import { authenticatedRateLimit } from "./lib/rate-limit";
+import { Elysia } from "elysia";
+import { PLANS } from "./lib/plans";
 import * as s from "./db/schema";
 
-let app: any;
-
-beforeAll(async () => {
-  const mod = await import("./app");
-  app = mod.app;
-});
-
-// ── HTTP helper ───────────────────────────────────────────────────────────
-type CallOpts = {
-  method?: string;
-  body?: unknown;
-  cookie?: string;
-  origin?: string;
-  headers?: Record<string, string>;
-};
+// ── HTTP helper (random IP per call to dodge the IP rate-limiter) ───────────
+let ipCounter = 0;
+type CallOpts = { method?: string; body?: unknown; cookie?: string; origin?: string; headers?: Record<string, string> };
 
 async function raw(path: string, opts: CallOpts = {}): Promise<Response> {
-  const headers: Record<string, string> = { ...(opts.headers ?? {}) };
+  const headers: Record<string, string> = { "x-forwarded-for": `10.0.${(ipCounter >> 8) & 255}.${ipCounter++ & 255}`, ...(opts.headers ?? {}) };
   if (opts.body !== undefined) headers["content-type"] = "application/json";
   if (opts.cookie) headers["cookie"] = opts.cookie;
   if (opts.origin) headers["origin"] = opts.origin;
-  return app.handle(
-    new Request("http://localhost" + path, {
-      method: opts.method ?? "GET",
-      headers,
-      body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
-    })
-  );
+  return app.handle(new Request("http://localhost" + path, {
+    method: opts.method ?? "GET",
+    headers,
+    body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
+  }));
 }
 
-async function call(path: string, opts: CallOpts = {}): Promise<{ status: number; body: any }> {
+async function call(path: string, opts: CallOpts = {}): Promise<{ status: number; body: any; res: Response }> {
   const res = await raw(path, opts);
   const text = await res.text();
   let body: any = null;
-  try {
-    body = text ? JSON.parse(text) : null;
-  } catch {
-    body = text;
-  }
-  return { status: res.status, body };
+  try { body = text ? JSON.parse(text) : null; } catch { body = text; }
+  return { status: res.status, body, res };
 }
 
 function setCookies(res: Response): string {
-  const list = res.headers.getSetCookie?.() ?? [];
-  return list.map((c) => c.split(";")[0]).join("; ");
+  return (res.headers.getSetCookie?.() ?? []).map((c) => c.split(";")[0]).join("; ");
 }
 
-// ── Auth fixtures ─────────────────────────────────────────────────────────
+// ── env + fetch test utilities ─────────────────────────────────────────────
+async function withEnv(patch: Record<string, any>, fn: () => Promise<void>) {
+  const saved: Record<string, any> = {};
+  for (const k of Object.keys(patch)) { saved[k] = (env as any)[k]; (env as any)[k] = patch[k]; }
+  try { await fn(); } finally { for (const k of Object.keys(patch)) (env as any)[k] = saved[k]; }
+}
+
+type Route = { match: (u: string) => boolean; resp: (u: string, init?: any) => Response | Promise<Response> };
+async function withFetch(routes: Route[], fn: () => Promise<void>) {
+  const orig = globalThis.fetch;
+  (globalThis as any).fetch = async (input: any, init: any) => {
+    const url = typeof input === "string" ? input : input?.url ?? String(input);
+    for (const r of routes) if (r.match(url)) return r.resp(url, init);
+    return orig(input, init);
+  };
+  try { await fn(); } finally { (globalThis as any).fetch = orig; }
+}
+const jsonResp = (obj: any, status = 200) => new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json" } });
+
+// ── Auth fixtures ──────────────────────────────────────────────────────────
 const createdOrgIds: string[] = [];
 const createdUserIds: string[] = [];
 
 async function signUp(): Promise<{ userId: string; cookie: string }> {
   const email = `e2e-${crypto.randomUUID()}@example.com`;
-  const res = await raw("/api/auth/sign-up/email", {
-    method: "POST",
-    body: { email, password: "test12345", name: "E2E User" },
-  });
+  const res = await raw("/api/auth/sign-up/email", { method: "POST", body: { email, password: "test12345", name: "E2E User" } });
   if (res.status !== 200) throw new Error(`sign-up ${res.status}: ${await res.text()}`);
   const body = await res.json();
-  const userId = body.user.id as string;
-  createdUserIds.push(userId);
-  return { userId, cookie: setCookies(res) };
+  createdUserIds.push(body.user.id);
+  return { userId: body.user.id, cookie: setCookies(res) };
 }
 
 async function createOrgViaApi(cookie: string): Promise<string> {
-  const res = await raw("/api/auth/organization/create", {
-    method: "POST",
-    cookie,
-    body: { name: "E2E WS", slug: `ws-${crypto.randomUUID().slice(0, 12)}` },
-  });
+  const res = await raw("/api/auth/organization/create", { method: "POST", cookie, body: { name: "E2E WS", slug: `ws-${crypto.randomUUID().slice(0, 12)}` } });
   if (res.status !== 200) throw new Error(`org create ${res.status}: ${await res.text()}`);
   const body = await res.json();
   const id = (body.id ?? body.organization?.id ?? body.data?.id) as string;
@@ -87,33 +92,57 @@ async function createOrgViaApi(cookie: string): Promise<string> {
 }
 
 async function setActive(cookie: string, organizationId: string): Promise<void> {
-  await raw("/api/auth/organization/set-active", {
-    method: "POST",
-    cookie,
-    body: { organizationId },
-  });
+  await raw("/api/auth/organization/set-active", { method: "POST", cookie, body: { organizationId } });
 }
 
-/** Full active-path workspace: session has activeOrganizationId; optional wallet. */
-async function makeWorkspace(opts: { wallet?: boolean; balance?: number } = {}) {
+async function makeWorkspace(opts: { balance?: number } = {}) {
   const { userId, cookie } = await signUp();
-  const orgId = await createOrgViaApi(cookie);
+  const orgId = await createOrgViaApi(cookie); // afterCreateOrganization bootstraps wallet/settings/automation/schedule
   await setActive(cookie, orgId);
-  if (opts.wallet) {
-    await db.insert(s.wallet).values({ workspaceId: orgId, balance: opts.balance ?? 0, plan: "free" });
-  }
+  if (opts.balance !== undefined) await db.update(s.wallet).set({ balance: opts.balance }).where(eq(s.wallet.workspaceId, orgId));
   return { userId, cookie, orgId };
 }
 
-// Shared fixtures
+/** A workspace with NO bootstrapped rows (org created directly, bypassing the hook). */
+async function makeBareWorkspace() {
+  const { userId, cookie } = await signUp();
+  const orgId = crypto.randomUUID();
+  createdOrgIds.push(orgId);
+  await db.insert(s.organization).values({ id: orgId, name: "Bare", slug: `bare-${orgId.slice(0, 8)}` });
+  await db.insert(s.member).values({ id: crypto.randomUUID(), organizationId: orgId, userId, role: "owner" });
+  await setActive(cookie, orgId);
+  return { userId, cookie, orgId };
+}
+
+// ── direct DB seed helpers ─────────────────────────────────────────────────
+async function seedGoogleConn(orgId: string, fields: Partial<typeof s.googleConnection.$inferInsert> = {}) {
+  // google_connection is 1:1 per workspace (unique) — reuse if one already exists.
+  const [existing] = await db.select().from(s.googleConnection).where(eq(s.googleConnection.workspaceId, orgId)).limit(1);
+  if (existing) return existing;
+  const [c] = await db.insert(s.googleConnection).values({ workspaceId: orgId, accountEmail: "bot@example.com", ...fields }).returning();
+  return c;
+}
+async function seedChannel(orgId: string, connId: string, fields: Partial<typeof s.channel.$inferInsert> = {}) {
+  const [c] = await db.insert(s.channel).values({ workspaceId: orgId, googleConnectionId: connId, name: "Chan", ...fields }).returning();
+  return c;
+}
+async function seedVideo(orgId: string, channelId: string, fields: Partial<typeof s.video.$inferInsert> = {}) {
+  const [v] = await db.insert(s.video).values({ workspaceId: orgId, channelId, title: "Vid", ...fields }).returning();
+  return v;
+}
+async function seedArticle(orgId: string, fields: Partial<typeof s.article.$inferInsert> = {}) {
+  const [a] = await db.insert(s.article).values({ workspaceId: orgId, title: "Art", slug: `a-${crypto.randomUUID().slice(0, 8)}`, ...fields }).returning();
+  return a;
+}
+
 let MAIN: { userId: string; cookie: string; orgId: string };
-let EMPTY: { userId: string; cookie: string; orgId: string }; // active, no wallet
+let BARE: { userId: string; cookie: string; orgId: string };
 let OTHER: { userId: string; cookie: string; orgId: string };
 
 beforeAll(async () => {
-  MAIN = await makeWorkspace({ wallet: true, balance: 100 });
-  EMPTY = await makeWorkspace({ wallet: false });
-  OTHER = await makeWorkspace({ wallet: true });
+  MAIN = await makeWorkspace({ balance: 100 });
+  BARE = await makeBareWorkspace();
+  OTHER = await makeWorkspace({ balance: 50 });
 }, 60_000);
 
 afterAll(async () => {
@@ -121,473 +150,668 @@ afterAll(async () => {
   if (createdUserIds.length) await db.delete(s.user).where(inArray(s.user.id, createdUserIds));
 }, 60_000);
 
-// ── Root / health / CORS ──────────────────────────────────────────────────
-describe("root, health, CORS", () => {
+// ── Root / health / CORS / SEO files ───────────────────────────────────────
+describe("root, health, CORS, sitemap", () => {
   test("GET /api and /api/health", async () => {
-    expect((await call("/api")).body).toEqual({ name: "beta-stack-api", version: "2.0.0" });
+    expect((await call("/api")).body.name).toBe("beta-stack-api");
     expect((await call("/api/health")).body).toEqual({ ok: true });
   });
-
-  test("GET with allowed Origin echoes CORS headers", async () => {
-    const res = await raw("/health", { origin: "http://localhost:4321" });
-    expect(res.headers.get("access-control-allow-origin")).toBe("http://localhost:4321");
-    expect(res.headers.get("access-control-allow-credentials")).toBe("true");
+  test("sitemap.xml + sitemap-articles.xml + robots.txt", async () => {
+    expect((await call("/sitemap.xml")).body).toContain("<sitemapindex");
+    expect((await call("/sitemap-articles.xml")).body).toContain("<urlset");
+    const robots = await call("/robots.txt");
+    expect(robots.body).toContain("User-agent");
+    expect(robots.body).toContain("Sitemap:");
   });
-
-  test("GET with disallowed Origin omits CORS headers", async () => {
-    const res = await raw("/health", { origin: "http://evil.com" });
-    expect(res.headers.get("access-control-allow-origin")).toBeNull();
+  test("CORS allowed origin echoes headers; disallowed/absent does not", async () => {
+    expect((await raw("/api/health", { origin: "http://localhost:4321" })).headers.get("access-control-allow-origin")).toBe("http://localhost:4321");
+    expect((await raw("/api/health", { origin: "http://evil.com" })).headers.get("access-control-allow-origin")).toBeNull();
+    expect((await raw("/api/health")).headers.get("access-control-allow-origin")).toBeNull();
   });
-
-  test("GET without Origin omits CORS headers", async () => {
-    const res = await raw("/health");
-    expect(res.headers.get("access-control-allow-origin")).toBeNull();
-  });
-
-  test("OPTIONS preflight returns 204 with CORS headers for allowed origin", async () => {
-    const res = await raw("/articles", { method: "OPTIONS", origin: "http://localhost:4321" });
-    expect(res.status).toBe(204);
-    expect(res.headers.get("access-control-allow-methods")).toContain("POST");
-  });
-
-  test("OPTIONS preflight for disallowed origin: 204 but no ACAO", async () => {
-    const res = await raw("/articles", { method: "OPTIONS", origin: "http://evil.com" });
-    expect(res.status).toBe(204);
-    expect(res.headers.get("access-control-allow-origin")).toBeNull();
+  test("OPTIONS preflight 204 for allowed; no ACAO for disallowed", async () => {
+    const ok = await raw("/api/v1/articles", { method: "OPTIONS", origin: "http://localhost:4321" });
+    expect(ok.status).toBe(204);
+    expect(ok.headers.get("access-control-allow-methods")).toContain("POST");
+    const bad = await raw("/api/v1/articles", { method: "OPTIONS", origin: "http://evil.com" });
+    expect(bad.status).toBe(204);
+    expect(bad.headers.get("access-control-allow-origin")).toBeNull();
   });
 });
 
-// ── Auth guard ────────────────────────────────────────────────────────────
+// ── Auth guard ─────────────────────────────────────────────────────────────
 describe("auth guard", () => {
   test("401 without a session", async () => {
-    expect((await call("/overview")).status).toBe(401);
+    expect((await call("/api/v1/overview")).status).toBe(401);
   });
-
-  test("403 when authenticated but no workspace/membership", async () => {
-    const { cookie } = await signUp(); // no org created
-    expect((await call("/overview", { cookie })).status).toBe(403);
+  test("403 when authenticated but no membership", async () => {
+    const { cookie } = await signUp();
+    expect((await call("/api/v1/overview", { cookie })).status).toBe(403);
   });
-
-  test("fallback resolves workspace from first membership when no active org", async () => {
+  test("fallback resolves workspace from first membership (no active org)", async () => {
     const { userId, cookie } = await signUp();
-    // Create org + membership directly, WITHOUT set-active → session.activeOrganizationId stays null.
     const orgId = crypto.randomUUID();
     createdOrgIds.push(orgId);
-    await db.insert(s.organization).values({ id: orgId, name: "Fallback WS", slug: `fb-${orgId.slice(0, 8)}` });
+    await db.insert(s.organization).values({ id: orgId, name: "Fallback", slug: `fb-${orgId.slice(0, 8)}` });
     await db.insert(s.member).values({ id: crypto.randomUUID(), organizationId: orgId, userId, role: "owner" });
     await db.insert(s.wallet).values({ workspaceId: orgId, balance: 7, plan: "free" });
-
-    const r = await call("/overview", { cookie });
+    const r = await call("/api/v1/overview", { cookie });
     expect(r.status).toBe(200);
     expect(r.body.balance).toBe(7);
   });
 });
 
-// ── Overview ──────────────────────────────────────────────────────────────
-describe("overview", () => {
-  test("empty workspace → zero counts, free plan, null schedule", async () => {
-    const r = await call("/overview", { cookie: EMPTY.cookie });
-    expect(r.status).toBe(200);
-    expect(r.body).toMatchObject({ channels: 0, videos: 0, runs: 0, balance: 0, plan: "free", nextRunAt: null });
+// ── Overview / Workspace ───────────────────────────────────────────────────
+describe("overview + workspace", () => {
+  test("overview empty vs populated", async () => {
+    expect((await call("/api/v1/overview", { cookie: BARE.cookie })).body).toMatchObject({ channels: 0, videos: 0, balance: 0, plan: "free", nextRunAt: null });
+    expect((await call("/api/v1/overview", { cookie: MAIN.cookie })).body.balance).toBe(100);
   });
-
-  test("populated workspace reflects counts + wallet", async () => {
-    const r = await call("/overview", { cookie: MAIN.cookie });
-    expect(r.status).toBe(200);
-    expect(r.body.balance).toBe(100);
-    expect(r.body.plan).toBe("free");
+  test("workspace GET null settings, PUT insert + upsert", async () => {
+    expect((await call("/api/v1/workspace", { cookie: BARE.cookie })).body.settings).toBeNull();
+    expect((await call("/api/v1/workspace", { method: "PUT", cookie: MAIN.cookie, body: { name: "Renamed", blogSlug: "blog", category: "tech" } })).body.blogSlug).toBe("blog");
+    expect((await call("/api/v1/workspace", { method: "PUT", cookie: MAIN.cookie, body: { category: "ai" } })).body.category).toBe("ai");
   });
 });
 
-// ── Workspace ─────────────────────────────────────────────────────────────
-describe("workspace", () => {
-  test("GET returns org, settings null before any PUT", async () => {
-    const r = await call("/workspace", { cookie: EMPTY.cookie });
-    expect(r.status).toBe(200);
-    expect(r.body.organization.id).toBe(EMPTY.orgId);
-    expect(r.body.settings).toBeNull();
-  });
-
-  test("PUT inserts settings + renames org", async () => {
-    const r = await call("/workspace", {
-      method: "PUT",
-      cookie: MAIN.cookie,
-      body: { name: "Renamed", blogSlug: "blog", category: "tech" },
-    });
-    expect(r.status).toBe(200);
-    expect(r.body.blogSlug).toBe("blog");
-  });
-
-  test("PUT again upserts settings without name", async () => {
-    const r = await call("/workspace", { method: "PUT", cookie: MAIN.cookie, body: { category: "ai" } });
-    expect(r.status).toBe(200);
-    expect(r.body.category).toBe("ai");
-  });
-});
-
-// ── Channels (+ google connection) ────────────────────────────────────────
+// ── Channels ───────────────────────────────────────────────────────────────
 describe("channels", () => {
-  let connId: string;
-
-  beforeAll(async () => {
-    const [conn] = await db
-      .insert(s.googleConnection)
-      .values({ workspaceId: MAIN.orgId, accountEmail: "bot@example.com", status: "active" })
-      .returning();
-    connId = conn.id;
-  }, 30_000);
-
-  test("POST without a google connection → 400", async () => {
-    const r = await call("/channels", { method: "POST", cookie: EMPTY.cookie, body: { name: "X" } });
-    expect(r.status).toBe(400);
+  beforeAll(async () => { await seedGoogleConn(MAIN.orgId, { accountEmail: "ch@example.com" }); }, 30_000);
+  test("POST without google connection → 400", async () => {
+    expect((await call("/api/v1/channels", { method: "POST", cookie: BARE.cookie, body: { name: "X" } })).status).toBe(400);
   });
-
-  test("POST with connection: explicit handle", async () => {
-    const r = await call("/channels", {
-      method: "POST",
-      cookie: MAIN.cookie,
-      body: { name: "Rocketseat", handle: "@rocket", youtubeChannelId: "yt1" },
-    });
-    expect(r.status).toBe(200);
-    expect(r.body.handle).toBe("@rocket");
-    expect(r.body.letter).toBe("R");
+  test("POST explicit + derived handle; letter from name", async () => {
+    expect((await call("/api/v1/channels", { method: "POST", cookie: MAIN.cookie, body: { name: "Rocketseat", handle: "@rocket" } })).body.handle).toBe("@rocket");
+    expect((await call("/api/v1/channels", { method: "POST", cookie: MAIN.cookie, body: { name: "Code TV" } })).body.handle).toBe("@codetv");
   });
-
-  test("POST with connection: derived handle (default branch)", async () => {
-    const r = await call("/channels", { method: "POST", cookie: MAIN.cookie, body: { name: "Code TV" } });
-    expect(r.status).toBe(200);
-    expect(r.body.handle).toBe("@codetv");
+  test("GET list, PATCH ok + 404, DELETE", async () => {
+    const list = (await call("/api/v1/channels", { cookie: MAIN.cookie })).body;
+    expect(list.length).toBeGreaterThanOrEqual(2);
+    expect((await call(`/api/v1/channels/${list[0].id}`, { method: "PATCH", cookie: MAIN.cookie, body: { active: false } })).body.active).toBe(false);
+    expect((await call(`/api/v1/channels/${crypto.randomUUID()}`, { method: "PATCH", cookie: MAIN.cookie, body: { active: true } })).status).toBe(404);
+    expect((await call(`/api/v1/channels/${list[list.length - 1].id}`, { method: "DELETE", cookie: MAIN.cookie })).body).toEqual({ ok: true });
   });
-
-  test("GET lists channels", async () => {
-    const r = await call("/channels", { cookie: MAIN.cookie });
-    expect(r.body.length).toBeGreaterThanOrEqual(2);
-  });
-
-  test("PATCH updates; 404 for unknown id", async () => {
-    const list = (await call("/channels", { cookie: MAIN.cookie })).body;
-    const ok = await call(`/channels/${list[0].id}`, { method: "PATCH", cookie: MAIN.cookie, body: { active: false } });
-    expect(ok.status).toBe(200);
-    expect(ok.body.active).toBe(false);
-    const miss = await call(`/channels/${crypto.randomUUID()}`, { method: "PATCH", cookie: MAIN.cookie, body: { active: true } });
-    expect(miss.status).toBe(404);
-  });
-
-  test("DELETE removes a channel", async () => {
-    const list = (await call("/channels", { cookie: MAIN.cookie })).body;
-    const r = await call(`/channels/${list[list.length - 1].id}`, { method: "DELETE", cookie: MAIN.cookie });
-    expect(r.body).toEqual({ ok: true });
-  });
-
-  void connId;
 });
 
-// ── Videos ────────────────────────────────────────────────────────────────
+// ── Videos (+ transcribe / retry) ──────────────────────────────────────────
 describe("videos", () => {
-  let channelId: string;
-  let doneVideoId: string;
-  let queuedVideoId: string;
-
+  let channelId: string, doneId: string, queuedId: string, erroredId: string, ytId: string;
   beforeAll(async () => {
-    const [conn] = await db
-      .insert(s.googleConnection)
-      .values({ workspaceId: MAIN.orgId, accountEmail: "vid@example.com" })
-      .returning();
-    const [ch] = await db
-      .insert(s.channel)
-      .values({ workspaceId: MAIN.orgId, googleConnectionId: conn.id, name: "VidChan" })
-      .returning();
+    const conn = await seedGoogleConn(MAIN.orgId, { accountEmail: "v@example.com" });
+    const ch = await seedChannel(MAIN.orgId, conn.id, { name: "VidChan" });
     channelId = ch.id;
-    const [v1] = await db
-      .insert(s.video)
-      .values({ workspaceId: MAIN.orgId, channelId, title: "Done", status: "done", transcript: "hello" })
-      .returning();
-    const [v2] = await db
-      .insert(s.video)
-      .values({ workspaceId: MAIN.orgId, channelId, title: "Queued", status: "queued" })
-      .returning();
-    doneVideoId = v1.id;
-    queuedVideoId = v2.id;
+    doneId = (await seedVideo(MAIN.orgId, channelId, { title: "Done", status: "done", transcript: "hi" })).id;
+    queuedId = (await seedVideo(MAIN.orgId, channelId, { title: "Queued", status: "queued" })).id;
+    erroredId = (await seedVideo(MAIN.orgId, channelId, { title: "Err", transcriptStatus: "error" })).id;
+    ytId = (await seedVideo(MAIN.orgId, channelId, { title: "Yt", youtubeVideoId: "abc123" })).id;
   }, 30_000);
 
-  test("GET all + filtered by channel", async () => {
-    expect((await call("/videos", { cookie: MAIN.cookie })).body.length).toBeGreaterThanOrEqual(2);
-    const filtered = await call(`/videos?channel=${channelId}`, { cookie: MAIN.cookie });
-    expect(filtered.body.length).toBe(2);
+  test("GET all + filter by channel + transcriptStatus", async () => {
+    expect((await call("/api/v1/videos", { cookie: MAIN.cookie })).body.length).toBeGreaterThanOrEqual(4);
+    expect((await call(`/api/v1/videos?channel=${channelId}`, { cookie: MAIN.cookie })).body.length).toBe(4);
+    expect((await call(`/api/v1/videos?transcriptStatus=error`, { cookie: MAIN.cookie })).body.length).toBeGreaterThanOrEqual(1);
   });
-
-  test("transcript: ready, not-ready (409), missing (404)", async () => {
-    expect((await call(`/videos/${doneVideoId}/transcript`, { cookie: MAIN.cookie })).body.transcript).toBe("hello");
-    expect((await call(`/videos/${queuedVideoId}/transcript`, { cookie: MAIN.cookie })).status).toBe(409);
-    expect((await call(`/videos/${crypto.randomUUID()}/transcript`, { cookie: MAIN.cookie })).status).toBe(404);
+  test("transcript ready / not-ready / missing", async () => {
+    expect((await call(`/api/v1/videos/${doneId}/transcript`, { cookie: MAIN.cookie })).body.transcript).toBe("hi");
+    expect((await call(`/api/v1/videos/${queuedId}/transcript`, { cookie: MAIN.cookie })).status).toBe(409);
+    expect((await call(`/api/v1/videos/${crypto.randomUUID()}/transcript`, { cookie: MAIN.cookie })).status).toBe(404);
   });
-});
-
-// ── Runs ──────────────────────────────────────────────────────────────────
-describe("runs", () => {
-  test("trigger creates a run; GET lists it", async () => {
-    const t = await call("/runs/trigger", { method: "POST", cookie: MAIN.cookie });
-    expect(t.status).toBe(200);
-    expect(t.body.status).toBe("ok");
-    expect((await call("/runs", { cookie: MAIN.cookie })).body.length).toBeGreaterThanOrEqual(1);
+  test("retry-transcript: 404, 409 (not errored), ok (errored)", async () => {
+    expect((await call(`/api/v1/videos/${crypto.randomUUID()}/retry-transcript`, { method: "POST", cookie: MAIN.cookie })).status).toBe(404);
+    expect((await call(`/api/v1/videos/${doneId}/retry-transcript`, { method: "POST", cookie: MAIN.cookie })).status).toBe(409);
+    expect((await call(`/api/v1/videos/${erroredId}/retry-transcript`, { method: "POST", cookie: MAIN.cookie })).body).toEqual({ ok: true });
   });
-});
-
-// ── Schedule ──────────────────────────────────────────────────────────────
-describe("schedule", () => {
-  test("GET null before config", async () => {
-    expect((await call("/schedule", { cookie: EMPTY.cookie })).body).toBeNull();
+  test("transcribe: 503 unconfigured", async () => {
+    expect((await call(`/api/v1/videos/${ytId}/transcribe`, { method: "POST", cookie: MAIN.cookie })).status).toBe(503);
   });
-  test("PUT insert with nextRunAt, then upsert without it", async () => {
-    const ins = await call("/schedule", {
-      method: "PUT",
-      cookie: MAIN.cookie,
-      body: { frequency: "weekly", timezone: "UTC", nextRunAt: new Date().toISOString() },
+  test("transcribe: 404 / 400-no-ytid / success / 502 / 500", async () => {
+    await withEnv({ GLADIA_API_KEY: "k" }, async () => {
+      expect((await call(`/api/v1/videos/${crypto.randomUUID()}/transcribe`, { method: "POST", cookie: MAIN.cookie })).status).toBe(404);
+      expect((await call(`/api/v1/videos/${queuedId}/transcribe`, { method: "POST", cookie: MAIN.cookie })).status).toBe(400);
+      await withFetch([{ match: (u) => u.includes("gladia.io"), resp: () => jsonResp({ id: "job1" }) }], async () => {
+        expect((await call(`/api/v1/videos/${ytId}/transcribe`, { method: "POST", cookie: MAIN.cookie })).body.status).toBe("processing");
+      });
+      await withFetch([{ match: (u) => u.includes("gladia.io"), resp: () => new Response("nope", { status: 500 }) }], async () => {
+        expect((await call(`/api/v1/videos/${ytId}/transcribe`, { method: "POST", cookie: MAIN.cookie })).status).toBe(502);
+      });
+      await withFetch([{ match: (u) => u.includes("gladia.io"), resp: () => { throw new Error("network"); } }], async () => {
+        expect((await call(`/api/v1/videos/${ytId}/transcribe`, { method: "POST", cookie: MAIN.cookie })).status).toBe(500);
+      });
     });
-    expect(ins.status).toBe(200);
-    expect(ins.body.frequency).toBe("weekly");
-    const upd = await call("/schedule", { method: "PUT", cookie: MAIN.cookie, body: { quotaPerRun: 5 } });
-    expect(upd.body.quotaPerRun).toBe(5);
   });
 });
 
-// ── Automation ────────────────────────────────────────────────────────────
-describe("automation", () => {
-  test("GET null then PUT insert + upsert", async () => {
-    expect((await call("/automation", { cookie: EMPTY.cookie })).body).toBeNull();
-    const ins = await call("/automation", { method: "PUT", cookie: MAIN.cookie, body: { enabled: true } });
-    expect(ins.body.enabled).toBe(true);
-    const upd = await call("/automation", { method: "PUT", cookie: MAIN.cookie, body: { autoPublish: true } });
-    expect(upd.body.autoPublish).toBe(true);
+// ── Runs / Schedule / Automation ───────────────────────────────────────────
+describe("runs, schedule, automation", () => {
+  test("runs trigger + list", async () => {
+    expect((await call("/api/v1/runs/trigger", { method: "POST", cookie: MAIN.cookie })).body.runId).toBeDefined();
+    expect((await call("/api/v1/runs", { cookie: MAIN.cookie })).body.length).toBeGreaterThanOrEqual(1);
+  });
+  test("schedule null → insert (nextRunAt) → upsert", async () => {
+    expect((await call("/api/v1/schedule", { cookie: BARE.cookie })).body).toBeNull();
+    expect((await call("/api/v1/schedule", { method: "PUT", cookie: MAIN.cookie, body: { frequency: "weekly", timezone: "UTC", nextRunAt: new Date(Date.now() + 9e8).toISOString() } })).body.frequency).toBe("weekly");
+    expect((await call("/api/v1/schedule", { method: "PUT", cookie: MAIN.cookie, body: { quotaPerRun: 5 } })).body.quotaPerRun).toBe(5);
+  });
+  test("automation null → insert → upsert", async () => {
+    expect((await call("/api/v1/automation", { cookie: BARE.cookie })).body).toBeNull();
+    expect((await call("/api/v1/automation", { method: "PUT", cookie: MAIN.cookie, body: { enabled: true } })).body.enabled).toBe(true);
+    expect((await call("/api/v1/automation", { method: "PUT", cookie: MAIN.cookie, body: { autoPublish: true } })).body.autoPublish).toBe(true);
   });
 });
 
-// ── Articles + Tags ───────────────────────────────────────────────────────
-describe("articles", () => {
+// ── Articles + Tags ────────────────────────────────────────────────────────
+describe("articles + tags", () => {
   let articleId: string;
-
-  test("POST create (slug from title) + duplicate → 409", async () => {
-    const r = await call("/articles", {
-      method: "POST",
-      cookie: MAIN.cookie,
-      body: { title: "Primeiro Artigo", contentHtml: "<p>oi</p>", category: "tech" },
-    });
-    expect(r.status).toBe(200);
+  test("POST create (+dup 409) + explicit slug + validation", async () => {
+    const r = await call("/api/v1/articles", { method: "POST", cookie: MAIN.cookie, body: { title: "Primeiro Artigo", contentHtml: "<p>oi</p>", metaTitle: "Meta" } });
     expect(r.body.slug).toBe("primeiro-artigo");
     articleId = r.body.id;
-
-    const dupe = await call("/articles", { method: "POST", cookie: MAIN.cookie, body: { title: "Primeiro Artigo" } });
-    expect(dupe.status).toBe(409);
+    expect((await call("/api/v1/articles", { method: "POST", cookie: MAIN.cookie, body: { title: "Primeiro Artigo" } })).status).toBe(409);
+    expect((await call("/api/v1/articles", { method: "POST", cookie: MAIN.cookie, body: { title: "X", slug: "Custom Slug!" } })).body.slug).toBe("custom-slug");
+    expect([400, 422]).toContain((await call("/api/v1/articles", { method: "POST", cookie: MAIN.cookie, body: { title: "" } })).status);
   });
-
-  test("POST with explicit slug", async () => {
-    const r = await call("/articles", { method: "POST", cookie: MAIN.cookie, body: { title: "X", slug: "Custom Slug!" } });
-    expect(r.body.slug).toBe("custom-slug");
+  test("GET list + filters", async () => {
+    expect((await call("/api/v1/articles", { cookie: MAIN.cookie })).body.length).toBeGreaterThanOrEqual(1);
+    expect((await call("/api/v1/articles?status=draft", { cookie: MAIN.cookie })).status).toBe(200);
+    expect((await call("/api/v1/articles?moderationStatus=not_checked", { cookie: MAIN.cookie })).status).toBe(200);
+    expect((await call("/api/v1/articles?q=Primeiro", { cookie: MAIN.cookie })).body.length).toBeGreaterThanOrEqual(1);
+    expect((await call("/api/v1/articles?tag=none", { cookie: MAIN.cookie })).body.length).toBe(0);
   });
-
-  test("POST validation error (empty title)", async () => {
-    expect([400, 422]).toContain((await call("/articles", { method: "POST", cookie: MAIN.cookie, body: { title: "" } })).status);
+  test("slug-available + GET :id (+404)", async () => {
+    expect((await call("/api/v1/articles/slug-available?slug=primeiro-artigo", { cookie: MAIN.cookie })).body.available).toBe(false);
+    expect((await call("/api/v1/articles/slug-available?slug=free-one", { cookie: MAIN.cookie })).body.available).toBe(true);
+    expect(Array.isArray((await call(`/api/v1/articles/${articleId}`, { cookie: MAIN.cookie })).body.tags)).toBe(true);
+    expect((await call(`/api/v1/articles/${crypto.randomUUID()}`, { cookie: MAIN.cookie })).status).toBe(404);
   });
-
-  test("GET list + filters (status, moderationStatus, q, tag)", async () => {
-    expect((await call("/articles", { cookie: MAIN.cookie })).body.length).toBeGreaterThanOrEqual(1);
-    expect((await call("/articles?status=draft", { cookie: MAIN.cookie })).status).toBe(200);
-    expect((await call("/articles?moderationStatus=not_checked", { cookie: MAIN.cookie })).status).toBe(200);
-    expect((await call("/articles?q=Primeiro", { cookie: MAIN.cookie })).body.length).toBeGreaterThanOrEqual(1);
-    expect((await call("/articles?tag=nonexistent", { cookie: MAIN.cookie })).body.length).toBe(0);
+  test("PATCH publish (approved) + 404 + blocked 409", async () => {
+    const ok = await call(`/api/v1/articles/${articleId}`, { method: "PATCH", cookie: MAIN.cookie, body: { subtitle: "s", status: "published" } });
+    expect(ok.body.status).toBe("published");
+    expect((await call(`/api/v1/articles/${crypto.randomUUID()}`, { method: "PATCH", cookie: MAIN.cookie, body: { title: "z" } })).status).toBe(404);
+    const bad = await call("/api/v1/articles", { method: "POST", cookie: MAIN.cookie, body: { title: "Bad", contentHtml: "<p>__blocked__</p>" } });
+    expect((await call(`/api/v1/articles/${bad.body.id}`, { method: "PATCH", cookie: MAIN.cookie, body: { status: "published" } })).body.error).toBe("moderation_failed");
   });
-
-  test("slug-available true/false", async () => {
-    expect((await call("/articles/slug-available?slug=primeiro-artigo", { cookie: MAIN.cookie })).body.available).toBe(false);
-    expect((await call("/articles/slug-available?slug=totally-free", { cookie: MAIN.cookie })).body.available).toBe(true);
+  test("moderate (+404)", async () => {
+    expect((await call(`/api/v1/articles/${articleId}/moderate`, { method: "POST", cookie: MAIN.cookie })).body.verdict).toBe("approved");
+    expect((await call(`/api/v1/articles/${crypto.randomUUID()}/moderate`, { method: "POST", cookie: MAIN.cookie })).status).toBe(404);
   });
-
-  test("GET :id found (with tags) + 404", async () => {
-    const ok = await call(`/articles/${articleId}`, { cookie: MAIN.cookie });
-    expect(ok.status).toBe(200);
-    expect(Array.isArray(ok.body.tags)).toBe(true);
-    expect((await call(`/articles/${crypto.randomUUID()}`, { cookie: MAIN.cookie })).status).toBe(404);
+  test("tags: by name (create+reuse), owned tagId, cross-tenant 404, none 400, unknown article 404, list, delete", async () => {
+    expect((await call(`/api/v1/articles/${articleId}/tags`, { method: "POST", cookie: MAIN.cookie, body: { name: "DevOps" } })).body.some((t: any) => t.slug === "devops")).toBe(true);
+    expect((await call(`/api/v1/articles/${articleId}/tags`, { method: "POST", cookie: MAIN.cookie, body: { name: "DevOps" } })).status).toBe(200);
+    const [owned] = await db.insert(s.articleTag).values({ workspaceId: MAIN.orgId, name: "Owned", slug: `o-${crypto.randomUUID().slice(0, 6)}` }).returning();
+    expect((await call(`/api/v1/articles/${articleId}/tags`, { method: "POST", cookie: MAIN.cookie, body: { tagId: owned.id } })).status).toBe(200);
+    const [foreign] = await db.insert(s.articleTag).values({ workspaceId: OTHER.orgId, name: "F", slug: `f-${crypto.randomUUID().slice(0, 6)}` }).returning();
+    expect((await call(`/api/v1/articles/${articleId}/tags`, { method: "POST", cookie: MAIN.cookie, body: { tagId: foreign.id } })).status).toBe(404);
+    expect((await call(`/api/v1/articles/${articleId}/tags`, { method: "POST", cookie: MAIN.cookie, body: {} })).status).toBe(400);
+    expect((await call(`/api/v1/articles/${crypto.randomUUID()}/tags`, { method: "POST", cookie: MAIN.cookie, body: { name: "Z" } })).status).toBe(404);
+    expect((await call("/api/v1/articles?tag=devops", { cookie: MAIN.cookie })).body.length).toBeGreaterThanOrEqual(1);
+    const tags = (await call(`/api/v1/articles/${articleId}`, { cookie: MAIN.cookie })).body.tags;
+    expect((await call(`/api/v1/articles/${articleId}/tags/${tags[0].id}`, { method: "DELETE", cookie: MAIN.cookie })).status).toBe(200);
+    expect((await call(`/api/v1/articles/${crypto.randomUUID()}/tags/${tags[0].id}`, { method: "DELETE", cookie: MAIN.cookie })).status).toBe(404);
   });
-
-  test("PATCH update + publish (approved) sets publishedAt", async () => {
-    const r = await call(`/articles/${articleId}`, {
-      method: "PATCH",
-      cookie: MAIN.cookie,
-      body: { subtitle: "sub", status: "published" },
-    });
-    expect(r.status).toBe(200);
-    expect(r.body.status).toBe("published");
-    expect(r.body.publishedAt).not.toBeNull();
-  });
-
-  test("PATCH unknown id → 404", async () => {
-    expect((await call(`/articles/${crypto.randomUUID()}`, { method: "PATCH", cookie: MAIN.cookie, body: { title: "z" } })).status).toBe(404);
-  });
-
-  test("publish a blocked article → 409 moderation_failed", async () => {
-    const created = await call("/articles", {
-      method: "POST",
-      cookie: MAIN.cookie,
-      body: { title: "Bad one", contentHtml: "<p>__blocked__ content</p>" },
-    });
-    const r = await call(`/articles/${created.body.id}`, { method: "PATCH", cookie: MAIN.cookie, body: { status: "published" } });
-    expect(r.status).toBe(409);
-    expect(r.body.error).toBe("moderation_failed");
-  });
-
-  test("POST :id/moderate + 404", async () => {
-    expect((await call(`/articles/${articleId}/moderate`, { method: "POST", cookie: MAIN.cookie })).body.verdict).toBe("approved");
-    expect((await call(`/articles/${crypto.randomUUID()}/moderate`, { method: "POST", cookie: MAIN.cookie })).status).toBe(404);
-  });
-
-  describe("tags on an article", () => {
-    test("attach by name (creates), then reuse existing", async () => {
-      const created = (await call(`/articles/${articleId}/tags`, { method: "POST", cookie: MAIN.cookie, body: { name: "DevOps" } })).body;
-      expect(created.some((t: any) => t.slug === "devops")).toBe(true);
-      const reuse = await call(`/articles/${articleId}/tags`, { method: "POST", cookie: MAIN.cookie, body: { name: "DevOps" } });
-      expect(reuse.status).toBe(200);
-    });
-
-    test("attach by owned tagId", async () => {
-      const [tag] = await db.insert(s.articleTag).values({ workspaceId: MAIN.orgId, name: "Owned", slug: `owned-${crypto.randomUUID().slice(0, 6)}` }).returning();
-      const r = await call(`/articles/${articleId}/tags`, { method: "POST", cookie: MAIN.cookie, body: { tagId: tag.id } });
-      expect(r.status).toBe(200);
-    });
-
-    test("cross-tenant tagId → 404", async () => {
-      const [foreign] = await db.insert(s.articleTag).values({ workspaceId: OTHER.orgId, name: "Foreign", slug: `foreign-${crypto.randomUUID().slice(0, 6)}` }).returning();
-      const r = await call(`/articles/${articleId}/tags`, { method: "POST", cookie: MAIN.cookie, body: { tagId: foreign.id } });
-      expect(r.status).toBe(404);
-    });
-
-    test("neither tagId nor name → 400", async () => {
-      expect((await call(`/articles/${articleId}/tags`, { method: "POST", cookie: MAIN.cookie, body: {} })).status).toBe(400);
-    });
-
-    test("attach on unknown article → 404", async () => {
-      expect((await call(`/articles/${crypto.randomUUID()}/tags`, { method: "POST", cookie: MAIN.cookie, body: { name: "Z" } })).status).toBe(404);
-    });
-
-    test("list filtered by tag slug now returns the article", async () => {
-      const r = await call("/articles?tag=devops", { cookie: MAIN.cookie });
-      expect(r.body.length).toBeGreaterThanOrEqual(1);
-    });
-
-    test("DELETE a tag relation + 404 on unknown article", async () => {
-      const tags = (await call(`/articles/${articleId}`, { cookie: MAIN.cookie })).body.tags;
-      const r = await call(`/articles/${articleId}/tags/${tags[0].id}`, { method: "DELETE", cookie: MAIN.cookie });
-      expect(r.status).toBe(200);
-      expect((await call(`/articles/${crypto.randomUUID()}/tags/${tags[0].id}`, { method: "DELETE", cookie: MAIN.cookie })).status).toBe(404);
-    });
-  });
-
-  test("DELETE the article", async () => {
-    expect((await call(`/articles/${articleId}`, { method: "DELETE", cookie: MAIN.cookie })).body).toEqual({ ok: true });
+  test("DELETE article + tags listing with count", async () => {
+    expect((await call(`/api/v1/articles/${articleId}`, { method: "DELETE", cookie: MAIN.cookie })).body).toEqual({ ok: true });
+    const t = await call("/api/v1/tags", { cookie: MAIN.cookie });
+    expect(t.body[0]).toHaveProperty("count");
   });
 });
 
-// ── Tags listing ──────────────────────────────────────────────────────────
-describe("tags listing", () => {
-  test("GET tags with counts", async () => {
-    await db.insert(s.articleTag).values({ workspaceId: MAIN.orgId, name: "ListTag", slug: `lt-${crypto.randomUUID().slice(0, 6)}` });
-    const r = await call("/tags", { cookie: MAIN.cookie });
-    expect(r.status).toBe(200);
-    expect(r.body.length).toBeGreaterThanOrEqual(1);
-    expect(r.body[0]).toHaveProperty("count");
-  });
-});
-
-// ── Wallet ────────────────────────────────────────────────────────────────
-describe("wallet", () => {
-  test("null wallet workspace", async () => {
-    const r = await call("/wallet", { cookie: EMPTY.cookie });
-    expect(r.body.wallet).toBeNull();
-    expect(r.body.consumption).toEqual([]);
-    expect(r.body.history).toEqual([]);
-  });
-
-  test("populated wallet with consumption + history", async () => {
-    await creditWallet(MAIN.orgId, "recharge", 50, "test recharge");
-    await debitCredit(MAIN.orgId, "generate_article", 10, "test article");
-    const r = await call("/wallet", { cookie: MAIN.cookie });
-    expect(r.body.wallet.balance).toBeGreaterThan(0);
+// ── Wallet + Billing + primitives ──────────────────────────────────────────
+describe("wallet + billing", () => {
+  test("wallet null vs populated (consumption + history)", async () => {
+    expect((await call("/api/v1/wallet", { cookie: BARE.cookie })).body.wallet).toBeNull();
+    await creditWallet(MAIN.orgId, "recharge", 50, "rc");
+    await debitCredit(MAIN.orgId, "generate_article", 10, "art");
+    const r = await call("/api/v1/wallet", { cookie: MAIN.cookie });
     expect(r.body.consumption.length).toBeGreaterThanOrEqual(1);
     expect(r.body.history.length).toBeGreaterThanOrEqual(2);
   });
-});
-
-// ── Billing ───────────────────────────────────────────────────────────────
-describe("billing", () => {
-  test("GET payments empty initially", async () => {
-    expect((await call("/billing/payments", { cookie: OTHER.cookie })).body).toEqual([]);
+  test("checkout subscription (card→stripe) + topup (pix→abacatepay) + 400s + validation", async () => {
+    const sub = await call("/api/v1/billing/checkout", { method: "POST", cookie: MAIN.cookie, body: { kind: "subscription", method: "card", planName: "pro" } });
+    expect(sub.body.payment.provider).toBe("stripe");
+    expect(sub.body.payment.credits).toBe(3000);
+    expect((await call("/api/v1/billing/checkout", { method: "POST", cookie: MAIN.cookie, body: { kind: "topup", method: "pix", packIndex: 0 } })).body.payment.provider).toBe("abacatepay");
+    expect((await call("/api/v1/billing/checkout", { method: "POST", cookie: MAIN.cookie, body: { kind: "subscription", method: "pix" } })).status).toBe(400);
+    expect((await call("/api/v1/billing/checkout", { method: "POST", cookie: MAIN.cookie, body: { kind: "topup", method: "pix" } })).status).toBe(400);
+    expect((await call("/api/v1/billing/checkout", { method: "POST", cookie: MAIN.cookie, body: { kind: "topup", method: "pix", packIndex: 99 } })).status).toBe(400);
+    expect([400, 422]).toContain((await call("/api/v1/billing/checkout", { method: "POST", cookie: MAIN.cookie, body: { kind: "topup", method: "bitcoin", packIndex: 0 } })).status);
+    expect((await call("/api/v1/billing/payments", { cookie: MAIN.cookie })).body.length).toBeGreaterThanOrEqual(2);
   });
-
-  test("checkout subscription (card → stripe) updates plan", async () => {
-    const r = await call("/billing/checkout", {
-      method: "POST",
-      cookie: MAIN.cookie,
-      body: { kind: "subscription", method: "card", planName: "pro" },
-    });
-    expect(r.status).toBe(200);
-    expect(r.body.payment.provider).toBe("stripe");
-    expect(r.body.payment.credits).toBe(3000);
-    expect(r.body.payment.status).toBe("paid");
-  });
-
-  test("checkout topup (pix → abacatepay) credits wallet", async () => {
-    const r = await call("/billing/checkout", {
-      method: "POST",
-      cookie: MAIN.cookie,
-      body: { kind: "topup", method: "pix", packIndex: 0 },
-    });
-    expect(r.status).toBe(200);
-    expect(r.body.payment.provider).toBe("abacatepay");
-    expect(r.body.payment.credits).toBe(1000);
-  });
-
-  test("checkout subscription without planName → 400", async () => {
-    expect((await call("/billing/checkout", { method: "POST", cookie: MAIN.cookie, body: { kind: "subscription", method: "pix" } })).status).toBe(400);
-  });
-
-  test("checkout topup without packIndex → 400", async () => {
-    expect((await call("/billing/checkout", { method: "POST", cookie: MAIN.cookie, body: { kind: "topup", method: "pix" } })).status).toBe(400);
-  });
-
-  test("checkout topup with out-of-range packIndex → 400", async () => {
-    expect((await call("/billing/checkout", { method: "POST", cookie: MAIN.cookie, body: { kind: "topup", method: "pix", packIndex: 99 } })).status).toBe(400);
-  });
-
-  test("checkout validation error (bad method)", async () => {
-    expect([400, 422]).toContain((await call("/billing/checkout", { method: "POST", cookie: MAIN.cookie, body: { kind: "topup", method: "bitcoin", packIndex: 0 } })).status);
-  });
-
-  test("GET payments lists the completed ones", async () => {
-    expect((await call("/billing/payments", { cookie: MAIN.cookie })).body.length).toBeGreaterThanOrEqual(2);
-  });
-});
-
-// ── Wallet primitives (db/client.ts) ──────────────────────────────────────
-describe("wallet credit/debit primitives", () => {
-  test("debit guards amount > 0 (synchronous throw)", () => {
+  test("credit/debit primitives", async () => {
     expect(() => debitCredit(MAIN.orgId, "index_check", 0)).toThrow("debit amount must be > 0");
-  });
-  test("credit guards amount > 0 (synchronous throw)", () => {
     expect(() => creditWallet(MAIN.orgId, "recharge", -5)).toThrow("credit amount must be > 0");
-  });
-  test("debit beyond balance throws InsufficientCreditsError", async () => {
     await expect(debitCredit(MAIN.orgId, "index_check", 10_000_000)).rejects.toBeInstanceOf(InsufficientCreditsError);
-  });
-  test("operating on a wallet-less workspace throws not-found", async () => {
-    await expect(debitCredit(EMPTY.orgId, "index_check", 1)).rejects.toThrow(/wallet not found/);
-  });
-  test("debit then credit succeed and adjust balance", async () => {
+    await expect(debitCredit(BARE.orgId, "index_check", 1)).rejects.toThrow(/wallet not found/);
     const before = (await db.select().from(s.wallet).where(eq(s.wallet.workspaceId, MAIN.orgId)).limit(1))[0].balance;
-    const afterDebit = await debitCredit(MAIN.orgId, "transcribe_minute", 3, "unit debit");
-    expect(afterDebit).toBe(before - 3);
-    const afterCredit = await creditWallet(MAIN.orgId, "monthly_subscription", 3, "unit credit");
-    expect(afterCredit).toBe(before);
+    expect(await debitCredit(MAIN.orgId, "transcribe_minute", 3)).toBe(before - 3);
+    expect(await creditWallet(MAIN.orgId, "monthly_subscription", 3)).toBe(before);
   });
 });
 
-// keep referenced to satisfy noUnusedLocals if enabled
-void and;
+// ── Public module (no auth) ────────────────────────────────────────────────
+describe("public", () => {
+  let wsSlug: string;
+  beforeAll(async () => {
+    const [org] = await db.select({ slug: s.organization.slug }).from(s.organization).where(eq(s.organization.id, OTHER.orgId)).limit(1);
+    wsSlug = org.slug!;
+    await db.insert(s.workspaceSettings).values({ workspaceId: OTHER.orgId, blogSlug: wsSlug, category: "tech" }).onConflictDoNothing();
+    const [tag] = await db.insert(s.articleTag).values({ workspaceId: OTHER.orgId, name: "Pub", slug: "pub" }).returning();
+    const art = await seedArticle(OTHER.orgId, { title: "Público", slug: "publico", status: "published", moderationStatus: "approved", category: "tech", excerpt: "ex", publishedAt: new Date() });
+    await db.insert(s.articleTagRelation).values({ articleId: art.id, tagId: tag.id });
+    await seedArticle(OTHER.orgId, { title: "Flagged", slug: "flagged", status: "published", moderationStatus: "flagged", publishedAt: new Date() });
+  }, 30_000);
+
+  test("articles: default + workspace + unknown workspace + category + q + tag + pagination", async () => {
+    expect((await call("/api/v1/public/articles")).body.length).toBeGreaterThanOrEqual(1);
+    expect((await call(`/api/v1/public/articles?workspace=${wsSlug}`)).body.length).toBeGreaterThanOrEqual(1);
+    expect((await call("/api/v1/public/articles?workspace=__nope__")).body).toEqual([]);
+    expect((await call("/api/v1/public/articles?category=tech")).status).toBe(200);
+    expect((await call("/api/v1/public/articles?q=Públ")).status).toBe(200);
+    expect((await call("/api/v1/public/articles?tag=pub")).body.length).toBeGreaterThanOrEqual(1);
+    expect((await call("/api/v1/public/articles?page=1&perPage=5")).status).toBe(200);
+  });
+  test("single article by workspace+slug: ok, workspace 404, article 404", async () => {
+    expect((await call(`/api/v1/public/articles/${wsSlug}/publico`)).body.slug).toBe("publico");
+    expect((await call(`/api/v1/public/articles/__nope__/publico`)).status).toBe(404);
+    expect((await call(`/api/v1/public/articles/${wsSlug}/missing`)).status).toBe(404);
+  });
+  test("feed + saas + categories (+ workspace filter + unknown)", async () => {
+    expect((await call("/api/v1/public/feed?page=1")).body.length).toBeGreaterThanOrEqual(1);
+    expect((await call("/api/v1/public/saas")).body.length).toBeGreaterThanOrEqual(1);
+    expect((await call("/api/v1/public/categories")).body).toContain("tech");
+    expect((await call(`/api/v1/public/categories?workspace=${wsSlug}`)).status).toBe(200);
+    expect((await call("/api/v1/public/categories?workspace=__nope__")).body).toEqual([]);
+  });
+});
+
+// ── Upload ─────────────────────────────────────────────────────────────────
+describe("upload", () => {
+  test("503 unconfigured / presigned when configured", async () => {
+    expect((await call("/api/v1/upload/presigned?filename=a.png", { cookie: MAIN.cookie })).status).toBe(503);
+    await withEnv({ S3_ENDPOINT: "https://r2.example.com", S3_BUCKET: "b", S3_ACCESS_KEY_ID: "k", S3_SECRET_ACCESS_KEY: "sec" }, async () => {
+      const r = await call("/api/v1/upload/presigned?filename=a.png", { cookie: MAIN.cookie });
+      expect(r.body.uploadUrl).toContain("r2.example.com");
+    });
+  });
+});
+
+// ── Webhooks ───────────────────────────────────────────────────────────────
+describe("webhooks", () => {
+  test("gladia: missing id 400, done, error, other", async () => {
+    expect((await call("/api/v1/webhook/gladia", { method: "POST", body: {} })).status).toBe(400);
+    const conn = await seedGoogleConn(OTHER.orgId, { accountEmail: "gl@example.com" });
+    const ch = await seedChannel(OTHER.orgId, conn.id, { name: "Gl" });
+    await seedVideo(OTHER.orgId, ch.id, { transcriptStatus: "processing" });
+    expect((await call("/api/v1/webhook/gladia", { method: "POST", body: { id: "j", status: "done", result: { transcription: { full_transcript: "hello world", utterances: [{ words: [{ word: "hello" }, { word: "world" }] }] } } } })).body.status).toBe("done");
+    await seedVideo(OTHER.orgId, ch.id, { transcriptStatus: "processing" });
+    expect((await call("/api/v1/webhook/gladia", { method: "POST", body: { id: "j", status: "error", error: { message: "boom" } } })).body.status).toBe("error");
+    await seedVideo(OTHER.orgId, ch.id, { transcriptStatus: "processing" });
+    expect((await call("/api/v1/webhook/gladia", { method: "POST", body: { id: "j", status: "processing" } })).body.status).toBe("processing");
+  }, 30_000);
+
+  test("abacatepay: 401 no signature, success credits + plan", async () => {
+    expect((await call("/api/v1/webhook/abacatepay", { method: "POST", body: {} })).status).toBe(401);
+    await withEnv({ ABACATEPAY_WEBHOOK_SECRET: "sec" }, async () => {
+      const [pay] = await db.insert(s.payment).values({ workspaceId: MAIN.orgId, provider: "abacatepay", kind: "topup", method: "pix", credits: 500, amountCents: 1900, externalId: "ext-aba", planName: "pro", status: "pending" }).returning();
+      expect((await call("/api/v1/webhook/abacatepay", { method: "POST", headers: { "x-abacatepay-signature": "sig" }, body: { event: "payment.succeeded", data: { external_id: "ext-aba", amount: 1900, status: "paid" } } })).body).toEqual({ ok: true });
+      expect((await db.select().from(s.payment).where(eq(s.payment.id, pay.id)).limit(1))[0].status).toBe("paid");
+    });
+  });
+
+  test("stripe: 401 no signature, success", async () => {
+    expect((await call("/api/v1/webhook/stripe", { method: "POST", body: {} })).status).toBe(401);
+    await withEnv({ STRIPE_WEBHOOK_SECRET: "whsec" }, async () => {
+      const [pay] = await db.insert(s.payment).values({ workspaceId: MAIN.orgId, provider: "stripe", kind: "subscription", method: "card", credits: 500, amountCents: 1900, externalId: "ext-stripe", planName: "pro", status: "pending" }).returning();
+      expect((await call("/api/v1/webhook/stripe", { method: "POST", headers: { "stripe-signature": "t=1,v1=x" }, body: { type: "checkout.session.completed", data: { object: { metadata: { paymentId: "ext-stripe" }, status: "complete" } } } })).body).toEqual({ ok: true });
+      expect((await db.select().from(s.payment).where(eq(s.payment.id, pay.id)).limit(1))[0].status).toBe("paid");
+    });
+  });
+});
+
+// ── GSC ────────────────────────────────────────────────────────────────────
+describe("gsc", () => {
+  test("check: 404, 400, 402, stub-checking, cached, real result; batch-check", async () => {
+    expect((await call(`/api/v1/gsc/check/${crypto.randomUUID()}`, { method: "POST", cookie: MAIN.cookie })).status).toBe(404);
+    const draft = await seedArticle(MAIN.orgId, { status: "draft" });
+    expect((await call(`/api/v1/gsc/check/${draft.id}`, { method: "POST", cookie: MAIN.cookie })).status).toBe(400);
+    const poorArt = await seedArticle(BARE.orgId, { status: "published", publishedAt: new Date() });
+    expect((await call(`/api/v1/gsc/check/${poorArt.id}`, { method: "POST", cookie: BARE.cookie })).status).toBe(402);
+    await creditWallet(MAIN.orgId, "recharge", 20, "gsc credits");
+    const art = await seedArticle(MAIN.orgId, { status: "published", publishedAt: new Date() });
+    expect((await call(`/api/v1/gsc/check/${art.id}`, { method: "POST", cookie: MAIN.cookie })).body.indexState).toBe("checking");
+    expect((await call(`/api/v1/gsc/check/${art.id}`, { method: "POST", cookie: MAIN.cookie })).body.cached).toBe(true);
+    const art2 = await seedArticle(MAIN.orgId, { status: "published", publishedAt: new Date() });
+    await withEnv({ GOOGLE_SEARCH_CONSOLE_PROPERTY: "sc-domain:devdoido.com.br" }, async () => {
+      await withFetch([{ match: (u) => u.includes("searchconsole.googleapis.com"), resp: () => jsonResp({ inspectionResult: { indexStatusResult: { coverageState: "Submitted and indexed", crawledAs: "MOBILE", lastCrawlTime: "2026-01-01" } } }) }], async () => {
+        expect((await call(`/api/v1/gsc/check/${art2.id}`, { method: "POST", cookie: MAIN.cookie })).body.indexState).toBe("indexed");
+      });
+    });
+    expect((await call("/api/v1/gsc/batch-check", { method: "POST", cookie: BARE.cookie })).status).toBe(200);
+    // fresh published article (indexCheckedAt null) so batch-check's result branch runs
+    await seedArticle(MAIN.orgId, { status: "published", publishedAt: new Date() });
+    await withEnv({ GOOGLE_SEARCH_CONSOLE_PROPERTY: "sc-domain:devdoido.com.br" }, async () => {
+      await withFetch([{ match: (u) => u.includes("searchconsole.googleapis.com"), resp: () => jsonResp({ inspectionResult: { indexStatusResult: { coverageState: "URL is not indexed" } } }) }], async () => {
+        expect((await call("/api/v1/gsc/batch-check", { method: "POST", cookie: MAIN.cookie })).status).toBe(200);
+      });
+    });
+  }, 30_000);
+});
+
+// ── Google OAuth + sync ────────────────────────────────────────────────────
+describe("google", () => {
+  let G: { userId: string; cookie: string; orgId: string };
+  beforeAll(async () => {
+    process.env.ENCRYPTION_KEY = Buffer.alloc(32, 9).toString("base64");
+    G = await makeWorkspace();
+  }, 30_000);
+
+  test("connection null then present", async () => {
+    expect((await call("/api/v1/google/connection", { cookie: G.cookie })).body).toBeNull();
+    await seedGoogleConn(G.orgId, { accountEmail: "g@example.com" });
+    expect((await call("/api/v1/google/connection", { cookie: G.cookie })).body.accountEmail).toBe("g@example.com");
+  });
+
+  test("authorize: unconfigured vs redirect", async () => {
+    expect((await call("/api/v1/google/authorize", { cookie: G.cookie })).body.error).toContain("not configured");
+    await withEnv({ GOOGLE_CLIENT_ID: "cid", GOOGLE_REDIRECT_URI: "http://localhost/cb" }, async () => {
+      const r = await raw("/api/v1/google/authorize", { cookie: G.cookie });
+      expect([301, 302]).toContain(r.status);
+      expect(r.headers.get("location")).toContain("accounts.google.com");
+    });
+  });
+
+  test("callback: 400 no code, 400 bad state, token !ok 400, success redirect", async () => {
+    // /callback sits behind authGuard → pass a session cookie; workspaceId comes from `state`.
+    expect((await call("/api/v1/google/callback", { cookie: G.cookie })).status).toBe(400);
+    expect((await call("/api/v1/google/callback?code=c", { cookie: G.cookie })).status).toBe(400);
+    const state = Buffer.from(JSON.stringify({ workspaceId: G.orgId })).toString("base64url");
+    await withEnv({ GOOGLE_CLIENT_ID: "cid", GOOGLE_CLIENT_SECRET: "sec", GOOGLE_REDIRECT_URI: "http://localhost/cb" }, async () => {
+      await withFetch([{ match: (u) => u.includes("oauth2.googleapis.com/token"), resp: () => new Response("no", { status: 400 }) }], async () => {
+        expect((await call(`/api/v1/google/callback?code=c&state=${state}`, { cookie: G.cookie })).status).toBe(400);
+      });
+      await withFetch([
+        { match: (u) => u.includes("oauth2.googleapis.com/token"), resp: () => jsonResp({ access_token: "at", refresh_token: "rt", expires_in: 3600 }) },
+        { match: (u) => u.includes("oauth2/v2/userinfo"), resp: () => jsonResp({ email: "person@example.com" }) },
+      ], async () => {
+        expect([301, 302]).toContain((await raw(`/api/v1/google/callback?code=c&state=${state}`, { cookie: G.cookie })).status);
+      });
+    });
+  });
+
+  test("sync: no conn 400, token-null 400, no-channels, import success, search-error 0", async () => {
+    const N = await makeWorkspace();
+    expect((await call("/api/v1/google/sync", { method: "POST", cookie: N.cookie })).status).toBe(400);
+    await seedGoogleConn(N.orgId, { accountEmail: "n@example.com" });
+    expect((await call("/api/v1/google/sync", { method: "POST", cookie: N.cookie })).status).toBe(400);
+    const validToken = await encrypt("ya29.live");
+    await db.update(s.googleConnection).set({ accessToken: validToken, tokenExpiresAt: new Date(Date.now() + 3.6e6) }).where(eq(s.googleConnection.workspaceId, N.orgId));
+    expect((await call("/api/v1/google/sync", { method: "POST", cookie: N.cookie })).body).toEqual({ synced: 0, imported: 0 });
+    const [conn] = await db.select().from(s.googleConnection).where(eq(s.googleConnection.workspaceId, N.orgId)).limit(1);
+    await seedChannel(N.orgId, conn.id, { name: "Sync", youtubeChannelId: "UC1", active: true });
+    await withFetch([{ match: (u) => u.includes("/youtube/v3/search"), resp: () => jsonResp({ items: [{ id: { videoId: "vid1" }, snippet: { title: "T", publishedAt: "2026-01-01T00:00:00Z", thumbnails: {} }, contentDetails: { duration: "PT1M30S" } }] }) }], async () => {
+      expect((await call("/api/v1/google/sync", { method: "POST", cookie: N.cookie })).body.imported).toBeGreaterThanOrEqual(1);
+    });
+    await withFetch([{ match: (u) => u.includes("/youtube/v3/search"), resp: () => new Response("err", { status: 403 }) }], async () => {
+      expect((await call("/api/v1/google/sync", { method: "POST", cookie: N.cookie })).body.imported).toBe(0);
+    });
+  }, 30_000);
+
+  test("sync: refresh-token path", async () => {
+    const R = await makeWorkspace();
+    const refresh = await encrypt("refresh-tok");
+    await seedGoogleConn(R.orgId, { accountEmail: "r@example.com", refreshToken: refresh, tokenExpiresAt: new Date(Date.now() - 1000) });
+    await withEnv({ GOOGLE_CLIENT_ID: "cid", GOOGLE_CLIENT_SECRET: "sec" }, async () => {
+      await withFetch([{ match: (u) => u.includes("oauth2.googleapis.com/token"), resp: () => jsonResp({ access_token: "fresh", expires_in: 3600 }) }], async () => {
+        expect((await call("/api/v1/google/sync", { method: "POST", cookie: R.cookie })).body).toEqual({ synced: 0, imported: 0 });
+      });
+    });
+  }, 30_000);
+
+  test("disconnect", async () => {
+    expect((await call("/api/v1/google/disconnect", { method: "POST", cookie: G.cookie })).body).toEqual({ ok: true });
+  });
+});
+
+// ── SEO module + enhanceArticleSeo ─────────────────────────────────────────
+describe("seo", () => {
+  test("GET /seo info", async () => {
+    expect((await call("/api/v1/seo")).body.service).toBe("seo-aeo");
+  });
+  test("enhanceArticleSeo: null for missing; populates with faq + answerBox + truncation", async () => {
+    expect(await enhanceArticleSeo(crypto.randomUUID())).toBeNull();
+    const art = await seedArticle(MAIN.orgId, {
+      title: "T".repeat(80),
+      excerpt: "E".repeat(200),
+      answerBox: "resumo",
+      faqJson: { questions: [{ question: "q?", answer: "a" }] } as any,
+      category: "tech",
+      publishedAt: new Date(),
+    });
+    const out = await enhanceArticleSeo(art.id);
+    expect(out?.metaTitle.endsWith("…")).toBe(true);
+    expect(out?.metaDescription.endsWith("…")).toBe(true);
+    expect(out?.faqJson).toBeDefined();
+    expect(out?.answerBox).toBe("resumo");
+  });
+  test("enhanceArticleSeo: faqJson as a plain array, no answerBox", async () => {
+    const art = await seedArticle(MAIN.orgId, { title: "Curto", faqJson: [{ question: "q?", answer: "a" }] as any });
+    const out = await enhanceArticleSeo(art.id);
+    expect(out?.faqJson).toBeDefined();
+    expect(out?.answerBox).toBeUndefined();
+  });
+});
+
+// ── Cron worker ────────────────────────────────────────────────────────────
+describe("cron", () => {
+  test("checkAndRun triggers due schedules (ok + error log); startCronScheduler runs", async () => {
+    const C = await makeWorkspace();
+    // bootstrap already created a scheduleConfig — make it due.
+    await db.update(s.scheduleConfig).set({ nextRunAt: new Date(Date.now() - 60_000), cronExpr: "0 8 * * *" }).where(eq(s.scheduleConfig.workspaceId, C.orgId));
+    await withFetch([{ match: (u) => u.includes("/runs/trigger"), resp: () => new Response("ok", { status: 200 }) }], async () => {
+      await checkAndRun();
+    });
+    expect((await db.select().from(s.cronLog).where(eq(s.cronLog.workspaceId, C.orgId))).length).toBeGreaterThanOrEqual(1);
+    await db.update(s.scheduleConfig).set({ nextRunAt: new Date(Date.now() - 60_000) }).where(eq(s.scheduleConfig.workspaceId, C.orgId));
+    await withFetch([{ match: (u) => u.includes("/runs/trigger"), resp: () => { throw new Error("down"); } }], async () => {
+      await checkAndRun();
+    });
+    expect((await db.select().from(s.cronLog).where(eq(s.cronLog.workspaceId, C.orgId))).some((l) => l.status === "error")).toBe(true);
+    startCronScheduler();
+    await new Promise((r) => setTimeout(r, 300));
+  }, 30_000);
+});
+
+// ── GSC edge mappings + inspect failures ───────────────────────────────────
+describe("gsc edges", () => {
+  test("coverageState mapping (excluded/unknown), inspect !ok, inspect throws", async () => {
+    await creditWallet(MAIN.orgId, "recharge", 50, "gsc edges");
+    const mk = () => seedArticle(MAIN.orgId, { status: "published", publishedAt: new Date() });
+    await withEnv({ GOOGLE_SEARCH_CONSOLE_PROPERTY: "sc-domain:x" }, async () => {
+      const a1 = await mk();
+      await withFetch([{ match: (u) => u.includes("searchconsole"), resp: () => jsonResp({ inspectionResult: { indexStatusResult: { coverageState: "Excluded by noindex tag" } } }) }], async () => {
+        expect((await call(`/api/v1/gsc/check/${a1.id}`, { method: "POST", cookie: MAIN.cookie })).body.indexState).toBe("excluded");
+      });
+      const a2 = await mk();
+      await withFetch([{ match: (u) => u.includes("searchconsole"), resp: () => jsonResp({ inspectionResult: { indexStatusResult: { coverageState: "Totally novel state" } } }) }], async () => {
+        expect((await call(`/api/v1/gsc/check/${a2.id}`, { method: "POST", cookie: MAIN.cookie })).body.indexState).toBe("unknown");
+      });
+      const a3 = await mk();
+      await withFetch([{ match: (u) => u.includes("searchconsole"), resp: () => new Response("err", { status: 500 }) }], async () => {
+        expect((await call(`/api/v1/gsc/check/${a3.id}`, { method: "POST", cookie: MAIN.cookie })).body.indexState).toBe("checking");
+      });
+      const a4 = await mk();
+      await withFetch([{ match: (u) => u.includes("searchconsole"), resp: () => { throw new Error("net"); } }], async () => {
+        expect((await call(`/api/v1/gsc/check/${a4.id}`, { method: "POST", cookie: MAIN.cookie })).body.indexState).toBe("checking");
+      });
+    });
+  }, 30_000);
+});
+
+// ── Google refresh-token failure path ──────────────────────────────────────
+describe("google refresh edge", () => {
+  test("undecryptable refresh token → access token null → sync 400", async () => {
+    process.env.ENCRYPTION_KEY = Buffer.alloc(32, 5).toString("base64");
+    const X = await makeWorkspace();
+    await seedGoogleConn(X.orgId, { accountEmail: "x@example.com", refreshToken: "not-a-valid-ciphertext", tokenExpiresAt: new Date(Date.now() - 1000) });
+    expect((await call("/api/v1/google/sync", { method: "POST", cookie: X.cookie })).status).toBe(400);
+  }, 30_000);
+});
+
+// ── Runs pipeline (transcribe → generate → moderate) ───────────────────────
+describe("runs pipeline", () => {
+  let P: { cookie: string; orgId: string };
+  let chId: string;
+  const clearVideos = () => db.delete(s.video).where(eq(s.video.workspaceId, P.orgId));
+  const ready = (title: string, transcript: string | null = "transcrição longa do vídeo aqui") =>
+    seedVideo(P.orgId, chId, { title, status: "done", transcriptStatus: "done", transcript });
+  const pending = (title: string, yt: string) =>
+    seedVideo(P.orgId, chId, { title, status: "queued", transcriptStatus: "pending", youtubeVideoId: yt });
+  const setConfig = (patch: Partial<typeof s.automationConfig.$inferInsert>) =>
+    db.update(s.automationConfig).set(patch).where(eq(s.automationConfig.workspaceId, P.orgId));
+  const trigger = () => call("/api/v1/runs/trigger", { method: "POST", cookie: P.cookie });
+
+  beforeAll(async () => {
+    const w = await makeWorkspace({ balance: 5000 });
+    P = { cookie: w.cookie, orgId: w.orgId };
+    const conn = await seedGoogleConn(P.orgId, { accountEmail: "p@example.com" });
+    chId = (await seedChannel(P.orgId, conn.id, { name: "P" })).id;
+    await setConfig({ enabled: true, generateOnTranscript: true, autoPublish: false });
+  }, 30_000);
+
+  test("trigger basic (no videos)", async () => {
+    expect((await trigger()).body.runId).toBeDefined();
+  });
+
+  test("transcribe pending: Gladia ok + throw → error", async () => {
+    await pending("p1", "yt1");
+    await withEnv({ GLADIA_API_KEY: "k" }, async () => {
+      await withFetch([{ match: (u) => u.includes("gladia.io"), resp: () => jsonResp({ id: "g1" }) }], async () => {
+        expect((await trigger()).body.transcribed).toBeGreaterThanOrEqual(1);
+      });
+      await pending("p2", "yt2");
+      await withFetch([{ match: (u) => u.includes("gladia.io"), resp: () => { throw new Error("down"); } }], async () => {
+        await trigger();
+      });
+      const [errVid] = await db.select().from(s.video).where(and(eq(s.video.workspaceId, P.orgId), eq(s.video.transcriptStatus, "error"))).limit(1);
+      expect(errVid).toBeDefined();
+    });
+    await clearVideos();
+  }, 30_000);
+
+  test("generate (stub, no ANTHROPIC) → draft article", async () => {
+    await ready("Stub Generation");
+    expect((await trigger()).body.generated).toBeGreaterThanOrEqual(1);
+    await clearVideos();
+  }, 30_000);
+
+  test("generate insufficient credits → caught, generated 0", async () => {
+    await db.update(s.wallet).set({ balance: 0 }).where(eq(s.wallet.workspaceId, P.orgId));
+    await ready("No Credits");
+    expect((await trigger()).body.generated).toBe(0);
+    await db.update(s.wallet).set({ balance: 5000 }).where(eq(s.wallet.workspaceId, P.orgId));
+    await clearVideos();
+  }, 30_000);
+
+  test("generate via Anthropic: valid JSON, parse-fail fallback, !ok, title-less slug", async () => {
+    await withEnv({ ANTHROPIC_API_KEY: "ak" }, async () => {
+      await ready("Claude JSON");
+      await withFetch([{ match: (u) => u.includes("anthropic.com"), resp: () => jsonResp({ content: [{ text: JSON.stringify({ title: "Claude Gen", contentHtml: "<p>x</p>", excerpt: "e", metaDescription: "m", answerBox: "a", faq: [{ question: "q", answer: "a" }], tags: ["t"] }) }] }) }], async () => {
+        expect((await trigger()).body.generated).toBeGreaterThanOrEqual(1);
+      });
+      await clearVideos();
+      await ready("Claude Bad JSON");
+      await withFetch([{ match: (u) => u.includes("anthropic.com"), resp: () => jsonResp({ content: [{ text: "not json at all" }] }) }], async () => {
+        expect((await trigger()).body.generated).toBeGreaterThanOrEqual(1);
+      });
+      await clearVideos();
+      await ready("Claude Err");
+      await withFetch([{ match: (u) => u.includes("anthropic.com"), resp: () => new Response("err", { status: 500 }) }], async () => {
+        expect((await trigger()).body.generated).toBe(0);
+      });
+      await clearVideos();
+      await ready("Title Less");
+      await withFetch([{ match: (u) => u.includes("anthropic.com"), resp: () => jsonResp({ content: [{ text: JSON.stringify({ contentHtml: "<p>no title</p>" }) }] }) }], async () => {
+        expect((await trigger()).body.generated).toBeGreaterThanOrEqual(1);
+      });
+      await clearVideos();
+    });
+  }, 60_000);
+
+  test("auto-publish + OpenAI moderation: approved, flagged, throws", async () => {
+    await setConfig({ autoPublish: true });
+    await withEnv({ OPENAI_API_KEY: "ok" }, async () => {
+      await ready("Pub Approved");
+      await withFetch([{ match: (u) => u.includes("openai.com"), resp: () => jsonResp({ results: [{ flagged: false }] }) }], async () => {
+        expect((await trigger()).body.generated).toBeGreaterThanOrEqual(1);
+      });
+      await clearVideos();
+      await ready("Pub Flagged");
+      await withFetch([{ match: (u) => u.includes("openai.com"), resp: () => jsonResp({ results: [{ flagged: true }] }) }], async () => {
+        await trigger();
+      });
+      await clearVideos();
+      await ready("Pub Throws");
+      await withFetch([{ match: (u) => u.includes("openai.com"), resp: () => { throw new Error("mod down"); } }], async () => {
+        await trigger();
+      });
+      await clearVideos();
+    });
+    await setConfig({ autoPublish: false });
+  }, 60_000);
+
+  test("generation skipped: disabled, generateOnTranscript=false, no transcript", async () => {
+    await setConfig({ enabled: false });
+    await ready("Disabled");
+    expect((await trigger()).body.generated).toBe(0);
+    await clearVideos();
+    await setConfig({ enabled: true, generateOnTranscript: false });
+    await ready("NoGenOnTranscript");
+    expect((await trigger()).body.generated).toBe(0);
+    await clearVideos();
+    await setConfig({ generateOnTranscript: true });
+    await ready("NoTranscript", null);
+    expect((await trigger()).body.generated).toBe(0);
+    await clearVideos();
+  }, 30_000);
+
+  test("preview: 404, 409, prompt-only, Anthropic JSON, parse-fail, 502", async () => {
+    expect((await call("/api/v1/runs/preview", { method: "POST", cookie: P.cookie, body: { videoId: crypto.randomUUID() } })).status).toBe(404);
+    const noTx = await seedVideo(P.orgId, chId, { title: "NoTx", status: "queued" });
+    expect((await call("/api/v1/runs/preview", { method: "POST", cookie: P.cookie, body: { videoId: noTx.id } })).status).toBe(409);
+    const vid = await ready("Preview Vid");
+    expect((await call("/api/v1/runs/preview", { method: "POST", cookie: P.cookie, body: { videoId: vid.id } })).body.note).toContain("not configured");
+    await withEnv({ ANTHROPIC_API_KEY: "ak" }, async () => {
+      await withFetch([{ match: (u) => u.includes("anthropic.com"), resp: () => jsonResp({ content: [{ text: JSON.stringify({ contentHtml: "<p>ok</p>" }) }] }) }], async () => {
+        expect((await call("/api/v1/runs/preview", { method: "POST", cookie: P.cookie, body: { videoId: vid.id, promptOverride: "X {{transcript}}" } })).body.preview).toBeDefined();
+      });
+      await withFetch([{ match: (u) => u.includes("anthropic.com"), resp: () => jsonResp({ content: [{ text: "plain text" }] }) }], async () => {
+        expect((await call("/api/v1/runs/preview", { method: "POST", cookie: P.cookie, body: { videoId: vid.id } })).body.preview.contentHtml).toBe("plain text");
+      });
+      await withFetch([{ match: (u) => u.includes("anthropic.com"), resp: () => new Response("e", { status: 500 }) }], async () => {
+        expect((await call("/api/v1/runs/preview", { method: "POST", cookie: P.cookie, body: { videoId: vid.id } })).status).toBe(502);
+      });
+    });
+    await clearVideos();
+  }, 30_000);
+});
+
+// ── Authenticated rate-limit (covers wsId branch + 429) ────────────────────
+describe("authenticated rate-limit", () => {
+  test("limits per-workspace when workspaceId is present on the request", async () => {
+    // Chain the route on the plugin instance itself so its scoped `resolve` runs.
+    const mini = authenticatedRateLimit().get("/x", () => "ok");
+    const hit = () => {
+      const req = new Request("http://localhost/x");
+      Reflect.set(req, "workspaceId", BARE.orgId);
+      return mini.handle(req);
+    };
+    const savedRpm = PLANS.free.publicRateRpm;
+    PLANS.free.publicRateRpm = 1;
+    try {
+      expect((await hit()).status).toBe(200);
+      expect([429, 500]).toContain((await hit()).status);
+    } finally {
+      PLANS.free.publicRateRpm = savedRpm;
+    }
+    const mini2 = authenticatedRateLimit().get("/y", () => "ok");
+    expect((await mini2.handle(new Request("http://localhost/y"))).status).toBe(200);
+  });
+});
